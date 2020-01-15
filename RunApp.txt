@@ -1,0 +1,9 @@
+expo install
+
+
+alias @ 
+```javascript
+ln -s `pwd`/src node_modules/@
+```
+
+expo start
