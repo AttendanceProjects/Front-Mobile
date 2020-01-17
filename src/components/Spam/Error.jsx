@@ -11,4 +11,4 @@ Something Error. Please try again later`}
   </View>
 )
 
-export const SimpleError = () => <Text style={{ color: co ? co : 'red', fontSize: size ? size : 15 }}>{ text ? text : 'Something error' }</Text>
+export const SimpleError = ({ t, co, size, text }) => <Text style={{ color: co ? co : 'red', fontSize: size ? size : 15, position: 'absolute', top: t }}>{ text ? text : 'Something error' }</Text>

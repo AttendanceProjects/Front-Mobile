@@ -4,6 +4,7 @@ import Touch from './Touchable';
 import Logo from './Logo';
 import Loading from './Loading';
 import * as Errors from './Error';
+import NoInternet from './NoInternet';
 
 export const TextInputComponent = TextInput;
 export const IconComponent = Icon;
@@ -11,3 +12,4 @@ export const TouchComponent = Touch;
 export const LogoComponent = Logo;
 export const LoadingComponent = Loading;
 export const ErrorComponent = Errors;
+export const OfflieHeaderComponent = NoInternet;

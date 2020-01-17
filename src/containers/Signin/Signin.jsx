@@ -1,20 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Platform, Alert, TouchableHighlight, AsyncStorage } from 'react-native';
-import { TouchComponent, LogoComponent, LoadingComponent } from '../../components/Spam'
+import { TouchComponent, LogoComponent, LoadingComponent, ErrorComponent, OfflieHeaderComponent } from '../../components/Spam'
 import { FormSigninComponent } from '../../components/SigninComponent'
+import { checkConnection } from '../../service'
 import { Mutation, Query } from '../../graph';
 import { useMutation, useLazyQuery } from '@apollo/react-hooks'
 
 export const Signin = ({ navigation }) => {
+  const [ isOnline, setOnline ] = useState( true );
   const [ companyCode, setCompanyCode ] = useState( '' );
   const [ request, setRequest ] = useState( '' );
   const [ password, setPassword ] = useState( '' );
   const [ watchPassword, setWatchPassword ] = useState( true );
   const [ loading, setLoading ] = useState( false );
   const [ error, setError ] = useState( false );
-  // const [ access, setAccess ] = useState( {} );
+  const [ access, setAccess ] = useState( {} );
   const [ submitSignin ] = useMutation( Mutation.SIGN_IN );
-  // const [ getUser, { data: CheckUser } ] = useLazyQuery( Query.CHECK_SIGN_IN, { variables: { code: access.code, token: access.token } } );
+  const [ getUser, { data: CheckUser } ] = useLazyQuery( Query.CHECK_SIGN_IN, { variables: { code: access.code, token: access.token } } );
 
   const toggleWatcher = () => { setWatchPassword( false ); setTimeout(() => setWatchPassword( true ),2000) }
 
@@ -24,53 +26,62 @@ export const Signin = ({ navigation }) => {
     `)
   }
   
-  // const CheckSignin = async ( access ) => {
-  //   const parse = await access,
-  //     { code, token } = await parse;
-  //   await setAccess({ code, token })
-  //   try {
-  //     if( code && token ) {
-  //       getUser()
-  //     }
-  //   } catch(err) { console.log(err.graphQLErrors[0].message) }
-  // }
-  // useEffect(() => {
-  //   const getAccess = async () => { return ( JSON.parse( await AsyncStorage.getItem('access')) ) }
-  //   if( getAccess() ) {
-  //     try {
-  //       CheckSignin( getAccess() )
-  //     }catch(err) { console.log(err) }
-  //   }
-  // }, [])
+  const CheckSignin = async ( access ) => {
+    setError( false )
+    const parse = await access,
+      { code, token } = await parse;
+    await setAccess({ code, token })
+    try {
+      if( code && token ) {
+        getUser()
+      }
+    } catch({ graphQLErrors }) { setError( graphQLErrors[0].message ); setTimeout(() => setError( false ), 2000) }
+  }
+
+  useEffect(() => {
+    const getAccess = async () => { 
+      await checkConnection({ save: setOnline })
+      return ( JSON.parse( await AsyncStorage.getItem('access')) ) 
+    }
+    if( getAccess() && isOnline ) {
+      setError( false )
+      try {
+        CheckSignin( getAccess() )
+      }catch({ graphQlErrors }) { setError( graphQlErrors[0].message ); setTimeout(() => setError( false ), 2000) }
+    }
+  }, [])
+
 
   const signin = async () => {
     setLoading( true )
     setError( false )
-    console.log( code, request, password, 'trigger signin' );
-    if( request, password ) {
-      try {
-        const { data } = await submitSignin({ variables: { code: companyCode, request, password } });
-        console.log('dapat data', data)
-        await AsyncStorage.setItem('access', JSON.stringify({ token: data.signin.token, code: companyCode }))
-        navigation.navigate('DashBoard')
+    checkConnection()
+    if( isOnline ) {
+      if( request, password ) {
+        try {
+          const { data } = await submitSignin({ variables: { code: companyCode, request, password } });
+          await AsyncStorage.setItem('access', JSON.stringify({ token: data.signin.token, code: companyCode }))
+          navigation.navigate('DashBoard')
+          setLoading( false )
+        } catch ({ graphQLErrors }) {
+          setError( graphQLErrors[0].message )
+          setLoading( false )
+          setTimeout(() => setError( false ), 2000)
+        }
+      } else {
+        setError( 'cannot send empty value' )
         setLoading( false )
-      } catch (err) {
-        console.log('-----------', err);
-        console.log( err.graphQLErrors[0].message )
-        setError( err.graphQLErrors[0].message )
-        setLoading( false )
+        setTimeout(() => setError( false ), 2000)
       }
-    } else {
-      setError( 'cannot send empty value' )
-      setLoading( false )
-    }
+    } else setLoading( false )
   }
 
-  // CheckUser 
-  //   && CheckUser.checkSignin && navigation.navigate('DashBoard')
+  CheckUser 
+    && CheckUser.checkSignin && navigation.navigate('DashBoard')
 
   return (
     <>
+      { !isOnline && <OfflieHeaderComponent /> }
       <View style={ styles.container }>
         <LogoComponent w={ 250 } h={ 250 } t={ Platform.OS === 'android' ? 60 : 120 }/>
         <View style={ styles.outer }>
@@ -97,8 +108,9 @@ export const Signin = ({ navigation }) => {
               />
           </View>
             { loading && <LoadingComponent color='blue' t={ 225 } /> }
-            { error && <Text style={{ top: 249, position: 'absolute' }}>{ error }</Text> }
+            { error && <ErrorComponent.SimpleError text={ error } t={ 249 }/> }
         </View>
+          { !isOnline && <TouchComponent h={ 30 } w={ '80%' } text='Presence Offline' />}
       </View>
     </>
   )

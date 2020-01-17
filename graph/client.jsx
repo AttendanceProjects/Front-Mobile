@@ -1,11 +1,11 @@
 import ApolloClient from 'apollo-boost';
 
-// development
+//production
 export default new ApolloClient({
-  uri: 'http://localhost:4000',
+  uri: 'http://35.197.149.146:4000',
 });
 
-// // production
+// development
 // export default new ApolloClient({
-//   uri: ''
+//   uri: 'http://localhost:4000'
 // })
