@@ -1,12 +1,20 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, Platform, Alert, TouchableHighlight } from 'react-native';
-import { TextInputComponent, IconComponent, TouchComponent, LogoComponent } from '../../components/Spam'
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Platform, Alert, TouchableHighlight, AsyncStorage } from 'react-native';
+import { TouchComponent, LogoComponent, LoadingComponent } from '../../components/Spam'
+import { FormSigninComponent } from '../../components/SigninComponent'
+import { Mutation, Query } from '../../graph';
+import { useMutation, useLazyQuery } from '@apollo/react-hooks'
 
 export const Signin = ({ navigation }) => {
   const [ companyCode, setCompanyCode ] = useState( '' );
   const [ request, setRequest ] = useState( '' );
   const [ password, setPassword ] = useState( '' );
   const [ watchPassword, setWatchPassword ] = useState( true );
+  const [ loading, setLoading ] = useState( false );
+  const [ error, setError ] = useState( false );
+  // const [ access, setAccess ] = useState( {} );
+  const [ submitSignin ] = useMutation( Mutation.SIGN_IN );
+  // const [ getUser, { data: CheckUser } ] = useLazyQuery( Query.CHECK_SIGN_IN, { variables: { code: access.code, token: access.token } } );
 
   const toggleWatcher = () => { setWatchPassword( false ); setTimeout(() => setWatchPassword( true ),2000) }
 
@@ -15,50 +23,83 @@ export const Signin = ({ navigation }) => {
 0001 - PT.Lim Digital Asia
     `)
   }
+  
+  // const CheckSignin = async ( access ) => {
+  //   const parse = await access,
+  //     { code, token } = await parse;
+  //   await setAccess({ code, token })
+  //   try {
+  //     if( code && token ) {
+  //       getUser()
+  //     }
+  //   } catch(err) { console.log(err.graphQLErrors[0].message) }
+  // }
+  // useEffect(() => {
+  //   const getAccess = async () => { return ( JSON.parse( await AsyncStorage.getItem('access')) ) }
+  //   if( getAccess() ) {
+  //     try {
+  //       CheckSignin( getAccess() )
+  //     }catch(err) { console.log(err) }
+  //   }
+  // }, [])
+
+  const signin = async () => {
+    setLoading( true )
+    setError( false )
+    console.log( code, request, password, 'trigger signin' );
+    if( request, password ) {
+      try {
+        const { data } = await submitSignin({ variables: { code: companyCode, request, password } });
+        console.log('dapat data', data)
+        await AsyncStorage.setItem('access', JSON.stringify({ token: data.signin.token, code: companyCode }))
+        navigation.navigate('DashBoard')
+        setLoading( false )
+      } catch (err) {
+        console.log('-----------', err);
+        console.log( err.graphQLErrors[0].message )
+        setError( err.graphQLErrors[0].message )
+        setLoading( false )
+      }
+    } else {
+      setError( 'cannot send empty value' )
+      setLoading( false )
+    }
+  }
+
+  // CheckUser 
+  //   && CheckUser.checkSignin && navigation.navigate('DashBoard')
 
   return (
     <>
-    <View style={ styles.container }>
-      <LogoComponent w={ 250 } h={ 250 } t={ Platform.OS === 'android' ? 60 : 120 }/>
-      <View style={ styles.outer }>
-        <View style={ styles.backInput }>
-          <View style={ styles.forInput }>
-            <TextInputComponent 
-              text='Company Code'
-              value={ companyCode }
-              setValue={ setCompanyCode }
-              />
-            <IconComponent name='searchengin' h={ 50 } w={ 50 } r={ -30 } t={ Platform.OS === 'android' ? 8 : 0 } press={ showCompany }/>
-          </View>
-          <View style={ styles.forInput }>
-            <TextInputComponent
-              text='username / email'
-              value={ request }
-              setValue={ setRequest }
-              />
-          </View>
-          <View style={ styles.forInput }>
-            <TextInputComponent
-              text='password'
-              sensitive={ watchPassword }
-              value={ password }
-              setValue={ setPassword }
-              />
-            <IconComponent name={ watchPassword ? 'eye-slash' : 'eye' } h={ 50 } w={ 50 } r={ -30 } t={ Platform.OS === 'android' ? 8 : 0 } press={ toggleWatcher }/>
-          </View>
-        </View>
-        <TouchableHighlight style={ styles.highlightForgot } onPress={() => navigation.navigate( 'Forgot' )}>
-          <Text style={ styles.textForgot }> Forgot Password ? </Text>
-        </TouchableHighlight>
-        <View style={ styles.btnBtm }>
-          <TouchComponent
-            h={ 30 }
-            w={ '80%' }
-            text='Sign In'
+      <View style={ styles.container }>
+        <LogoComponent w={ 250 } h={ 250 } t={ Platform.OS === 'android' ? 60 : 120 }/>
+        <View style={ styles.outer }>
+          <FormSigninComponent
+            code={ companyCode }
+            setCode={ setCompanyCode }
+            req={ request }
+            setReq={ setRequest }
+            pass={ password }
+            setPass={ setPassword }
+            bindPass={ watchPassword }
+            seeComp={ showCompany }
+            toggleBind={ toggleWatcher }
             />
+          <TouchableHighlight style={ styles.highlightForgot } onPress={() => navigation.navigate( 'Forgot' )}>
+            <Text style={ styles.textForgot }> Forgot Password ? </Text>
+          </TouchableHighlight>
+          <View style={ styles.btnBtm }>
+            <TouchComponent
+              h={ 30 }
+              w={ '80%' }
+              text='Sign In'
+              press={ () => signin() }
+              />
+          </View>
+            { loading && <LoadingComponent color='blue' t={ 225 } /> }
+            { error && <Text style={{ top: 249, position: 'absolute' }}>{ error }</Text> }
         </View>
       </View>
-    </View>
     </>
   )
 }
@@ -75,17 +116,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     height: 250
-  },
-  forInput: {
-    marginTop: Platform.OS === 'android' ? 5 : 15,
-    borderBottomColor: 'grey',
-    borderBottomWidth: 1,
-    width: '80%'
-  },
-  backInput: {
-    width: '80%',
-    alignItems: 'center',
-    justifyContent: 'space-around'
   },
   textInput: {
     textAlign: 'center'
