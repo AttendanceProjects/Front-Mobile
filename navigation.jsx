@@ -3,7 +3,7 @@ import { createAppContainer, createSwitchNavigator } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 import { createDrawerNavigator } from 'react-navigation-drawer';
-import { Signin, Forgot, Dash, History, Absent, Process, Result } from './src/containers';
+import { Signin, Forgot, Dash, History, Process, Result, Absent } from './src/containers';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
 const StackSigninNavigation = createStackNavigator({

@@ -1,11 +1,11 @@
 import React from 'react';
 import { TouchableOpacity, Text } from 'react-native';
 
-export default ({ press, h, w, text }) => (
+export const TouchComponent = ({ press, h, w, text, color, textColor, bold, fromDash }) => (
   <TouchableOpacity
-    onPress={ () => press() }
-    style={{ height: h, width: w, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFCC99', borderRadius: 20 }}
+    onPress={ () => fromDash ? fromDash( 'Absent' ) : press() }
+    style={{ height: h, width: w, justifyContent: 'center', alignItems: 'center', backgroundColor: color ? color : '#FFCC99', borderRadius: 20 }}
     >
-    <Text>{ text }</Text>
+    <Text style={{ color: textColor ? textColor : 'black', fontWeight: bold && bold }}>{ text }</Text>
   </TouchableOpacity>
 )

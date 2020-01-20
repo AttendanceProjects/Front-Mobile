@@ -22,3 +22,24 @@ export const APPROVAL = gql`
     }
   }
 `
+
+// Attendance 
+
+export const USER_ATT = gql`
+  query userAtt ( $code: String, $token: String ){
+    userAtt ( code: $code, token: $token ) {
+      _id
+      UserId {
+        _id
+        username
+        email
+        role
+      }
+      start
+      start_image
+      end
+      end_image
+      date
+    }
+  }
+`

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Platform, Alert, TouchableHighlight, AsyncStorage } from 'react-native';
-import { TouchComponent, LogoComponent, LoadingComponent, ErrorComponent, OfflieHeaderComponent } from '../../components/Spam'
+import { TouchComponent, LogoComponent, LoadingComponent, SimpleError, OfflieHeaderComponent } from '../../components/Spam'
 import { FormSigninComponent } from '../../components/SigninComponent'
 import { checkConnection, getAccess } from '../../service'
 import { Mutation, Query } from '../../graph';
@@ -108,7 +108,7 @@ export const Signin = ({ navigation }) => {
               />
           </View>
             { loading && <LoadingComponent color='blue' t={ 225 } /> }
-            { error && <ErrorComponent.SimpleError text={ error } t={ 249 }/> }
+            { error && <SimpleError text={ error } t={ 249 }/> }
         </View>
           { !isOnline && <TouchComponent h={ 30 } w={ '80%' } text='Presence Offline' />}
       </View>

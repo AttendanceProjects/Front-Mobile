@@ -1,17 +1,10 @@
-import TextInput from './TextInput';
-import Icon from './Icon';
-import Touch from './Touchable';
-import Logo from './Logo';
-import Loading from './Loading';
-import * as Errors from './Error';
-import NoInternet from './NoInternet';
-import Header from './Header';
-
-export const TextInputComponent = TextInput;
-export const IconComponent = Icon;
-export const TouchComponent = Touch;
-export const LogoComponent = Logo;
-export const LoadingComponent = Loading;
-export const ErrorComponent = Errors;
-export const OfflieHeaderComponent = NoInternet;
-export const HeaderComponent = Header;
+export * from './Camera';
+export * from './ListComponent';
+export * from './Touchable';
+export * from './Logo';
+export * from './Loading';
+export * from './TextInput';
+export * from './Icon';
+export * from './Error';
+export * from './Header';
+export * from './NoInternet';

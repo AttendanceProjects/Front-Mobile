@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, Platform } from 'react-native';
+import { View, Text, StyleSheet, Platform, AsyncStorage } from 'react-native';
 import Font from 'react-native-vector-icons/FontAwesome5';
 
-export default ({ left, mid, right }) => (
+export const HeaderComponent = ({ left, mid, right }) => (
   <View style={ styles.headers }>
     <View style={{ width: '100%', justifyContent: 'space-between', flexDirection: 'row' }}>
       {
@@ -49,7 +49,12 @@ export default ({ left, mid, right }) => (
                       <Font
                         name={ right.icon && right.icon }
                         size={ right.size ? right.size : 20 }
-                        onPress={ right.action && (() => right.action()) }
+                        onPress={ right.action ? right.action : (() => {
+                          (async () => {
+                            await AsyncStorage.removeItem( 'access' )
+                            right.nav( 'Signin' )
+                          })()
+                        }) }
                         style={{ position: 'absolute', right: 10, top: right.top ? right.top : mid ? -2 : -25 }}
                         />
               }

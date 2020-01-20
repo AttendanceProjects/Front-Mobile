@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, TouchableOpacity } from 'react-native';
+import { Text, View } from 'react-native';
+import { ErrorGlobal, LoadingComponent, CameraComponent } from '../../components/Spam';
 import { Camera } from 'expo-camera';
-import { ErrorComponent, LoadingComponent } from '../../components/Spam';
-import * as FaceDetector from 'expo-face-detector';
-import Font from 'react-native-vector-icons/FontAwesome5';
 import { getAccess, uploadImage } from '../../service';
-import { Mutation } from '../../graph';
+import { Mutation, Query } from '../../graph';
 import { useMutation } from '@apollo/react-hooks';
 
 export const Absent = ({ navigation }) => {
@@ -18,6 +16,7 @@ export const Absent = ({ navigation }) => {
 
   const [ attendance ] = useMutation( Mutation.CREATE_ATT );
 
+
   useEffect(() => {
     (async () => {
       const { status } = await Camera.requestPermissionsAsync();
@@ -27,35 +26,45 @@ export const Absent = ({ navigation }) => {
   }, []);
 
   const takePicture = async () => {
-    setLoading( true );
-    setGif({ uri: 'https://media.giphy.com/media/xTkcEQACH24SMPxIQg/giphy.gif', first: 'Please Wait...', second: 'We process your data' })
-    if( this.camera ) {
-      console.log( this.camera, '---' );
-      const picture = await this.camera.takePictureAsync({quality: 0.5, base64: true, forceUpOrientation: true, fixOrientation: true });
-      console.log( picture );
-      const access = await getAccess();
-      const { token, code } = access;
-      console.log( code, token, 'get access' );
-      if( picture ) {
+    if( camera ) {
+      const { uri } = await camera.takePictureAsync()
+      const { code, token } = await getAccess();
+      if( uri ) {
+        setLoading( true );
+        setGif({ uri: 'https://media.giphy.com/media/xTkcEQACH24SMPxIQg/giphy.gif', first: 'Please Wait...', second: 'We process your data' })
         const formData = new FormData();
-        await formData.append( 'image', { name: 'selfie.jpg', type: 'image/jpg', uri: picture.uri });
-        console.log( 'form data', formData );
+        await formData.append( 'image', { name: 'selfie.jpg', type: 'image/jpg', uri });
         const { success, error } = await uploadImage({ code, token, formData })
-        console.log( success && success , 'if success' )
         if( success ) {
           try {
-            const data = await attendance({ code, token, start_image: success });
-            console.log( data );
+            const { data } = await attendance({ variables: { code, token, start_image: success }, refetchQueries: [ { query: Query.USER_ATT, variables: { code, token } } ] });
             setLoading( false );
+            setMessage( false );
             setGif( {} );
-            navigation.navigate( 'Result', { url: success } )
-          } catch({ graphQLErrors }) { setMessage( graphQLErrors[0].message ) }
+            navigation.navigate( 'Result', { url: success, attendance: data.createAtt } )
+          } catch({ graphQLErrors }) {
+            setMessage( graphQLErrors[0].message );
+            setTimeout(() => {
+              navigation.navigate( 'Home' );
+              setLoading( false );
+              setMessage( false );
+              setGif( {} );
+            }, 10000)
+          }
         } else if( error ) {
-          setGif({ uri: 'https://media.giphy.com/media/TqiwHbFBaZ4ti/giphy.gif', first: 'woops something error', second: 'Please try again' })
+          setGif({ uri: 'https://media.giphy.com/media/TqiwHbFBaZ4ti/giphy.gif', first: 'woops something error', second: 'Please try again in 5 Second' })
+          setTimeout(() => {
+            setLoading( false );
+            setMessage( false );
+            setGif( {} )
+          }, 5000)
         }
       } else {
         setLoading( false );
         setGif({ uri: 'https://media.giphy.com/media/TqiwHbFBaZ4ti/giphy.gif', first: 'sorry cant take a picture', second: 'please try again' })
+        setTimeout(() => {
+          setGif( {} );
+        }, 2000);
       }
     }
   }
@@ -69,81 +78,16 @@ export const Absent = ({ navigation }) => {
 
   return (
     <View style={{ flex: 1 }}>
-      { loading && <LoadingComponent gif={{ uri: 'https://gph.is/2uMgL9D' }}/> }
       {
-        !message 
-          ?
-          !loading
-           ?
-          <Camera
-            style={{ flex: 1 }} 
-            type={ type }
-            // onFacesDetected={e => console.log(e)}
-            // faceDetectorSettings={{
-            //   mode: FaceDetector.Constants.Mode.fast,
-            //   detectLandmarks: FaceDetector.Constants.Landmarks.none,
-            //   runClassifications: FaceDetector.Constants.Classifications.none,
-            //   minDetectionInterval: 100,
-            //   tracking: true,
-            // }}
-            ref={res => { 
-              // setTimeout(() => {
-                this.camera = res
-              // }, 2000);
-            } }
-            >
-            <View
-              style={{
-                flex: 1,
-                backgroundColor: 'transparent',
-                flexDirection: 'row',
-              }}>
-              <TouchableOpacity
-                style={{
-                  flex: 1,
-                  marginBottom: 6,
-                  alignSelf: 'flex-end',
-                  alignItems: 'center',
-                }}
-                onPress={() => {
-                  takePicture()
-                }}>
-                  <Font name={ 'camera' } size={ 50 } style={{ borderWidth: 1, borderRadius: 20, width: 100, textAlign: 'center', borderColor: 'green' }}/>
-              </TouchableOpacity>
+        message 
+          ? 
+            <View style={{ flex: 1 }}>
+              <ErrorGlobal text={ message }/>
             </View>
-          </Camera>
-          : <LoadingComponent gif={{ image: gif.uri, w: 250, h: 250 }}  text={{ first: gif.first, second: gif.second }} bg={ '#18151A' }/>
-          :
-          <View style={{ flex: 1 }}>
-            <ErrorComponent.ErrorGlobal text={ message }/>
-          </View>
+          : loading
+              ? <LoadingComponent gif={{ image: gif.uri, w: 250, h: 250 }}  text={{ first: gif.first, second: gif.second }} bg={ '#18151A' }/>
+              : <CameraComponent setCamera={ setCamera } takePicture={ takePicture } type={ type }/>
       }
     </View>
   );
 }
-
-/*
-
-Object {
-  "faces": Array [
-    Object {
-      "bounds": Object {
-        "origin": Object {
-          "x": -86.0952380952381,
-          "y": 274.1388888888889,
-        },
-        "size": Object {
-          "height": 492.56746031746036,
-          "width": 276.57142857142856,
-        },
-      },
-      "faceID": -1,
-      "rollAngle": 359.3886431455612,
-      "yawAngle": 333.8866672515869,
-    },
-  ],
-  "target": 285,
-  "type": "face",
-}
-
-*/

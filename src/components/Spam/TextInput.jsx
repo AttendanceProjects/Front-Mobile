@@ -1,7 +1,7 @@
 import React from 'react'
 import { TextInput } from 'react-native';
 
-export default ({ value, setValue, text, sensitive, option }) => (
+export const TextInputComponent = ({ value, setValue, text, sensitive, option }) => (
   <TextInput 
     secureTextEntry={ sensitive ? true : false }
     keyboardType='default'

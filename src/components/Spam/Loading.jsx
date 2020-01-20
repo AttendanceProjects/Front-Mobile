@@ -1,7 +1,7 @@
 import React from 'react';
 import { ActivityIndicator, View, Text, Image } from 'react-native';
 
-export default ({ color, t, r, s, text, index, gif, bg }) => (
+export const LoadingComponent = ({ color, t, r, s, text, index, gif, bg }) => (
   <>
     {
       text
