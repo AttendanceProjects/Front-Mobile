@@ -8,6 +8,7 @@ export const Result = ({ navigation }) => {
   const [ location, setLocation ] = useState({});
 
   useEffect(() => {
+    console.log( navigation.state.params );
     if( navigation.state.params.coords ) {
       const { latitude, longitude } = navigation.state.params.coords;
       setLocation({ latitude, longitude })

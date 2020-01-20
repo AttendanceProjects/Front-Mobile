@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Platform, Alert, TouchableHighlight, AsyncStorage } from 'react-native';
 import { TouchComponent, LogoComponent, LoadingComponent, ErrorComponent, OfflieHeaderComponent } from '../../components/Spam'
 import { FormSigninComponent } from '../../components/SigninComponent'
-import { checkConnection } from '../../service'
+import { checkConnection, getAccess } from '../../service'
 import { Mutation, Query } from '../../graph';
 import { useMutation, useLazyQuery } from '@apollo/react-hooks'
 
@@ -39,11 +39,11 @@ export const Signin = ({ navigation }) => {
   }
 
   useEffect(() => {
-    const getAccess = async () => { 
+    const getAccessApp = async () => { 
       await checkConnection({ save: setOnline })
-      return ( JSON.parse( await AsyncStorage.getItem('access')) ) 
+      await getAccess()
     }
-    if( getAccess() && isOnline ) {
+    if( getAccessApp() && isOnline ) {
       setError( false )
       try {
         CheckSignin( getAccess() )
@@ -53,9 +53,9 @@ export const Signin = ({ navigation }) => {
 
 
   const signin = async () => {
-    setLoading( true )
+    await checkConnection({ save: setOnline })
     setError( false )
-    checkConnection()
+    setLoading( true )
     if( isOnline ) {
       if( request, password ) {
         try {

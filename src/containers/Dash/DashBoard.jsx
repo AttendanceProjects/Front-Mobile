@@ -12,7 +12,7 @@ export const Dash = ({ navigation }) => {
   return (
     <>
       <HeaderComponent
-        right={{ icon: 'sign-out-alt', size: 30, action: signout, top: Platform.OS === 'android' ? 5 : 0 }}
+        right={{ icon: 'sign-out-alt', size: 20, action: signout, top: Platform.OS === 'android' ? 6 : 2 }}
         mid={{ msg: 'Presence', ls: 2 }}
         left={{ icon: Platform.OS === 'android' ? 'list-ol' : 'sliders-h', top: Platform.OS === 'android' ? 10 : 1, action: navigation.openDrawer }} />
     </>

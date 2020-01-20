@@ -52,3 +52,24 @@ export const CHANGE_PASS = gql`
     }
   }
 `
+
+// Attendance
+
+export const CREATE_ATT = gql`
+  mutation createAtt ( $code: String, $token: String, $start_image: String ) {
+    createAtt ( code: $code, token: $token, start_image: $start_image ) {
+      _id
+      UserId {
+        _id
+        username
+        email
+        role
+      }
+      start
+      start_image
+      end
+      end_image
+      date
+    }
+  }
+`
