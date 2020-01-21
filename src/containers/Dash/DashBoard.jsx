@@ -17,7 +17,7 @@ export const Dash = ({ navigation }) => {
     })()
   }, [])
 
-
+console.log( Attendance )
   return (
     <>
       <HeaderComponent
@@ -46,7 +46,10 @@ export const Dash = ({ navigation }) => {
                           startTime={ Attendance.userAtt.start }
                           date={ Attendance.userAtt.date }
                           image={ Attendance.userAtt.start_image }
-                          message={ 'Return' }
+                          message={ 'Check Out' }
+                          action={ navigation.navigate }
+                          startIssues={ Attendance.userAtt.start_issues }
+                          type={ 'checkout' }
                           />
                         : 
                           <ListComponent
@@ -57,8 +60,9 @@ export const Dash = ({ navigation }) => {
                               date: Platform.OS === 'android' ? 10 : 12
                             }}
                             startTime={ 'let\'s work' }
-                            message={ 'Go Now' }
+                            message={ 'Check In' }
                             action={ navigation.navigate }
+                            type={ 'checkin' }
                             />
                   }
                 </>

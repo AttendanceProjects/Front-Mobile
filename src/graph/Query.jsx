@@ -37,8 +37,10 @@ export const USER_ATT = gql`
       }
       start
       start_image
+      start_issues
       end
       end_image
+      end_issues
       date
     }
   }

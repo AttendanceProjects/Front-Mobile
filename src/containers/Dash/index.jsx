@@ -3,3 +3,4 @@ export * from './History';
 export * from './Absent';
 export * from './Process';
 export * from './Result';
+export * from './Checkout';

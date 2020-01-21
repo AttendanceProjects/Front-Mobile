@@ -67,9 +67,32 @@ export const CREATE_ATT = gql`
       }
       start
       start_image
-      end
-      end_image
-      date
+      start_issues
+    }
+  }
+`
+
+export const CHECK_OUT_ATT = gql`
+  mutation updateAtt ( $code: String, $token: String, $end_image: String ) {
+    updateAtt ( code: $code, token: $token, end_image: $end_image ) {
+      history {
+        _id
+        AttendanceId {
+          _id
+          UserId {
+            _id
+            username
+            email
+            role
+          }
+          start
+          start_image
+          end
+          end_image
+          date
+        }
+        createdAt
+      }
     }
   }
 `

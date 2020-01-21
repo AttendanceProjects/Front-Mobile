@@ -53,6 +53,7 @@ export const Signin = ({ navigation }) => {
 
 
   const signin = async () => {
+    console.log( 'trigger' )
     await checkConnection({ save: setOnline })
     setError( false )
     setLoading( true )
@@ -104,7 +105,7 @@ export const Signin = ({ navigation }) => {
               h={ 30 }
               w={ '80%' }
               text='Sign In'
-              press={ () => signin() }
+              press={ signin }
               />
           </View>
             { loading && <LoadingComponent color='blue' t={ 225 } /> }

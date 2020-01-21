@@ -3,7 +3,7 @@ import { createAppContainer, createSwitchNavigator } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 import { createDrawerNavigator } from 'react-navigation-drawer';
-import { Signin, Forgot, Dash, History, Process, Result, Absent } from './src/containers';
+import { Signin, Forgot, Dash, History, Process, Result, Absent, CheckOutComponent } from './src/containers';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
 const StackSigninNavigation = createStackNavigator({
@@ -11,8 +11,13 @@ const StackSigninNavigation = createStackNavigator({
   Forgot: { screen: Forgot, navigationOptions: { title: 'Forgot Password' } }
 }, { initialRouteName: 'Signin' })
 
+const StackDashBoardNavigation = createStackNavigator({
+  Home: { screen: Dash, navigationOptions: { header: null } },
+  Checkout: { screen: CheckOutComponent, navigationOptions: { header: null } }
+})
+
 const DrawerNavigation = createDrawerNavigator({
-  Home: { screen: Dash },
+  Home: { screen: StackDashBoardNavigation },
   History: { screen: History }
 })
 

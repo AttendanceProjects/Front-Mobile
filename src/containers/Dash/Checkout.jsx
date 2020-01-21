@@ -1,20 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View } from 'react-native';
-import { ErrorGlobal, LoadingComponent, CameraComponent } from '../../components/Spam';
+import { View, Text } from 'react-native';
 import { Camera } from 'expo-camera';
+import { CameraComponent, ErrorGlobal, LoadingComponent } from '../../components/Spam';
 import { getAccess, uploadImage } from '../../service';
 import { Mutation, Query } from '../../graph';
 import { useMutation } from '@apollo/react-hooks';
 
-export const Absent = ({ navigation }) => {
-  const [hasPermission, setHasPermission] = useState(null);
-  const [type] = useState(Camera.Constants.Type.front);
-  const [ message, setMessage ] = useState( false );
+export const CheckOutComponent = ({ navigation }) => {
+  const [ hasPermission, setHasPermission ] = useState( false );
   const [ loading, setLoading ] = useState( false );
+  const [ message, setMessage ] = useState( false );
+  const [ camera, setCamera ] = useState( false );
   const [ gif, setGif ] = useState( {} );
-  const [ camera, setCamera ] = useState( '' );
-
-  const [ attendance ] = useMutation( Mutation.CREATE_ATT );
+  const [ type ] = useState(Camera.Constants.Type.front);
+  const [ checkout ] = useMutation( Mutation.CHECK_OUT_ATT );
 
 
   useEffect(() => {
@@ -25,19 +24,20 @@ export const Absent = ({ navigation }) => {
     })();
   }, []);
 
+
   const takePicture = async () => {
     if( camera ) {
-      const { uri } = await camera.takePictureAsync()
+      const { uri } = await camera.takePictureAsync();
       const { code, token } = await getAccess();
       if( uri ) {
         setLoading( true );
-        setGif({ uri: 'https://media.giphy.com/media/xTkcEQACH24SMPxIQg/giphy.gif', first: 'Please Wait...', second: 'Process Check In' })
+        setGif({ uri: 'https://media.giphy.com/media/xT9DPldJHzZKtOnEn6/giphy.gif', first: 'Please Wait...', second: 'Process Check Out' })
         const formData = new FormData();
-        await formData.append( 'image', { name: 'checkin.jpg', type: 'image/jpg', uri });
-        const { success, error } = await uploadImage({ code, token, formData })
+        formData.append( 'image', { name: 'checkout.jpg', type: 'image/jpg', uri })
+        const { success, error } = await uploadImage({ code, token, formData });
         if( success ) {
           try {
-            const { data } = await attendance({ variables: { code, token, start_image: success }, refetchQueries: [ { query: Query.USER_ATT, variables: { code, token } } ] });
+            const { data } = await checkout({ variables: { code, token, end_image: success }, refetchQueries: [ { query: Query.USER_ATT, variables: { code, token } } ] });
             setLoading( false );
             setMessage( false );
             setGif( {} );
@@ -51,7 +51,7 @@ export const Absent = ({ navigation }) => {
               setGif( {} );
             }, 10000)
           }
-        } else if( error ) {
+        } else if( error ){
           setGif({ uri: 'https://media.giphy.com/media/TqiwHbFBaZ4ti/giphy.gif', first: 'woops something error', second: 'Please try again in 5 Second' })
           setTimeout(() => {
             setLoading( false );
@@ -69,12 +69,14 @@ export const Absent = ({ navigation }) => {
     }
   }
 
+
   if (hasPermission === null) {
     return <View />;
   }
   if (hasPermission === false) {
     return <Text>No access to camera</Text>;
   }
+
 
   return (
     <View style={{ flex: 1 }}>
@@ -85,9 +87,9 @@ export const Absent = ({ navigation }) => {
               <ErrorGlobal text={ message }/>
             </View>
           : loading
-              ? <LoadingComponent gif={{ image: gif.uri, w: 250, h: 250 }}  text={{ first: gif.first, second: gif.second }} bg={ '#18151A' }/>
-              : <CameraComponent setCamera={ setCamera } takePicture={ takePicture } type={ type }/>
+              ? <LoadingComponent gif={{ image: gif.uri, w: 250, h: 250 }}  text={{ first: gif.first, second: gif.second }} bg={ 'white' }/>
+              : <CameraComponent setCamera={ setCamera } takePicture={ takePicture } type={ type } channel={{ name: 'eric sudhartio', back: navigation.goBack}}/>
       }
     </View>
-  );
+  )
 }
