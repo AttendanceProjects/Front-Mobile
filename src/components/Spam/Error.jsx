@@ -1,10 +1,15 @@
 import React from 'react';
 import { View, Image, Text } from 'react-native';
 
-export const ErrorGlobal = ({ size, color, text }) => (
+export const ErrorGlobal = ({ size, color, text, type }) => (
   <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-    { console.log( text,' dari component error' )}
-    <Image source={ require('../../../assets/sadforerror.png') } style={{ width: 200, height: 200 }} />
+    {
+      type === 'checkin'
+        ? <Image source={ require('../../../assets/success.png' ) } style={{ width: 200, height: 200 }} />
+        : type === 'nocamera'
+            ? <Image source={ require('../../../assets/NoCamera.png' ) } style={{ width: 200, height: 200 }} />
+            : <Image source={ require('../../../assets/sadforerror.png') } style={{ width: 200, height: 200 }} />
+    }
     <Text style={{ fontSize: size ? size : 20, color: color ? color : 'red', textAlign: 'center' }}>
       { text ? text : `Whopss!! Sorry, 
 Something Error. Please try again later`}

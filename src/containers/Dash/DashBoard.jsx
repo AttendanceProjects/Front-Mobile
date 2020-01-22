@@ -49,6 +49,7 @@ console.log( Attendance )
                           message={ 'Check Out' }
                           action={ navigation.navigate }
                           startIssues={ Attendance.userAtt.start_issues }
+                          id={ Attendance._id }
                           type={ 'checkout' }
                           />
                         : 

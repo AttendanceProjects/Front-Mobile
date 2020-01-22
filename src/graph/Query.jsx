@@ -38,9 +38,18 @@ export const USER_ATT = gql`
       start
       start_image
       start_issues
+      start_location {
+        latitude
+        longitude
+      }
       end
       end_image
       end_issues
+      end_location {
+        latitude
+        longitude
+      }
+      end_reason
       date
     }
   }
