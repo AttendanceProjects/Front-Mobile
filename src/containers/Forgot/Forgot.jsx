@@ -71,9 +71,9 @@ please contact us dcar.developer@gmail.com`)
   return (
     <View style={ styles.container }>
       <LogoComponent
-        w={ 250 }
-        h={ 250 }
-        t={ Platform.OS === 'android' ? -10 : 50 }
+        w={ 350 }
+        h={ 350 }
+        t={ Platform.OS === 'android' ? -10 : 10 }
         />
         <View style={ styles.bodyContainer }>
           <View style={ styles.emailText }>
@@ -115,8 +115,12 @@ please contact us dcar.developer@gmail.com`)
           <TouchComponent
             text={ bindSecret ? 'Change Password' : 'Send Code'}
             w={ '65%' }
-            h={ Platform.OS === 'android' ? 30 : 26 }
+            h={ Platform.OS === 'android' ? 35 : 30 }
             press={ bindSecret ? changePassword : sendCodeTrigger }
+            color={ '#5f85db' }
+            size={ Platform.OS === 'android' ? 15 : 20 }
+            bold={ true }
+            spacing={ 2 }
             />
             { loading ? Platform.OS === 'android'
                     ? <LoadingComponent color='blue' t={ bindSecret ? 210 : 123 }/>

@@ -5,6 +5,6 @@ import { ApolloProvider } from '@apollo/react-hooks';
 
 export default () => (
   <ApolloProvider client={ Client }>
-    <Navigator />
+    <Navigator theme='dark'/>
   </ApolloProvider>
 )

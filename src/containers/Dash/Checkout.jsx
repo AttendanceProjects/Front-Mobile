@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text } from 'react-native';
+import { View, Platform } from 'react-native';
 import { Camera } from 'expo-camera';
 import { CameraComponent, ErrorGlobal, LoadingComponent } from '../../components/Spam';
-import { getAccess, uploadImage, takeAPicture } from '../../service';
+import { getAccess, uploadImage } from '../../service';
+import { takeAPicture, _checkLocation } from '../../helpers';
 import { Mutation, Query } from '../../graph';
 import { useMutation } from '@apollo/react-hooks';
 
@@ -13,8 +14,10 @@ export const CheckOutComponent = ({ navigation }) => {
   const [ camera, setCamera ] = useState( false );
   const [ gif, setGif ] = useState( {} );
   const [ type ] = useState(Camera.Constants.Type.front);
-  const [ checkout ] = useMutation( Mutation.CHECK_OUT_ATT );
 
+  const [ checkout ] = useMutation( Mutation.CHECK_OUT_ATT );
+  const [ checkoutLocation ] = useMutation( Mutation.UPDATE_LOCATION );
+  const [ failed ] = useMutation( Mutation.FAIL_PROCESS );
 
   useEffect(() => {
     (async () => {
@@ -25,11 +28,19 @@ export const CheckOutComponent = ({ navigation }) => {
   }, []);
 
 
-  const takePicture = async (id) => {
+  const takePicture = async () => {
+    const { code, token } = await getAccess();
+    const { id: attId, reason } = navigation.state.params;
+    console.log( 'get reason', reason )
+    console.log( attId,'masuk id' )
     if( camera ) {
       try {
-        const { message, data } = await takeAPicture({ access: getAccess, upload: uploadImage, camera, loading: setLoading, message: setMessage, action: { mutation: checkout }, gifLoad: setGif, type: { msg: 'checkout', id } });
-        console.log( message, data );
+        const { message, id } = await takeAPicture({ access: { code, token }, upload: uploadImage, camera, loading: setLoading, message: setMessage, action: { mutation: checkout }, gifLoad: setGif, type: { msg: 'checkout', id: attId, query: Query.USER_ATT, daily: Query.GET_DAILY_USER } });
+        console.log( message, id, 'dapat message response' );
+        if( message ) {
+          setMessage( 'Checking Location...' );
+          await _checkLocation({ nav: navigation.navigate, id: attId, osPlatform: Platform.OS, action: { upFailed: failed, updateLocation: checkoutLocation, query: Query.USER_ATT }, type: 'checkout', notif: { gif: setGif, msg: setMessage }, access: { code, token }, reason })
+        }
       } catch(err) {
         setMessage( err );
         setLoading( false );
@@ -52,11 +63,11 @@ export const CheckOutComponent = ({ navigation }) => {
         message 
           ? 
             <View style={{ flex: 1 }}>
-              <ErrorGlobal text={ message }/>
+              <ErrorGlobal text={ message } type={ 'checkout' }/>
             </View>
           : loading
               ? <LoadingComponent gif={{ image: gif.uri, w: 250, h: 250 }}  text={{ first: gif.first, second: gif.second }} bg={ 'white' }/>
-              : <CameraComponent setCamera={ setCamera } takePicture={ takePicture } type={ type } channel={{ name: 'eric sudhartio', back: navigation.goBack}}/>
+              : <CameraComponent setCamera={ setCamera } takePicture={ takePicture } type={ type } channel={{ back: navigation.goBack }}/>
       }
     </View>
   )

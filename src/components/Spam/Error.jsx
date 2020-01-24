@@ -4,7 +4,7 @@ import { View, Image, Text } from 'react-native';
 export const ErrorGlobal = ({ size, color, text, type }) => (
   <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
     {
-      type === 'checkin'
+      type === 'checkin' || type === 'checkout'
         ? <Image source={ require('../../../assets/success.png' ) } style={{ width: 200, height: 200 }} />
         : type === 'nocamera'
             ? <Image source={ require('../../../assets/NoCamera.png' ) } style={{ width: 200, height: 200 }} />

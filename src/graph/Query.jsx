@@ -54,3 +54,49 @@ export const USER_ATT = gql`
     }
   }
 `
+
+export const GET_DAILY_USER = gql `
+  query dailyUser ( $code: String, $token: String ) {
+    dailyUser ( code: $code, token: $token ) {
+      msg
+    }
+  }
+`
+
+// History 
+
+export const GET_HISTORY = gql`
+  query getHistory ( $code: String, $token: String ) {
+    getHistory ( code: $code, token: $token ) {
+      AttendanceId {
+        _id
+        UserId {
+          _id
+          username
+          password
+          profile_image
+          email
+          role
+        }
+        start
+        start_image
+        start_issues
+        start_location {
+          latitude
+          longitude
+        }
+        end
+        end_image
+        end_issues
+        end_location {
+          latitude
+          longitude
+        }
+        end_reason
+        date
+      }
+      createdAt
+      UserId
+    }
+  }
+`

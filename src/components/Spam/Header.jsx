@@ -1,9 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet, Platform, AsyncStorage } from 'react-native';
+import { View, Text, Platform, AsyncStorage } from 'react-native';
 import Font from 'react-native-vector-icons/FontAwesome5';
 
-export const HeaderComponent = ({ left, mid, right }) => (
-  <View style={ styles.headers }>
+export const HeaderComponent = ({ left, mid, right, online }) => (
+  <View style={{ height: !online ? 35 : Platform.OS === 'android' ? 80 : 70, alignItems: 'center', justifyContent: 'flex-end', backgroundColor: '#5f85db' }}>
     <View style={{ width: '100%', justifyContent: 'space-between', flexDirection: 'row' }}>
       {
         left
@@ -28,7 +28,7 @@ export const HeaderComponent = ({ left, mid, right }) => (
               {
                 mid.msg
                   ?
-                  <Text style={{ fontSize: mid.size ? mid.size : 25, color: mid.color ? mid.color : 'white', fontWeight: 'bold', letterSpacing: mid.ls ? mid.ls : 1 }}>{ mid.msg }</Text>
+                  <Text style={{ fontSize: mid.size ? mid.size : 25, color: mid.color ? mid.color : '#26282b', fontWeight: 'bold', letterSpacing: mid.ls ? mid.ls : 1 }}>{ mid.msg }</Text>
                    : mid.icon
                       && 
                         <Font
@@ -63,12 +63,3 @@ export const HeaderComponent = ({ left, mid, right }) => (
     </View>
   </View>
 )
-
-const styles = StyleSheet.create({
-  headers: {
-    height: Platform.OS === 'android' ? 80 : 70,
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    backgroundColor: '#FFCC99',
-  }
-})

@@ -59,43 +59,16 @@ export const CREATE_ATT = gql`
   mutation createAtt ( $code: String, $token: String, $start_image: String ) {
     createAtt ( code: $code, token: $token, start_image: $start_image ) {
       _id
-      # UserId {
-      #   _id
-      #   username
-      #   email
-      #   role
-      # }
-      # start
-      # start_images
     }
   }
 `
 
 export const CHECK_OUT_ATT = gql`
-  mutation updateAtt ( $code: String, $token: String, $end_image: String ) {
-    updateAtt ( code: $code, token: $token, end_image: $end_image ) {
-      history {
+  mutation updateAtt ( $code: String, $token: String, $end_image: String, $id: String ) {
+    updateAtt ( code: $code, token: $token, end_image: $end_image, id: $id ) {
+      _id
+      AttendanceId {
         _id
-        # AttendanceId {
-        #   _id
-        #   UserId {
-        #     _id
-        #     username
-        #     email
-        #     role
-        #   }
-        #   start
-        #   start_image
-        #   start_issues
-        #   start_location {
-        #     latitude
-        #     longitude
-        #   }
-        #   end
-        #   end_image
-        #   date
-        # }
-        # createdAt
       }
     }
   }
@@ -128,6 +101,14 @@ export const UPDATE_LOCATION = gql `
       }
       end_reason
       date
+    }
+  }
+`
+
+export const FAIL_PROCESS = gql`
+  mutation failProcess ( $code: String, $token: String, $id: String ) {
+    failProcess (code: $code, token: $token, id: $id) {
+      msg
     }
   }
 `

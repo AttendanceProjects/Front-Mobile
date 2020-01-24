@@ -84,7 +84,7 @@ export const Signin = ({ navigation }) => {
     <>
       { !isOnline && <OfflieHeaderComponent /> }
       <View style={ styles.container }>
-        <LogoComponent w={ 250 } h={ 250 } t={ Platform.OS === 'android' ? 60 : 120 }/>
+        <LogoComponent w={ 350 } h={ 350 } t={ Platform.OS === 'android' ? 120 : 80 }/>
         <View style={ styles.outer }>
           <FormSigninComponent
             code={ companyCode }
@@ -104,8 +104,13 @@ export const Signin = ({ navigation }) => {
             <TouchComponent
               h={ 30 }
               w={ '80%' }
-              text='Sign In'
+              text='SIGN IN'
+              spacing={ 2 }
               press={ signin }
+              color={ '#5f85db' }
+              bold={ true }
+              textColor={ '#353941' }
+              size={ Platform.OS === 'android' ? 15 : 20}
               />
           </View>
             { loading && <LoadingComponent color='blue' t={ 225 } /> }
@@ -120,7 +125,6 @@ export const Signin = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -128,6 +132,7 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: 100,
     height: 250
   },
   textInput: {

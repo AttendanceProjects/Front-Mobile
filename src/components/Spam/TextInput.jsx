@@ -9,6 +9,7 @@ export const TextInputComponent = ({ value, setValue, text, sensitive, option })
     value={ value }
     onChangeText={ msg => setValue( msg )}
     placeholder={ text }
-    style={{ textAlign: 'center', marginBottom: 4 }}
+    placeholderTextColor={ 'white' }
+    style={{ textAlign: 'center', marginBottom: 4, color: 'white', fontWeight: 'bold', letterSpacing: 2 }}
   />
 )

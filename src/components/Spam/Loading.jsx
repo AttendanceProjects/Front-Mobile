@@ -1,7 +1,7 @@
 import React from 'react';
 import { ActivityIndicator, View, Text, Image } from 'react-native';
 
-export const LoadingComponent = ({ color, t, r, s, text, index, gif, bg }) => (
+export const LoadingComponent = ({ color, t, r, s, text, index, gif, bg, pos }) => (
   <>
     {
       text
@@ -16,7 +16,7 @@ export const LoadingComponent = ({ color, t, r, s, text, index, gif, bg }) => (
           { text.first && <Text style={{ fontSize: 20, color: 'blue', letterSpacing: 2, marginTop: 30 }}> { text.first }</Text> }
           <Text style={{ fontSize: 15, color: 'red', letterSpacing: 2, marginTop: 10 }}>{ text.second }</Text>
         </View>
-        : <ActivityIndicator color={ color } size={ s ? s : 'small' } style={{ position: 'absolute', top: t, right: r }}  />
+        : <ActivityIndicator color={ color } size={ s ? s : 'small' } style={{ position: pos ? pos : 'absolute', top: t, right: r }}  />
     }
   </>
 )
