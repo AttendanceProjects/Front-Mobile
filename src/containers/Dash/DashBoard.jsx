@@ -34,6 +34,7 @@ export const Dash = ({ navigation }) => {
     })()
   }, [])
 
+
   return (
     <>
       { !isOnline && <OfflieHeaderComponent /> }
@@ -43,7 +44,7 @@ export const Dash = ({ navigation }) => {
         right={{ icon: 'sign-out-alt', size: 20, nav: navigation.navigate, top: Platform.OS === 'android' ? 6 : 2 }}
         mid={{ msg: 'Presence', ls: 2 }}
         left={{ icon: Platform.OS === 'android' ? 'list-ol' : 'sliders-h', top: Platform.OS === 'android' ? 10 : 1, action: navigation.openDrawer }} />
-      <ScrollView style={{ flex: 1 }}>
+      <ScrollView style={{ flex: 1, backgroundColor: '#26282b' }}>
         <View style={{ flex: 1, alignItems: 'center', padding: 10 }}>
           <Text style={{ fontWeight: 'bold', color: '#90b8f8', fontSize: Platform.OS === 'android' ? 20 : 25 }}>ACTIVITY TODAY</Text>
           <Text style={{ fontSize: 20, color: '#2196f3', fontWeight: 'bold' }}>{ currentDay }</Text>
@@ -56,6 +57,7 @@ export const Dash = ({ navigation }) => {
                     Attendance.userAtt
                       ?
                         <ListComponent
+                          ml={ Platform.OS === 'android' ? 35 : 10 }
                           size={{
                             role: Platform.OS === 'android' ? 10 : 13,
                             time: Platform.OS === 'android' ? 20 : 24,
@@ -76,6 +78,7 @@ export const Dash = ({ navigation }) => {
                           />
                         : 
                           <ListComponent
+                            ml={ Platform.OS === 'android' ? 35 : 10 }
                             size={{
                               role: Platform.OS === 'android' ? 10 : 13,
                               time: Platform.OS === 'android' ? 20 : 24,
