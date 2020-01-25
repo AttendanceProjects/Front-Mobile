@@ -30,16 +30,15 @@ export const CheckOutComponent = ({ navigation }) => {
 
   const takePicture = async () => {
     const { code, token } = await getAccess();
-    const { id: attId, reason } = navigation.state.params;
-    console.log( 'get reason', reason )
+    const { id: attId, issues } = navigation.state.params;
+    console.log( 'get reason', issues )
     console.log( attId,'masuk id' )
     if( camera ) {
       try {
-        const { message, id } = await takeAPicture({ access: { code, token }, upload: uploadImage, camera, loading: setLoading, message: setMessage, action: { mutation: checkout }, gifLoad: setGif, type: { msg: 'checkout', id: attId, query: Query.USER_ATT, daily: Query.GET_DAILY_USER } });
-        console.log( message, id, 'dapat message response' );
+        const { message } = await takeAPicture({ access: { code, token }, upload: uploadImage, camera, loading: setLoading, message: setMessage, action: { mutation: checkout }, gifLoad: setGif, type: { msg: 'checkout', id: attId, query: Query.USER_ATT, daily: Query.GET_DAILY_USER,  history: Query.GET_HISTORY } });
         if( message ) {
-          setMessage( 'Checking Location...' );
-          await _checkLocation({ nav: navigation.navigate, id: attId, osPlatform: Platform.OS, action: { upFailed: failed, updateLocation: checkoutLocation, query: Query.USER_ATT }, type: 'checkout', notif: { gif: setGif, msg: setMessage }, access: { code, token }, reason })
+          setGif({ uri: 'https://media.giphy.com/media/WiIuC6fAOoXD2/giphy.gif', first: 'Please Wait...', second: "Checking Location..." })
+          await _checkLocation({ nav: navigation.navigate, id: attId, osPlatform: Platform.OS, action: { upFailed: failed, updateLocation: checkoutLocation, query: Query.USER_ATT, daily: Query.GET_DAILY_USER,  history: Query.GET_HISTORY }, type: 'checkout', notif: { gif: setGif, msg: setMessage }, access: { code, token }, reason: issues })
         }
       } catch(err) {
         setMessage( err );
@@ -66,7 +65,7 @@ export const CheckOutComponent = ({ navigation }) => {
               <ErrorGlobal text={ message } type={ 'checkout' }/>
             </View>
           : loading
-              ? <LoadingComponent gif={{ image: gif.uri, w: 250, h: 250 }}  text={{ first: gif.first, second: gif.second }} bg={ 'white' }/>
+              ? <LoadingComponent gif={{ image: gif.uri, w: 250, h: 250 }}  text={{ first: gif.first, second: gif.second }} bg={ 'black' }/>
               : <CameraComponent setCamera={ setCamera } takePicture={ takePicture } type={ type } channel={{ back: navigation.goBack }}/>
       }
     </View>

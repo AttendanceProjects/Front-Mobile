@@ -67,9 +67,6 @@ export const CHECK_OUT_ATT = gql`
   mutation updateAtt ( $code: String, $token: String, $end_image: String, $id: String ) {
     updateAtt ( code: $code, token: $token, end_image: $end_image, id: $id ) {
       _id
-      AttendanceId {
-        _id
-      }
     }
   }
 `

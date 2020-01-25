@@ -3,11 +3,12 @@ import { View, Text, Image, TextInput, Platform, TouchableOpacity } from 'react-
 import { TouchComponent, LoadingComponent } from '../Spam';
 import Font from 'react-native-vector-icons/FontAwesome5';
 
-export const ListComponent = ({ load, image, size, name, role, date, startTime, message, action, type, startIssues, id, daily, mr, justy, bc, typeParent }) => {
+export const ListComponent = ({ load, image, size, name, role, date, startTime, message, action, type , startIssues, id, daily, mr, justy, bc, typeParent }) => {
   const [ issueM, setIssueM ] = useState( false );
-  const [ issues, setIssues ] = useState( false );
+  const [ issues, setIssues ] = useState( '' );
 
   useEffect(() => {
+    console.log( size, type )
     setIssueM( false );
   }, [])
 
@@ -34,7 +35,7 @@ export const ListComponent = ({ load, image, size, name, role, date, startTime, 
               <>
                 <View style={{ borderBottomColor: bc ? bc : '#f6e58d', borderBottomWidth: 1, width: '99%', height: 50, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                 {
-                  image && name && role && startTime
+                  image && role && startTime
                     ?
                       <>
                         <View style={{ flex: 0.7, marginBottom: 10, flexDirection: 'row', alignItems: 'center', justifyContent: justy ? justy : 'space-around' }}>
@@ -57,7 +58,7 @@ export const ListComponent = ({ load, image, size, name, role, date, startTime, 
                               : 
                                 <>
                                   <View style={{ flex: 0.7, marginBottom: 10, flexDirection: 'row', alignItems: 'center', justifyContent: justy ? justy : 'space-around' }}>
-                                    <Image source={{ uri: typeParent.image && typeParent.image }} style={{ height: 40, width: 40, borderRadius: 20, marginLeft: 20 }} />
+                                    <Image source={{ uri: typeParent.image.start }} style={{ height: 40, width: 40, borderRadius: 20, marginLeft: 20 }} />
                                     <View style={{ marginRight: mr && mr }}>
                                       <Text style={{ fontSize: size.name, fontWeight: 'bold' }}>{ typeParent.username.toUpperCase() }</Text>
                                       <Text style={{ fontSize: size.role, fontWeight: 'bold' }}>{ typeParent.role }</Text>
@@ -69,7 +70,7 @@ export const ListComponent = ({ load, image, size, name, role, date, startTime, 
                                 </>
                           }
                         </>
-                        : typeParent.empty
+                        : typeParent && typeParent.empty
                             ? <View style={{ width: '100%', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
                                 <Text style={{ fontWeight: 'bold', letterSpacing: 2 }}> No History </Text>
                               </View>
@@ -92,9 +93,17 @@ export const ListComponent = ({ load, image, size, name, role, date, startTime, 
                             <Text style={{ fontWeight: 'bold', fontSize: Platform.OS === 'android' && 12 }}>Check Out</Text>
                             <Text style={{ fontWeight: 'bold', fontSize: size.time, color: 'blue' }}>{ typeParent.endTime }</Text>
                             <Text style={{ fontSize: Platform.OS === 'android' ? 8 : 10, color: 'black', fontWeight: 'bold' }}>{ typeParent.endIssues.toUpperCase() }</Text>
-                            <Text style={{ fontSize: Platform.OS === 'android' ? 5 : 7, color: 'red', fontWeight: 'bold' }}>{ typeParent.reason.toUpperCase() }</Text>
+                            {
+                              typeParent.reason && typeParent.reason.end
+                                ?  <Text style={{ fontSize: Platform.OS === 'android' ? 5 : 7, color: 'red', fontWeight: 'bold' }}>
+                                      { typeParent.reason.toUpperCase() }
+                                    </Text> : null
+                            }
                           </View>
-                          <TouchableOpacity style={{ flex: 0.12, alignItems: 'center', justifyContent: 'center', backgroundColor: '#26282b', borderColor: '#26282b', borderWidth: 1, borderRadius: 20, height: 50 }}>
+                          <TouchableOpacity
+                            style={{ flex: 0.12, alignItems: 'center', justifyContent: 'center', backgroundColor: '#26282b', borderColor: '#26282b', borderWidth: 1, borderRadius: 20, height: 50 }}
+                            onPress={() => { typeParent.action() }}
+                          >
                             <Font name='map' size={ 20 } color={ 'white' }/>
                           </TouchableOpacity>
                         </>
@@ -105,7 +114,7 @@ export const ListComponent = ({ load, image, size, name, role, date, startTime, 
                           <Text style={{ fontWeight: 'bold', fontSize: size.time, color: 'blue' }}>{ startTime }</Text>
                         </View>
                         <View style={{ flex: 0.5, alignItems: 'center', justifyContent: 'space-between' }}>
-                          <TouchComponent w={ 100 } h={ 35 } color={ '#c7ecee' } textColor='#e056fd' text={ message } bold={ 'bold' } fromDash={ action } id={ id } type={ type } issues={ issues } isuMessage={ setIssueM }/>
+                          <TouchComponent w={ 100 } h={ 35 } color={ '#c7ecee' } textColor='#e056fd' text={ message } bold={ 'bold' } fromDash={ action } id={ id } type ={ type  } issues={ issues } isuMessage={ setIssueM }/>
                           { startIssues ? <Text style={{ fontSize: 8, marginTop: 5 }}>Issues: <Text style={{ color: startIssues === 'ok' ? 'green' : startIssues === 'warning' ? 'yellow' : 'red' }}>{ startIssues.toUpperCase() }</Text></Text>
                             : startIssues === '' && <Text style={{ fontSize: 8, marginTop: 5 }}>Issues: <Text style={{ color: 'red' }}>Failed Location</Text></Text>}
                         </View>

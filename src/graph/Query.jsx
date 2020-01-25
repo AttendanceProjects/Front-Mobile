@@ -63,40 +63,36 @@ export const GET_DAILY_USER = gql `
   }
 `
 
-// History 
+// History Attendance
 
 export const GET_HISTORY = gql`
   query getHistory ( $code: String, $token: String ) {
     getHistory ( code: $code, token: $token ) {
-      AttendanceId {
+      _id
+      UserId {
         _id
-        UserId {
-          _id
-          username
-          password
-          profile_image
-          email
-          role
-        }
-        start
-        start_image
-        start_issues
-        start_location {
-          latitude
-          longitude
-        }
-        end
-        end_image
-        end_issues
-        end_location {
-          latitude
-          longitude
-        }
-        end_reason
-        date
+        username
+        password
+        profile_image
+        email
+        role
       }
-      createdAt
-      UserId
+      start
+      start_image
+      start_issues
+      start_location {
+        latitude
+        longitude
+      }
+      end
+      end_image
+      end_issues
+      end_location {
+        latitude
+        longitude
+      }
+      end_reason
+      date
     }
   }
 `

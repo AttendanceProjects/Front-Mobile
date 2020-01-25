@@ -35,8 +35,8 @@ export const Absent = ({ navigation }) => {
       try {
         const { message, id } = await takeAPicture({ access: { code, token }, upload: uploadImage, camera, loading: setLoading, message: setMessage, action: { mutation: attendance }, gifLoad: setGif, type: { msg: 'checkin' } });
         if( message ) {
-          setMessage( 'Checking Location...' );
-          await _checkLocation({ nav: navigation.navigate, id, osPlatform: Platform.OS, action: { upFailed: failed, updateLocation: location, query: Query.USER_ATT }, type: 'checkin', notif: { gif: setGif, msg: setMessage }, access: { code, token } })
+          setGif({ uri: 'https://media.giphy.com/media/WiIuC6fAOoXD2/giphy.gif', first: 'Please Wait...', second: "Checking Location..." })
+          await _checkLocation({ nav: navigation.navigate, id, osPlatform: Platform.OS, action: { upFailed: failed, updateLocation: location, query: Query.USER_ATT, daily: Query.GET_DAILY_USER,  history: Query.GET_HISTORY }, type: 'checkin', notif: { gif: setGif, msg: setMessage }, access: { code, token } })
         }
       } catch(err) {
         setMessage( err );
@@ -66,7 +66,7 @@ export const Absent = ({ navigation }) => {
               <ErrorGlobal text={ message } type={ 'checkin' }/>
             </View>
           : loading
-              ? <LoadingComponent gif={{ image: gif.uri, w: 250, h: 250 }}  text={{ first: gif.first, second: gif.second }} bg={ 'white' }/>
+              ? <LoadingComponent gif={{ image: gif.uri, w: 250, h: 250 }}  text={{ first: gif.first, second: gif.second }} bg={ 'black' }/>
               : <CameraComponent setCamera={ setCamera } takePicture={ takePicture } type={ type }/>
       }
     </View>

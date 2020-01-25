@@ -10,7 +10,6 @@ export const History = ({ navigation }) => {
   const [ message, setMessage ] = useState( false );
   const [ loading, setLoading ] = useState( false );
   const [ isOnline, setIsOnline ] = useState( true );
-  const [ empty, setEmpty ] = useState( false );
 
   useEffect(() => {
     (async () => {
@@ -24,6 +23,10 @@ export const History = ({ navigation }) => {
       }catch({ graphQLErrors }) { setMessage( graphQLErrors[0].message ) }
     })()
   }, [])
+
+  const checkLoc = ({ start, end }) => {
+    navigation.navigate( 'Maps', { start, end } );
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: '#353941', alignItems: 'center' }}>
@@ -40,7 +43,7 @@ export const History = ({ navigation }) => {
                 load={ loading }
                 bc= { '#c9485b' }
                 justy={ 'space-between' }
-                mr={ Platform.OS === 'android' ? -10 : 4 }
+                mr={ Platform.OS === 'android' ? -15 : -10 }
                 size={{
                   role: Platform.OS === 'android' ? 10 : 13,
                   time: Platform.OS === 'android' ? 18 : 24,
@@ -48,19 +51,23 @@ export const History = ({ navigation }) => {
                   date: Platform.OS === 'android' ? 15 : 20
                 }}
                 typeParent={{
-                  date: his.createdAt,
-                  image:'https://storage.googleapis.com/ptlda/1579875286422checkin.jpg',
-                  username:'ericsudhartio',
-                  role:'master',
-                  name:'history',
-                  startTime:'20:20:20 PM',
-                  startIssues:'ok',
-                  endTime:'21:21:21 PM',
-                  endIssues: 'warning',
-                  date:'Fri 25 Jan 2020',
-                  reason:'telat ui',
+                  date: his.date,
+                  image: {
+                    start: his.start_image
+                  },
+                  username: his.UserId.username,
+                  role: his.UserId.role,
+                  name: 'history',
+                  startTime: his.start,
+                  startIssues: his.start_issues,
+                  endTime: his.end,
+                  endIssues: his.end_issues,
+                  reason: {
+                    end: his.end_reason
+                  },
                   message,
-                  empty
+                  empty: UserHistory.getHistory.length > 0 ? false : true,
+                  action: () => checkLoc({ start: his.start_location, end: his.end_location })
                 }}
               />
             ))
