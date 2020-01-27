@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Platform } from 'react-native';
 import { Camera } from 'expo-camera';
-import { CameraComponent, ErrorGlobal, LoadingComponent } from '../../components/Spam';
+import { CameraComponent, ErrorGlobal, LoadingComponent } from '../../components';
 import { getAccess, uploadImage } from '../../service';
 import { takeAPicture, _checkLocation } from '../../helpers';
 import { Mutation, Query } from '../../graph';
@@ -31,11 +31,9 @@ export const CheckOutComponent = ({ navigation }) => {
   const takePicture = async () => {
     const { code, token } = await getAccess();
     const { id: attId, issues } = navigation.state.params;
-    console.log( 'get reason', issues )
-    console.log( attId,'masuk id' )
     if( camera ) {
       try {
-        const { message } = await takeAPicture({ access: { code, token }, upload: uploadImage, camera, loading: setLoading, message: setMessage, action: { mutation: checkout }, gifLoad: setGif, type: { msg: 'checkout', id: attId, query: Query.USER_ATT, daily: Query.GET_DAILY_USER,  history: Query.GET_HISTORY } });
+        const { message } = await takeAPicture({ access: { code, token }, upload: uploadImage, camera, loading: setLoading, message: setMessage, action: { mutation: checkout }, gifLoad: setGif, type: { msg: 'checkout', id: attId, query: Query.USER_ATT, daily: Query.GET_DAILY_USER } });
         if( message ) {
           setGif({ uri: 'https://media.giphy.com/media/WiIuC6fAOoXD2/giphy.gif', first: 'Please Wait...', second: "Checking Location..." })
           await _checkLocation({ nav: navigation.navigate, id: attId, osPlatform: Platform.OS, action: { upFailed: failed, updateLocation: checkoutLocation, query: Query.USER_ATT, daily: Query.GET_DAILY_USER,  history: Query.GET_HISTORY }, type: 'checkout', notif: { gif: setGif, msg: setMessage }, access: { code, token }, reason: issues })

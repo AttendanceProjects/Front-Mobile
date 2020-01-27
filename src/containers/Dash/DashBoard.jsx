@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { HeaderComponent, ListComponent, ErrorGlobal, OfflieHeaderComponent } from '../../components/Spam'
-import { View, Text, Platform, ScrollView } from 'react-native';
+import { HeaderComponent, ListComponent, ErrorGlobal, OfflieHeaderComponent } from '../../components'
+import { View, Text, Platform, ScrollView, AsyncStorage } from 'react-native';
 import { getAccess, checkConnection } from '../../service';
 import { Query } from '../../graph';
 import { _getCurrentLocation, getCurrentTime } from '../../helpers'
@@ -23,7 +23,7 @@ export const Dash = ({ navigation }) => {
       setInterval(() => {
         getCurrentTime({ setTime: setCurrentTime, setDay: setCurrentDays, days });
       }, 1000);
-      await setIsOnline({ save: setIsOnline });
+      await checkConnection({ save: setIsOnline });
       setLoading( true );
       const { code, token } = await getAccess();
       try {
@@ -34,6 +34,18 @@ export const Dash = ({ navigation }) => {
     })()
   }, [])
 
+
+
+  useEffect(() => {
+    (async() => {
+      const offline = await AsyncStorage.getItem('offline');
+      const { location, url, time } = await JSON.parse( offline );
+      console.log( 'masik simpan di local loation dan url pidturenya', location, url, time );
+      if( offline && location && url ) {
+        console.log( 'masuk sini ?' )
+      }
+    })()
+  }, [ isOnline ])
 
   return (
     <>

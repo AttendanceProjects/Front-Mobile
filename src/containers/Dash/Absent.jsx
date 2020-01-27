@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, Platform } from 'react-native';
+import { Text, View, Platform, AsyncStorage } from 'react-native';
 import { ErrorGlobal, LoadingComponent, CameraComponent } from '../../components/Spam';
 import { Camera } from 'expo-camera';
-import { takeAPicture, _checkLocation } from '../../helpers';
-import { getAccess, uploadImage } from '../../service';
+import { takeAPicture, _checkLocation, _getCurrentLocationOffline } from '../../helpers';
+import { getAccess, uploadImage, checkConnection } from '../../service';
 import { Mutation, Query } from '../../graph';
 import { useMutation } from '@apollo/react-hooks';
 
@@ -14,6 +14,7 @@ export const Absent = ({ navigation }) => {
   const [ loading, setLoading ] = useState( false );
   const [ gif, setGif ] = useState( {} );
   const [ camera, setCamera ] = useState( '' );
+  const [ isOnline, setIsOnline ] = useState( true );
 
   const [ attendance ] = useMutation( Mutation.CREATE_ATT );
   const [ location ] = useMutation( Mutation.UPDATE_LOCATION );
@@ -22,6 +23,7 @@ export const Absent = ({ navigation }) => {
 
   useEffect(() => {
     (async () => {
+      await checkConnection({ save: setIsOnline });
       const { status } = await Camera.requestPermissionsAsync();
       if( status === 'granted' ) setHasPermission(status === 'granted');
       else if( status !== 'granted' && !loading ) setMessage( 'Please set allow your camera to access this application');
@@ -32,19 +34,33 @@ export const Absent = ({ navigation }) => {
     const { code, token } = await getAccess()
     let id
     if( camera ) {
-      try {
-        const { message, id } = await takeAPicture({ access: { code, token }, upload: uploadImage, camera, loading: setLoading, message: setMessage, action: { mutation: attendance }, gifLoad: setGif, type: { msg: 'checkin' } });
-        if( message ) {
-          setGif({ uri: 'https://media.giphy.com/media/WiIuC6fAOoXD2/giphy.gif', first: 'Please Wait...', second: "Checking Location..." })
-          await _checkLocation({ nav: navigation.navigate, id, osPlatform: Platform.OS, action: { upFailed: failed, updateLocation: location, query: Query.USER_ATT, daily: Query.GET_DAILY_USER,  history: Query.GET_HISTORY }, type: 'checkin', notif: { gif: setGif, msg: setMessage }, access: { code, token } })
+      await checkConnection({ save: setIsOnline });
+      if( isOnline ) {
+        try {
+          const { message, id } = await takeAPicture({ access: { code, token }, upload: uploadImage, camera, loading: setLoading, message: setMessage, action: { mutation: attendance, query: Query.USER_ATT, daily: Query.GET_DAILY_USER,  history: Query.GET_HISTORY }, gifLoad: setGif, type: { msg: 'checkin' } });
+          if( message ) {
+            setGif({ uri: 'https://media.giphy.com/media/WiIuC6fAOoXD2/giphy.gif', first: 'Please Wait...', second: "Checking Location..." })
+            await _checkLocation({ nav: navigation.navigate, id, osPlatform: Platform.OS, action: { upFailed: failed, updateLocation: location, query: Query.USER_ATT, daily: Query.GET_DAILY_USER,  history: Query.GET_HISTORY }, type: 'checkin', notif: { gif: setGif, msg: setMessage }, access: { code, token } })
+          }
+        } catch(err) {
+          setMessage( err );
+          await failed({ code, token, id })
+          setTimeout(() => {
+            navigation.navigate( 'Home' );
+            setLoading( false );
+          }, 6000)
         }
-      } catch(err) {
-        setMessage( err );
-        await failed({ code, token, id })
+      }else{
+        const picture = await camera.takePictureAsync({ quality: 0.5 });
+        const { coords } = await _getCurrentLocationOffline();
+        let IndoTime = new Date().toLocaleString("en-US", {timeZone: "Asia/Jakarta"});
+        await AsyncStorage.setItem('offline', JSON.stringify({ location: { longitude: coords.longitude, latitude: coords.latitude }, url: picture.uri, time: new Date( IndoTime ) }));
+        const splitPicture = picture.uri.split('-');
+        setMessage( `No Internet Connection, but your request will our keep.. Please screen shot this and upload if you done connected internet ${ splitPicture[splitPicture.length-1] }`);
         setTimeout(() => {
+          setMessage( false );
           navigation.navigate( 'Home' );
-          setLoading( false );
-        }, 6000)
+        }, 20000)
       }
     }
   }

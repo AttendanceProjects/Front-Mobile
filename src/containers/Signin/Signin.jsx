@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Platform, Alert, TouchableHighlight, AsyncStorage } from 'react-native';
-import { TouchComponent, LogoComponent, LoadingComponent, SimpleError, OfflieHeaderComponent } from '../../components/Spam'
-import { FormSigninComponent } from '../../components/SigninComponent'
+import { TouchComponent, LogoComponent, LoadingComponent, SimpleError, OfflieHeaderComponent, FormSigninComponent } from '../../components'
 import { checkConnection, getAccess } from '../../service'
 import { Mutation, Query } from '../../graph';
 import { useMutation, useLazyQuery } from '@apollo/react-hooks'

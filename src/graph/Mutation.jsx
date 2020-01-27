@@ -44,11 +44,9 @@ export const CONFIRM = gql`
 `
 
 export const CHANGE_PASS = gql`
-  mutation changePass ( $code: String, $newPass: String, $token: String ) {
-    changePass ( code: $code, newPass: $newPass, token: $token ) {
-      username
-      password
-      role
+  mutation changePass ( $code: String, $newPass: String, $token: String, $oldPass: String ) {
+    changePass ( code: $code, newPass: $newPass, token: $token, oldPass: $oldPass ) {
+      msg
     }
   }
 `

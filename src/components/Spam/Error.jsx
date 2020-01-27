@@ -5,7 +5,7 @@ export const ErrorGlobal = ({ size, color, text, type }) => (
   <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
     {
       type === 'checkin' || type === 'checkout'
-        ? <Image source={{ uri: 'https://media.giphy.com/media/WiIuC6fAOoXD2/giphy.gif' }} style={{ width: 200, height: 200 }} />
+        ? <Image source={ type === 'checkin' ? require('../../../assets/badRequest.png') : require('../../../assets/sadforerror.png') } style={{ width: 200, height: 200 }} />
         : type === 'nocamera'
             ? <Image source={ require('../../../assets/NoCamera.png' ) } style={{ width: 200, height: 200 }} />
             : <Image source={ require('../../../assets/sadforerror.png') } style={{ width: 200, height: 200 }} />

@@ -9,6 +9,11 @@ export const CHECK_SIGN_IN = gql`
       username
       email
       role
+      profile_image
+      phone
+      identityNumber
+      religion
+      gender
     }
   }
 `

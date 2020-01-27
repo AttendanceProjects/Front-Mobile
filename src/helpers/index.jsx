@@ -4,29 +4,30 @@ import * as Location from 'expo-location';
 // -6.132331, 106.808560
 export const takeAPicture = ({ camera, type, action, loading, message, gifLoad, upload, access }) => {
   return new Promise ( async (resolve, reject ) => {
-    const { uri } = await camera.takePictureAsync();
+    const { uri } = await camera.takePictureAsync({ quality: 0.5 });
+    const picName = uri.split('-');
     const { code, token } = access;
     if( uri ) {
       loading( true );
       gifLoad({ uri: 'https://media.giphy.com/media/WiIuC6fAOoXD2/giphy.gif', first: 'Please Wait...', second: type.msg === 'checkout' ? 'Process Check Out' : 'Process Check In' })
       const formData = new FormData();
-      formData.append( 'image', { name: `${ type.msg }.jpg`, type: 'image/jpg', uri })
+      formData.append( 'image', { name: `${ picName[picName.length-1] }/${ type.msg }.jpg`, type: 'image/jpg', uri })
       const { success, error } = await upload({ code, token, formData });
       if( success ) {
         try {
           if( type.msg === 'checkin' ) {
-            const { data } = await action.mutation({ variables: { code, token, start_image: success } });
+            const { data } = await action.mutation({ variables: { code, token, start_image: success }, refetchQueries: [ {query: action.query, variables: {code, token}}, {query: action.daily, variables: {code, token}}, {query: action.history, variables: {code, token}} ] });
             message( false );
             gifLoad( {} );
             resolve({ message: 'success', id: data.createAtt._id })
           }
           else if ( type.msg === 'checkout' ) {
-            const { data } = await action.mutation({ variables: { code, token, end_image: success, id: type.id }, refetchQueries: [ {query: type.query, variables: {code, token}}, {query: type.daily, variables: {code, token}}, {query: type.history, variables: {code, token}} ] });
+            const { data } = await action.mutation({ variables: { code, token, end_image: success, id: type.id }, refetchQueries: [ {query: type.query, variables: {code, token}}, {query: type.daily, variables: {code, token}} ] });
             message( false );
             gifLoad( {} );
             resolve({ message: 'success', id: data.updateAtt._id })
           }
-        } catch(err) {
+        } catch({ graphQLErrors }) {
           reject( graphQLErrors[0].message );
           setTimeout(() => {
             loading( false );
@@ -74,6 +75,16 @@ function _getCurrentLocation ({ os }) {
   })
 }
 
+export const _getCurrentLocationOffline = () => {
+  return new Promise ( async (resolve, reject) => {
+    let { status } = await Permissions.askAsync( Permissions.LOCATION );
+    if( status !== 'granted' ) reject({ error: 'Please set allow your location device to next process' });
+    else if( status === 'granted' ) {
+      const { coords } = await Location.getCurrentPositionAsync({});
+      resolve({ coords })
+    }
+  })
+}
 
 export const _checkLocation = async ({ id, osPlatform, action, type, notif, nav, access, reason }) => {
   return new Promise ( async (resolve, reject) => {
@@ -91,7 +102,8 @@ export const _checkLocation = async ({ id, osPlatform, action, type, notif, nav,
         console.log( os );
         if( longitude && latitude && accuracy && type && os ) {
           try {
-            const { data } = await action.updateLocation({ variables: { code, token, os, type, reason, latitude: String(latitude), accuracy: String(accuracy), longitude: String(longitude), id }, refetchQueries: [ {query: action.query, variables: { code, token }}, {query: action.daily, variables: {code, token}}, {query: action.history, variables: {code, token}} ] })
+            // , refetchQueries: [ {query: action.query, variables: { code, token }}, {query: action.daily, variables: {code, token}}, {query: action.history, variables: {code, token}} ]
+            const { data } = await action.updateLocation({ variables: { code, token, os, type, reason, latitude: String(latitude), accuracy: String(accuracy), longitude: String(longitude), id } })
             console.log( 'success', data )
             if( data ) notif.msg( `${ type === 'checkin' ? 'Check In' : 'Check Out' } Successfully!`);
             resolve({ msg: 'success' })

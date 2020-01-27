@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, TextInput, Platform, TouchableOpacity } from 'react-native';
+import { View, Text, Image, TextInput, Platform } from 'react-native';
 import { TouchComponent, LoadingComponent } from '../Spam';
-import Font from 'react-native-vector-icons/FontAwesome5';
 
-export const ListComponent = ({ load, image, size, name, role, date, startTime, message, action, type , startIssues, id, daily, mr, justy, bc, typeParent }) => {
+import { BtmListComponent, TopListComponent } from '../ListPerComponent'
+
+export const ListComponent = ({ nav, load, image, size, name, role, date, startTime, message, action, type , startIssues, id, daily, mr, justy, bc, typeParent }) => {
   const [ issueM, setIssueM ] = useState( false );
   const [ issues, setIssues ] = useState( '' );
 
@@ -14,7 +15,7 @@ export const ListComponent = ({ load, image, size, name, role, date, startTime, 
 
   return (
     <>
-      <View style={{ borderWidth: 1, width: '96%', borderColor: '#90b8f8', backgroundColor: '#90b8f8', height: typeParent ? Platform.OS === 'android' ? 180 : 150 : 150, marginTop: typeParent ? 10 : 5, padding: 10, alignItems: 'center',justifyContent: 'space-around', borderRadius: 20 }}>
+      <View style={{ borderWidth: 1, width: typeParent ? "89%" : '96%', borderColor: '#90b8f8', backgroundColor: '#90b8f8', height: 150, marginTop: typeParent ? 10 : 5, padding: 10, alignItems: 'center',justifyContent: 'space-around', borderRadius: 20 }}>
         {
           load
             ? <LoadingComponent
@@ -28,12 +29,13 @@ export const ListComponent = ({ load, image, size, name, role, date, startTime, 
               ?
               <>
                 <View style={{ width: '99%', height: 50, flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                  <Text>See you Tommorow</Text>
+                  <Text style={{ fontSize: 20, color: 'blue' }}>You allready checkin today</Text>
+                  <Text style={{ fontSize: 20, color: 'blue' }}>See you tommorow</Text>
                 </View>
               </>
               :
               <>
-                <View style={{ borderBottomColor: bc ? bc : '#f6e58d', borderBottomWidth: 1, width: '99%', height: 50, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <View style={{ borderBottomColor: bc ? bc : !typeParent ? '#f6e58d' : null, borderBottomWidth: !typeParent ? 1 : null, width: '99%', height: typeParent ?  typeParent && Platform.OS === 'android' ? 20 : 40 : 50, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                 {
                   image && role && startTime
                     ?
@@ -51,62 +53,48 @@ export const ListComponent = ({ load, image, size, name, role, date, startTime, 
                       </>
                     : typeParent && typeParent.name === 'history'
                         ?
-                        <>
-                          {
-                            typeParent.message
-                              ? <Text>Belum ada History</Text>
-                              : 
-                                <>
-                                  <View style={{ flex: 0.7, marginBottom: 10, flexDirection: 'row', alignItems: 'center', justifyContent: justy ? justy : 'space-around' }}>
-                                    <Image source={{ uri: typeParent.image.start }} style={{ height: 40, width: 40, borderRadius: 20, marginLeft: 20 }} />
-                                    <View style={{ marginRight: mr && mr }}>
-                                      <Text style={{ fontSize: size.name, fontWeight: 'bold' }}>{ typeParent.username.toUpperCase() }</Text>
-                                      <Text style={{ fontSize: size.role, fontWeight: 'bold' }}>{ typeParent.role }</Text>
-                                    </View>
-                                  </View>
-                                  <View style={{ marginBottom: 10 }}>
-                                    <Text style={{ fontSize: size.date, fontWeight: 'bold' }}>{ typeParent.date }</Text>
-                                  </View>
-                                </>
-                          }
-                        </>
-                        : typeParent && typeParent.empty
-                            ? <View style={{ width: '100%', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
-                                <Text style={{ fontWeight: 'bold', letterSpacing: 2 }}> No History </Text>
-                              </View>
-                            : <View style={{ width: '100%', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
-                                <Text style={{ fontWeight: 'bold', letterSpacing: 2 }}> PRESENT NOW </Text>
-                              </View>
+                          <TopListComponent
+                            size={{
+                              role: size.role,
+                              name: size.name,
+                              date: size.date
+                            }}
+                            typeParent={{
+                              username: typeParent.username,
+                              role: typeParent.role,
+                              date: typeParent.date
+                            }}
+                            justy={ justy }
+                            nav={ nav }
+                            data={ typeParent }
+                          />
+                        :
+                          <View style={{ width: '100%', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
+                            <Text style={{ fontWeight: 'bold', letterSpacing: 2 }}> PRESENT NOW </Text>
+                          </View>
                 }
                 </View>
-                <View style={{ width: '99%', height: typeParent ? 40 : 30, flexDirection: 'row', alignItems: 'center', justifyContent: typeParent ? 'space-around' : 'center' }}>
+                <View style={{ width: '99%', height: typeParent ? 40 : 30, flexDirection: 'row', alignItems: 'center', justifyContent: typeParent ? 'space-around' : 'center', marginBottom: typeParent ? 15 : 0 }}>
                   {
                     typeParent && typeParent.name === 'history'
                       ?
-                        <>
-                          <View style={{ flex: 0.4, alignItems: 'center', justifyContent: 'center', backgroundColor: typeParent.startIssues === 'ok' ? '#deff8b' : typeParent.startIssues === 'warning' ? '#f6eec7' : '#ec7373', borderColor: '#c7ecee', borderWidth: 1, borderRadius: 20, height: Platform.OS === 'android' ? 70 : 60 }}>
-                            <Text style={{ fontWeight: 'bold', fontSize: Platform.OS === 'android' && 12 }}>Check In</Text>
-                            <Text style={{ fontWeight: 'bold', fontSize: size.time, color: 'blue' }}>{ typeParent.startTime }</Text>
-                            <Text style={{ fontSize: Platform.OS === 'android' ? 8 : 10, color: 'black', fontWeight: 'bold', letterSpacing: 1 }}>{ typeParent.startIssues.toUpperCase() }</Text>
-                          </View>
-                          <View style={{ flex: 0.4, alignItems: 'center', justifyContent: 'center', backgroundColor: typeParent.endIssues === 'ok' ? '#deff8b' : typeParent.endIssues === 'warning' ? '#f6eec7' : '#ec7373', borderColor: '#c7ecee', borderWidth: 1, borderRadius: 20, height: Platform.OS === 'android' ? 70 : 60 }}>
-                            <Text style={{ fontWeight: 'bold', fontSize: Platform.OS === 'android' && 12 }}>Check Out</Text>
-                            <Text style={{ fontWeight: 'bold', fontSize: size.time, color: 'blue' }}>{ typeParent.endTime }</Text>
-                            <Text style={{ fontSize: Platform.OS === 'android' ? 8 : 10, color: 'black', fontWeight: 'bold' }}>{ typeParent.endIssues.toUpperCase() }</Text>
-                            {
-                              typeParent.reason && typeParent.reason.end
-                                ?  <Text style={{ fontSize: Platform.OS === 'android' ? 5 : 7, color: 'red', fontWeight: 'bold' }}>
-                                      { typeParent.reason.toUpperCase() }
-                                    </Text> : null
-                            }
-                          </View>
-                          <TouchableOpacity
-                            style={{ flex: 0.12, alignItems: 'center', justifyContent: 'center', backgroundColor: '#26282b', borderColor: '#26282b', borderWidth: 1, borderRadius: 20, height: 50 }}
-                            onPress={() => { typeParent.action() }}
-                          >
-                            <Font name='map' size={ 20 } color={ 'white' }/>
-                          </TouchableOpacity>
-                        </>
+                        <BtmListComponent
+                          typeParent={{
+                            startTime: typeParent.startTime,
+                            startIssues: typeParent.startIssues,
+                            endIssues: typeParent.endIssues,
+                            endTime: typeParent.endTime,
+                            endIssues: typeParent.endIssues,
+                            reason: {
+                              end: typeParent.reason.end
+                            },
+                            action: typeParent.action
+                          }}
+                          size={{
+                            time: size.time,
+                          }}
+                          nav={ nav }
+                        />
                       :
                       <>
                         <View style={{ flex: 0.5, alignItems: 'center', justifyContent: 'center', backgroundColor: '#c7ecee', borderColor: '#c7ecee', borderWidth: 1, borderRadius: 20, height: 55 }}>
