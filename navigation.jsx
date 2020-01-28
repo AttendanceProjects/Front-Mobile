@@ -3,7 +3,7 @@ import { createAppContainer, createSwitchNavigator } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 import { createDrawerNavigator } from 'react-navigation-drawer';
-import { Signin, Forgot, Dash, History, Absent, CheckOutComponent, DetailContainers, MapContainers, ImageContainers, ProfileContainers, ChangePasswordContainers } from './src/containers';
+import { Signin, Forgot, Dash, History, Absent, CheckOutComponent, DetailContainers, ImageContainers, ProfileContainers, ChangePasswordContainers } from './src/containers';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
 const StackSigninNavigation = createStackNavigator({
@@ -16,15 +16,10 @@ const StackDashBoardNavigation = createStackNavigator({
   Checkout: { screen: CheckOutComponent, navigationOptions: { header: null } }
 })
 
-const StackHistorySeePicture = createStackNavigator({
-  History: { screen: History, navigationOptions: { header: null } },
-  Detail: { screen: DetailContainers },
-  Image: { screen: ImageContainers }
-})
-
 const StackHistoryNavigation = createStackNavigator({
-  History: { screen: StackHistorySeePicture, navigationOptions: { header: null } },
-  Maps: { screen: MapContainers }
+  History: { screen: History, navigationOptions: { header: null } },
+  Detail: { screen: DetailContainers, navigationOptions: { title: 'Detail' } },
+  Image: { screen: ImageContainers }
 })
 
 const StackProfileNavigation = createStackNavigator({

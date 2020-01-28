@@ -85,6 +85,30 @@ export const GET_HISTORY = gql`
       start
       start_image
       start_issues
+      end
+      end_image
+      end_issues
+      end_reason
+      date
+    }
+  }
+`
+
+export const GET_ATT_ID = gql`
+  query findAttId ( $code: String, $token: String, $id: String ) {
+    findAttId ( code: $code, token: $token, id: $id ) {
+      _id
+      UserId {
+        _id
+        username
+        password
+        profile_image
+        email
+        role
+      }
+      start
+      start_image
+      start_issues
       start_location {
         latitude
         longitude

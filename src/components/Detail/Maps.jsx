@@ -2,12 +2,13 @@ import React, { useEffect, useState } from 'react';
 import MapView, { Marker } from 'react-native-maps';
 import { StyleSheet, Image, View, Dimensions } from 'react-native';
 
-export const MapContainers = ({ navigation }) => {
+export const MapComponent = ({ param }) => {
   const [ start, setStart ] = useState( {} );
   const [ end, setEnd ] = useState( {} );
 
   useEffect(() => {
-    const { start, end } = navigation.state.params;
+    const { start, end, id } = param;
+    console.log( start, end, id )
     setStart( start );
     setEnd( end );
   }, [])

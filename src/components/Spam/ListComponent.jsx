@@ -15,7 +15,7 @@ export const ListComponent = ({ nav, load, image, size, name, role, date, startT
 
   return (
     <>
-      <View style={{ borderWidth: 1, width: typeParent ? "89%" : '96%', borderColor: '#90b8f8', backgroundColor: '#90b8f8', height: 150, marginTop: typeParent ? 10 : 5, padding: 10, alignItems: 'center',justifyContent: 'space-around', borderRadius: 20 }}>
+      <View style={{ borderWidth: 1, width: typeParent ? "98%" : '96%', borderColor: '#90b8f8', backgroundColor: '#90b8f8', height: Platform.OS === 'android' ? 140 : 140, marginTop: typeParent ? 10 : 5, padding: 10, alignItems: 'center',justifyContent: 'space-around', marginLeft: typeParent && 2.5, borderRadius: 20 }}>
         {
           load
             ? <LoadingComponent
@@ -74,7 +74,7 @@ export const ListComponent = ({ nav, load, image, size, name, role, date, startT
                           </View>
                 }
                 </View>
-                <View style={{ width: '99%', height: typeParent ? 40 : 30, flexDirection: 'row', alignItems: 'center', justifyContent: typeParent ? 'space-around' : 'center', marginBottom: typeParent ? 15 : 0 }}>
+                <View style={{ width: '99%', height: 30, flexDirection: 'row', alignItems: 'center', justifyContent: typeParent ? 'space-around' : 'center', marginBottom: typeParent ? 15 : 0 }}>
                   {
                     typeParent && typeParent.name === 'history'
                       ?
@@ -88,7 +88,7 @@ export const ListComponent = ({ nav, load, image, size, name, role, date, startT
                             reason: {
                               end: typeParent.reason.end
                             },
-                            action: typeParent.action
+                            date: typeParent.date
                           }}
                           size={{
                             time: size.time,
@@ -97,7 +97,7 @@ export const ListComponent = ({ nav, load, image, size, name, role, date, startT
                         />
                       :
                       <>
-                        <View style={{ flex: 0.5, alignItems: 'center', justifyContent: 'center', backgroundColor: '#c7ecee', borderColor: '#c7ecee', borderWidth: 1, borderRadius: 20, height: 55 }}>
+                        <View style={{ flex: 0.5, alignItems: 'center', justifyContent: 'center', backgroundColor: '#c7ecee', borderColor: '#c7ecee', borderWidth: 1, borderRadius: 20, height: 50 }}>
                           { name && <Text style={{ fontWeight: 'bold' }}>Check In</Text> }
                           <Text style={{ fontWeight: 'bold', fontSize: size.time, color: 'blue' }}>{ startTime }</Text>
                         </View>

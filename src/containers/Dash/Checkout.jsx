@@ -40,7 +40,11 @@ export const CheckOutComponent = ({ navigation }) => {
         }
       } catch(err) {
         setMessage( err );
-        setLoading( false );
+        await failed({ code, token, id })
+        setTimeout(() => {
+          navigation.navigate( 'Home' );
+          setLoading( false );
+        }, 6000)
       }
     }
   }

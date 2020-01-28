@@ -46,8 +46,8 @@ export const ProfileContainers = ({ navigation }) => {
           user && user.checkSignin
             ? 
               <View style={{ flex: 1, padding: 15, alignItems: 'center', justifyContent: 'space-between' }}>
-                <View style={{ flex: 0.2, backgroundColor: 'green', width: '98%', alignItems: 'center', justifyContent: 'center' }}>
-                  <Image source={{ uri: user.checkSignin.profile_image }} style={{ height: 100, width: 100 }} />
+                <View style={{ flex: 0.2, width: '98%', alignItems: 'center', justifyContent: 'center' }}>
+                  <Image source={{ uri: user.checkSignin.profile_image }} style={{ height: 100, width: 100, borderRadius: 30 }} />
                 </View>
                 <View style={{ flex: 0.55, width: '98%', padding: 10, justifyContent: 'center' }}>
                   <View style={{ borderBottomColor: 'black', borderBottomWidth: 1, backgroundColor: 'white' }}>

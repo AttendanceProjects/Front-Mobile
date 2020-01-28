@@ -88,23 +88,18 @@ export const _getCurrentLocationOffline = () => {
 
 export const _checkLocation = async ({ id, osPlatform, action, type, notif, nav, access, reason }) => {
   return new Promise ( async (resolve, reject) => {
-    console.log( access, reason, '---------------------' )
     const { code, token } = access;
-    console.log( code, token, 'dapat dari check location ')
     try {
       const { coords } = await _getCurrentLocation({ os: osPlatform });
-      console.log( 'dapat coord', coords );
       if( coords ) {
         const { longitude, latitude, accuracy } = coords
         let os;
         if( osPlatform === 'android' ) os = 'android';
         else os = 'ios';
-        console.log( os );
         if( longitude && latitude && accuracy && type && os ) {
           try {
             // , refetchQueries: [ {query: action.query, variables: { code, token }}, {query: action.daily, variables: {code, token}}, {query: action.history, variables: {code, token}} ]
             const { data } = await action.updateLocation({ variables: { code, token, os, type, reason, latitude: String(latitude), accuracy: String(accuracy), longitude: String(longitude), id } })
-            console.log( 'success', data )
             if( data ) notif.msg( `${ type === 'checkin' ? 'Check In' : 'Check Out' } Successfully!`);
             resolve({ msg: 'success' })
             setTimeout(() => {
@@ -118,19 +113,15 @@ export const _checkLocation = async ({ id, osPlatform, action, type, notif, nav,
         }
       }else notif.msg( 'We cant get your location..')
     }catch(err){
-      console.log( 'error', err );
       reject( err )
       if( err.graphQLErrors ) {
         notif.gif( {} );
         notif.msg( err.graphQLErrors[0].message )
-        const { data } = await action.upFailed({ code, token, id })
-        console.log( 'success delete', data );
+        await action.upFailed({ code, token, id })
       } else {
         notif.gif( {} );
-        console.log( 'masuk error' );
         notif.msg( err.error );
-        const { data } = await action.upFailed({ code, token, id })
-        console.log( 'success delete else ', data );
+        await action.upFailed({ code, token, id })
       }
     }
   })
