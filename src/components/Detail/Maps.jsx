@@ -36,6 +36,7 @@ export const MapComponent = ({ param }) => {
                   latitude: Number( start.latitude ),
                   longitude: Number( start.longitude )
                 }}
+                title={ 'Check In'}
                 // onPress={() => navigation.navigate('Detail')}
                 // onPress={() => setDestination({
                 //   latitude: Number(start.latitude),
@@ -54,6 +55,7 @@ export const MapComponent = ({ param }) => {
                   latitude: Number( end.latitude ),
                   longitude: Number( end.longitude )
                 }}
+                title={ 'Check Out' }
               >
                 <Image 
                   source={ require('../../../assets/people.png') }
@@ -73,7 +75,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   mapStyle: {
-    width: Dimensions.get('window').width,
-    height: Dimensions.get('window').height,
+    width: '100%',
+    height: Platform.OS === 'android' ? 410 : 350,
+    borderRadius: 20
   },
 });

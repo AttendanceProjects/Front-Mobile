@@ -99,7 +99,7 @@ export const _checkLocation = async ({ id, osPlatform, action, type, notif, nav,
         if( longitude && latitude && accuracy && type && os ) {
           try {
             // , refetchQueries: [ {query: action.query, variables: { code, token }}, {query: action.daily, variables: {code, token}}, {query: action.history, variables: {code, token}} ]
-            const { data } = await action.updateLocation({ variables: { code, token, os, type, reason, latitude: String(latitude), accuracy: String(accuracy), longitude: String(longitude), id } })
+            const { data } = await action.updateLocation({ variables: { code, token, os, type, reason, latitude: String(latitude), accuracy: String(accuracy), longitude: String(longitude), id }, refetchQueries: [ {query: action.query, variables: { code, token }}, {query: action.daily, variables: {code, token}} ] })
             if( data ) notif.msg( `${ type === 'checkin' ? 'Check In' : 'Check Out' } Successfully!`);
             resolve({ msg: 'success' })
             setTimeout(() => {

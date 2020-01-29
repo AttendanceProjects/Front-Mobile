@@ -28,6 +28,8 @@ export const History = ({ navigation }) => {
     })()
   }, [])
 
+  console.log( UserHistory );
+
   return (
     <View style={{ flex: 1, backgroundColor: '#353941' }}>
       { !isOnline && <OfflieHeaderComponent /> }
@@ -85,7 +87,7 @@ export const History = ({ navigation }) => {
                     renderHiddenItem={({ item }) => (
                       <TouchableOpacity
                         style={{ width: 50, right: 15, top: 25, position: 'absolute', flexDirection: 'row-reverse', marginTop: 20, marginLeft: 20, height: 50, alignItems: 'center' }}
-                        onPress={ () => navigation.navigate('Detail', { id: item._id, access })}
+                        onPress={ () => navigation.navigate('Detail', { id: item._id, access, date: item.date })}
                         >
                           <Font name={ 'pen-alt' } size={ 30 } color={ 'white' } />
                       </TouchableOpacity>
