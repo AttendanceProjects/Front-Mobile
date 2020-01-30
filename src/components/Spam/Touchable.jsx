@@ -1,13 +1,25 @@
 import React from 'react';
 import { TouchableOpacity, Text } from 'react-native';
+import { getServerTime, getAccess } from '../../service';
 
-export const TouchComponent = ({ press, h, w, text, color, textColor, bold, fromDash, type, id , size, spacing, issues, isuMessage }) => (
+export const TouchComponent = ({ press, h, w, text, color, textColor, bold, fromDash, type, id , size, spacing, issues, isuMessage, setMsg }) => (
   <TouchableOpacity
     onPress={ async () => {
-      if( type === 'checkin' ) fromDash( 'Absent' );
+      if( type === 'checkin' ) {
+        console.log( setMsg, 'datapt' )
+        const { code, token } = await getAccess();
+        const { time, error } = await getServerTime({ code, token }),
+          newTime = new Date( time );
+          if( error && setMsg ) {
+            setMsg( error );
+          }else if( new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Jakarta"})).toLocaleTimeString().split(':')[0] < 8 && new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Jakarta"})).toLocaleTimeString().split(' ')[1] === 'AM' ){
+            fromDash( 'Absent' );
+          }else {
+            setMsg( 'reason' );
+          }
+      }
       else if( type === 'checkout' ) {
         const { msg } = await checkTime();
-        console.log( msg, issues )
         if( msg === 'ok' || issues.length > 5 ) {
           isuMessage( false );
           fromDash( 'Checkout', { id, issues } );

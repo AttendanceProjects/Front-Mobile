@@ -46,11 +46,12 @@ export const History = ({ navigation }) => {
                 ? 
                   <SwipeListView
                     data={ UserHistory.getHistory }
-                    disableRightSwipe={ true }
-                    closeOnRowOpen={ true }
-                    automaticallyAdjustContentInsets={ true }
-                    stopLeftSwipe={ 50 }
-                    closeOnRowBeginSwipe={ true }
+                    disableRightSwipe={true}
+                    closeOnRowOpen={true}
+                    stopLeftSwipe={35}
+                    closeOnRowBeginSwipe={true}
+                    closeOnScroll={true}
+                    closeOnRowPress={true}
                     renderItem={ ({item}) => (
                       <ListComponent
                         key={ item._id }

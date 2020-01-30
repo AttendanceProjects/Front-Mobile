@@ -2,7 +2,7 @@ import * as Permissions from 'expo-permissions';
 import * as Location from 'expo-location';
 
 // -6.132331, 106.808560
-export const takeAPicture = ({ camera, type, action, loading, message, gifLoad, upload, access }) => {
+export const takeAPicture = ({ camera, type, action, loading, message, gifLoad, upload, access, start_reason }) => {
   return new Promise ( async (resolve, reject ) => {
     const { uri } = await camera.takePictureAsync({ quality: 0.5 });
     const picName = uri.split('-');
@@ -16,7 +16,7 @@ export const takeAPicture = ({ camera, type, action, loading, message, gifLoad, 
       if( success ) {
         try {
           if( type.msg === 'checkin' ) {
-            const { data } = await action.mutation({ variables: { code, token, start_image: success }, refetchQueries: [ {query: action.query, variables: {code, token}}, {query: action.daily, variables: {code, token}}, {query: action.history, variables: {code, token}} ] });
+            const { data } = await action.mutation({ variables: { code, token, start_image: success, start_reason }, refetchQueries: [ {query: action.query, variables: {code, token}}, {query: action.daily, variables: {code, token}}, {query: action.history, variables: {code, token}} ] });
             message( false );
             gifLoad( {} );
             resolve({ message: 'success', id: data.createAtt._id })

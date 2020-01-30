@@ -4,7 +4,7 @@ import { TouchComponent, LoadingComponent } from '../Spam';
 
 import { BtmListComponent, TopListComponent } from '../ListPerComponent'
 
-export const ListComponent = ({ nav, load, image, size, name, role, date, startTime, message, action, type , startIssues, id, daily, mr, justy, bc, typeParent }) => {
+export const ListComponent = ({ nav, load, image, size, name, role, date, startTime, message, action, type, setMsg, startIssues, id, daily, mr, justy, bc, typeParent }) => {
   const [ issueM, setIssueM ] = useState( false );
   const [ issues, setIssues ] = useState( '' );
 
@@ -102,7 +102,7 @@ export const ListComponent = ({ nav, load, image, size, name, role, date, startT
                           <Text style={{ fontWeight: 'bold', fontSize: size.time, color: 'blue' }}>{ startTime }</Text>
                         </View>
                         <View style={{ flex: 0.5, alignItems: 'center', justifyContent: 'space-between' }}>
-                          <TouchComponent w={ 100 } h={ 35 } color={ '#c7ecee' } textColor='#e056fd' text={ message } bold={ 'bold' } fromDash={ action } id={ id } type ={ type  } issues={ issues } isuMessage={ setIssueM }/>
+                          <TouchComponent w={ 100 } h={ 35 } color={ '#c7ecee' } textColor='#e056fd' text={ message } bold={ 'bold' } fromDash={ action } id={ id } type ={ type  } issues={ issues } isuMessage={ setIssueM } setMsg={ setMsg }/>
                           { startIssues ? <Text style={{ fontSize: 8, marginTop: 5 }}>Issues: <Text style={{ color: startIssues === 'ok' ? 'green' : startIssues === 'warning' ? 'yellow' : 'red' }}>{ startIssues.toUpperCase() }</Text></Text>
                             : startIssues === '' && <Text style={{ fontSize: 8, marginTop: 5 }}>Issues: <Text style={{ color: 'red' }}>Failed Location</Text></Text>}
                         </View>

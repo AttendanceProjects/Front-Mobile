@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { HeaderComponent, ListComponent, ErrorGlobal, OfflieHeaderComponent } from '../../components'
+import { HeaderComponent, ListComponent, ErrorGlobal, OfflieHeaderComponent, StartReasonComponent } from '../../components'
 import { View, Text, Platform, ScrollView, AsyncStorage } from 'react-native';
 import { getAccess, checkConnection } from '../../service';
 import { Query } from '../../graph';
@@ -14,8 +14,11 @@ export const Dash = ({ navigation }) => {
   const [ days ] = useState( ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] )
   const [ currentTime, setCurrentTime ] = useState( '' );
   const [ currentDay, setCurrentDays ] = useState( '' );
+  const [ msg, setMsg ] = useState( false );
+  const [ startReason, setStartReason ] = useState( false );
+  const [ errorReason, setErrorReason ] = useState( false );
 
-  const [ isOnline, setIsOnline ] = useState( true )
+  const [ isOnline, setIsOnline ] = useState( true );
 
 
   useEffect(() => {
@@ -46,6 +49,17 @@ export const Dash = ({ navigation }) => {
       }
     })()
   }, [ isOnline ])
+  
+  const goAbsent = () => {
+    if( startReason.length < 8 ) {
+      setErrorReason( 'Your reason invalid, min 8 char' );
+      setTimeout(() => setErrorReason( false ), 5000)
+    }
+    else {
+      setErrorReason( false );
+      navigation.navigate( 'Absent', { startReason } )
+    }
+  }
 
   return (
     <>
@@ -102,10 +116,12 @@ export const Dash = ({ navigation }) => {
                             action={ navigation.navigate }
                             type={ 'checkin' }
                             daily={ DailyUser && DailyUser.dailyUser.msg }
+                            setMsg={ setMsg }
                             />
                   }
                 </>
           }
+          { msg && <StartReasonComponent err={ errorReason } set={ setStartReason } reason={ startReason } action={ goAbsent }/> }
           { error && <ErrorGlobal text={ error } /> }
         </View>
       </ScrollView>

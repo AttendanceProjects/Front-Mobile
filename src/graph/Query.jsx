@@ -111,6 +111,7 @@ export const GET_ATT_ID = gql`
         latitude
         longitude
       }
+      # start_reason
       end
       end_image
       end_issues
