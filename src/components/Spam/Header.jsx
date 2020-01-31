@@ -55,7 +55,7 @@ export const HeaderComponent = ({ left, mid, right, online }) => (
                             right.nav( 'Signin' )
                           })()
                         }) }
-                        style={{ position: 'absolute', right: 10, top: right.top ? right.top : mid ? -2 : -25 }}
+                        style={{ position: 'absolute', right: right.right ? right.right : 10, top: right.top ? right.top : mid ? -2 : -25 }}
                         />
               }
             </View>

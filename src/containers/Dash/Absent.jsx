@@ -34,15 +34,16 @@ export const Absent = ({ navigation }) => {
   const takePicture = async () => {
     const { code, token } = await getAccess();
     const { time, error } = await getServerTime({ code, token });
+    const { startReason } = await navigation.state.params;
     const date = new Date( time )
-    if( date.toLocaleTimeString().split(':')[0] < 8 && date.toLocaleTimeString().split(' ')[1] === 'AM' ){
+    if( date.toLocaleTimeString().split(':')[0] < 8 && date.toLocaleTimeString().split(' ')[1] === 'AM' || startReason ){
       let id
       if( camera ) {
         await checkConnection({ save: setIsOnline });
         if( isOnline ) {
           try {
             if( navigation.state.params ){
-              var { message: messageNo, id: idNo } = await takeAPicture({ access: { code, token }, start_reason: navigation.state.params.startReason, upload: uploadImage, camera, loading: setLoading, message: setMessage, action: { mutation: attendance, query: Query.USER_ATT, daily: Query.GET_DAILY_USER,  history: Query.GET_HISTORY }, gifLoad: setGif, type: { msg: 'checkin' } });
+              var { message: messageNo, id: idNo } = await takeAPicture({ access: { code, token }, start_reason: startReason, upload: uploadImage, camera, loading: setLoading, message: setMessage, action: { mutation: attendance, query: Query.USER_ATT, daily: Query.GET_DAILY_USER,  history: Query.GET_HISTORY }, gifLoad: setGif, type: { msg: 'checkin' } });
             } else {
               var { message: messageYes, id: idYes } = await takeAPicture({ access: { code, token }, upload: uploadImage, camera, loading: setLoading, message: setMessage, action: { mutation: attendance, query: Query.USER_ATT, daily: Query.GET_DAILY_USER,  history: Query.GET_HISTORY }, gifLoad: setGif, type: { msg: 'checkin' } });
             }

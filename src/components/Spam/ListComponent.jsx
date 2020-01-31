@@ -4,12 +4,11 @@ import { TouchComponent, LoadingComponent } from '../Spam';
 
 import { BtmListComponent, TopListComponent } from '../ListPerComponent'
 
-export const ListComponent = ({ nav, load, image, size, name, role, date, startTime, message, action, type, setMsg, startIssues, id, daily, mr, justy, bc, typeParent }) => {
+export const ListComponent = ({ load, image, size, name, role, date, startTime, message, action, type, setMsg, startIssues, id, daily, mr, justy, bc, typeParent }) => {
   const [ issueM, setIssueM ] = useState( false );
   const [ issues, setIssues ] = useState( '' );
 
   useEffect(() => {
-    console.log( size, type )
     setIssueM( false );
   }, [])
 
@@ -65,8 +64,6 @@ export const ListComponent = ({ nav, load, image, size, name, role, date, startT
                               date: typeParent.date
                             }}
                             justy={ justy }
-                            nav={ nav }
-                            data={ typeParent }
                           />
                         :
                           <View style={{ width: '100%', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
@@ -93,7 +90,6 @@ export const ListComponent = ({ nav, load, image, size, name, role, date, startT
                           size={{
                             time: size.time,
                           }}
-                          nav={ nav }
                         />
                       :
                       <>

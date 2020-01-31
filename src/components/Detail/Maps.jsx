@@ -8,7 +8,6 @@ export const MapComponent = ({ param }) => {
 
   useEffect(() => {
     const { start, end, id } = param;
-    console.log( start, end, id )
     setStart( start );
     setEnd( end );
   }, [])

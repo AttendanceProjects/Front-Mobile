@@ -75,11 +75,8 @@ export const GET_HISTORY = gql`
     getHistory ( code: $code, token: $token ) {
       _id
       UserId {
-        _id
         username
-        password
         profile_image
-        email
         role
       }
       start
@@ -111,7 +108,7 @@ export const GET_ATT_ID = gql`
         latitude
         longitude
       }
-      # start_reason
+      start_reason
       end
       end_image
       end_issues
@@ -119,6 +116,25 @@ export const GET_ATT_ID = gql`
         latitude
         longitude
       }
+      end_reason
+      date
+    }
+  }
+`
+
+export const FILTER_ATT = gql`
+  query filter ( $code: String, $token: String, $category: String ) {
+    filter ( code: $code, token: $token, category: $category ) {
+      _id
+      UserId {
+        username
+        profile_image
+        role
+      }
+      start
+      start_issues
+      end
+      end_issues
       end_reason
       date
     }

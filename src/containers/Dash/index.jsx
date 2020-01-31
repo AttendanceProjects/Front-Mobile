@@ -5,3 +5,4 @@ export * from './Checkout';
 export * from './Profile';
 export * from './ChangePassword';
 export * from './Detail';
+export * from './Filter';

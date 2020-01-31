@@ -3,7 +3,7 @@ import { createAppContainer, createSwitchNavigator } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 import { createDrawerNavigator } from 'react-navigation-drawer';
-import { Signin, Forgot, Dash, History, Absent, CheckOutComponent, DetailContainers, ImageContainers, ProfileContainers, ChangePasswordContainers } from './src/containers';
+import { Signin, Forgot, Dash, History, Absent, CheckOutComponent, DetailContainers, ImageContainers, ProfileContainers, ChangePasswordContainers, FilterContainers } from './src/containers';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
 import { HeaderComponent } from './src/components'
@@ -22,7 +22,8 @@ const StackDashBoardNavigation = createStackNavigator({
 const StackHistoryNavigation = createStackNavigator({
   History: { screen: History, navigationOptions: { header: null } },
   Detail: { screen: DetailContainers, navigationOptions: { header: ({ scene }) => <HeaderComponent mid={{ msg: scene.descriptor.navigation.state.params.date }} online={ true } left={{ icon: 'arrow-left', action: scene.descriptor.navigation.goBack, top: Platform.OS === 'android' ? 16 : 0}} /> } },
-  Image: { screen: ImageContainers }
+  Image: { screen: ImageContainers },
+  Filter: { screen: FilterContainers, navigationOptions: { title: 'Filter Search' } }
 })
 
 const StackProfileNavigation = createStackNavigator({

@@ -37,6 +37,13 @@ export const Dash = ({ navigation }) => {
     })()
   }, [])
 
+  useEffect(() => {
+    if( Attendance ) {
+      console.log( Attendance )
+      setMsg( false );
+    }
+  }, [ Attendance ])
+
 
 
   useEffect(() => {
@@ -56,8 +63,8 @@ export const Dash = ({ navigation }) => {
       setTimeout(() => setErrorReason( false ), 5000)
     }
     else {
-      setErrorReason( false );
       navigation.navigate( 'Absent', { startReason } )
+      setErrorReason( false );
     }
   }
 
