@@ -3,7 +3,7 @@ import { View, Text, Platform, AsyncStorage } from 'react-native';
 import Font from 'react-native-vector-icons/FontAwesome5';
 
 export const HeaderComponent = ({ left, mid, right, online }) => (
-  <View style={{ height: !online ? 35 : Platform.OS === 'android' ? 80 : 70, alignItems: 'center', justifyContent: 'flex-end', backgroundColor: '#5f85db' }}>
+  <View style={{ height: !online ? 35 : Platform.OS === 'android' ? 80 : 70, alignItems: 'center', justifyContent: 'flex-end', backgroundColor: '#90b8f8' }}>
     <View style={{ width: '100%', justifyContent: 'space-between', flexDirection: 'row' }}>
       {
         left

@@ -62,18 +62,18 @@ function _getCurrentLocation ({ os }) {
     else if( status === 'granted' ){
       if( os === 'android' ) {
         const { coords } = await Location.getCurrentPositionAsync({});
-        console.log( coords, 'helpers' )
         if( coords.accuracy > 15 ) resolve({ coords });
         else reject({ error: 'Sorry, We suspect your location because it is less accurate' })
       }else {
         const { coords } = await Location.getCurrentPositionAsync({});
-        console.log( 'ios', coords );
         if( coords.accuracy > 55 ) resolve({ coords } )
         else reject({ error: 'Sorry, We suspect your location because it is less accurate' })
       }
     } 
   })
 }
+
+export const CheckLocation = _getCurrentLocation;
 
 export const _getCurrentLocationOffline = () => {
   return new Promise ( async (resolve, reject) => {

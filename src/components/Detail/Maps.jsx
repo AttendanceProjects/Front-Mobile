@@ -7,7 +7,7 @@ export const MapComponent = ({ param }) => {
   const [ end, setEnd ] = useState( {} );
 
   useEffect(() => {
-    const { start, end, id } = param;
+    const { start, end } = param;
     setStart( start );
     setEnd( end );
   }, [])
@@ -69,7 +69,6 @@ export const MapComponent = ({ param }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
   },

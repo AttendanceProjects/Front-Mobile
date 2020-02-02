@@ -23,7 +23,6 @@ export const Absent = ({ navigation }) => {
 
   useEffect(() => {
     (async () => {
-      console.log( navigation );
       await checkConnection({ save: setIsOnline });
       const { status } = await Camera.requestPermissionsAsync();
       if( status === 'granted' ) setHasPermission(status === 'granted');
@@ -34,7 +33,7 @@ export const Absent = ({ navigation }) => {
   const takePicture = async () => {
     const { code, token } = await getAccess();
     const { time, error } = await getServerTime({ code, token });
-    const { startReason } = await navigation.state.params;
+    const { startReason } =  navigation.state.params ? await navigation.state.params : '';
     const date = new Date( time )
     if( date.toLocaleTimeString().split(':')[0] < 8 && date.toLocaleTimeString().split(' ')[1] === 'AM' || startReason ){
       let id
@@ -43,13 +42,59 @@ export const Absent = ({ navigation }) => {
         if( isOnline ) {
           try {
             if( navigation.state.params ){
-              var { message: messageNo, id: idNo } = await takeAPicture({ access: { code, token }, start_reason: startReason, upload: uploadImage, camera, loading: setLoading, message: setMessage, action: { mutation: attendance, query: Query.USER_ATT, daily: Query.GET_DAILY_USER,  history: Query.GET_HISTORY }, gifLoad: setGif, type: { msg: 'checkin' } });
+              var { message: messageNo, id: idNo } = await takeAPicture({
+                access: { code, token },
+                start_reason: startReason,
+                upload: uploadImage,
+                camera,
+                loading: setLoading,
+                message: setMessage,
+                action: { 
+                  mutation: attendance,
+                  query: Query.USER_ATT,
+                  daily: Query.GET_DAILY_USER,
+                  history: Query.GET_HISTORY,
+                  filter: Query.FILTER_ATT
+                },
+                gifLoad: setGif,
+                type: { msg: 'checkin' } 
+              });
             } else {
-              var { message: messageYes, id: idYes } = await takeAPicture({ access: { code, token }, upload: uploadImage, camera, loading: setLoading, message: setMessage, action: { mutation: attendance, query: Query.USER_ATT, daily: Query.GET_DAILY_USER,  history: Query.GET_HISTORY }, gifLoad: setGif, type: { msg: 'checkin' } });
+              var { message: messageYes, id: idYes } = await takeAPicture({
+                access: { code, token },
+                upload: uploadImage,
+                camera,
+                loading: setLoading,
+                message: setMessage,
+                action: {
+                  mutation: attendance,
+                  query: Query.USER_ATT,
+                  daily: Query.GET_DAILY_USER,
+                  history: Query.GET_HISTORY,
+                  filter: Query.FILTER_ATT
+                },
+                gifLoad: setGif,
+                type: { msg: 'checkin' }
+              });
             }
             if( messageNo || messageYes ) {
               setGif({ uri: 'https://media.giphy.com/media/WiIuC6fAOoXD2/giphy.gif', first: 'Please Wait...', second: "Checking Location..." })
-              await _checkLocation({ nav: navigation.navigate, id: idNo ? idNo : idYes, osPlatform: Platform.OS, action: { upFailed: failed, updateLocation: location, query: Query.USER_ATT, daily: Query.GET_DAILY_USER,  history: Query.GET_HISTORY }, type: 'checkin', notif: { gif: setGif, msg: setMessage }, access: { code, token } })
+              await _checkLocation({
+                nav: navigation.navigate,
+                id: idNo ? idNo : idYes,
+                osPlatform: Platform.OS,
+                action: {
+                  upFailed: failed,
+                  updateLocation: location,
+                  query: Query.USER_ATT,
+                  daily: Query.GET_DAILY_USER,
+                  history: Query.GET_HISTORY,
+                  filter: Query.FILTER_ATT
+                },
+                type: 'checkin',
+                notif: { gif: setGif, msg: setMessage },
+                access: { code, token }
+              })
             }
           } catch(err) {
             setMessage( err );
@@ -63,7 +108,14 @@ export const Absent = ({ navigation }) => {
           const picture = await camera.takePictureAsync({ quality: 0.5 });
           const { coords } = await _getCurrentLocationOffline();
           let IndoTime = new Date().toLocaleString("en-US", {timeZone: "Asia/Jakarta"});
-          await AsyncStorage.setItem('offline', JSON.stringify({ location: { longitude: coords.longitude, latitude: coords.latitude }, url: picture.uri, time: new Date( IndoTime ) }));
+          await AsyncStorage.setItem('offline', JSON.stringify({
+            location: {
+              longitude: coords.longitude,
+              latitude: coords.latitude
+            },
+            url: picture.uri,
+            time: new Date( IndoTime ) 
+          }));
           const splitPicture = picture.uri.split('-');
           setMessage( `No Internet Connection, but your request will our keep.. Please screen shot this and upload if you done connected internet ${ splitPicture[splitPicture.length-1] }`);
           setTimeout(() => {

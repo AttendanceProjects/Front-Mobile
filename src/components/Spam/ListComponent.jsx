@@ -83,8 +83,10 @@ export const ListComponent = ({ load, image, size, name, role, date, startTime, 
                             endTime: typeParent.endTime,
                             endIssues: typeParent.endIssues,
                             reason: {
+                              start: typeParent.reason.start,
                               end: typeParent.reason.end
                             },
+                            type: typeParent.type,
                             date: typeParent.date
                           }}
                           size={{

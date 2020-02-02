@@ -75,7 +75,9 @@ export const GET_HISTORY = gql`
     getHistory ( code: $code, token: $token ) {
       _id
       UserId {
+        _id
         username
+        email
         profile_image
         role
       }
@@ -123,20 +125,34 @@ export const GET_ATT_ID = gql`
 `
 
 export const FILTER_ATT = gql`
-  query filter ( $code: String, $token: String, $category: String ) {
-    filter ( code: $code, token: $token, category: $category ) {
+  query filter ( $code: String, $token: String, $category: String, $search: String ) {
+    filter ( code: $code, token: $token, category: $category, search: $search ) {
       _id
       UserId {
+        _id
         username
+        email
         profile_image
         role
       }
       start
       start_issues
+      start_reason
       end
       end_issues
       end_reason
       date
+    }
+  }
+`
+
+
+//company
+
+export const GET_COMPANY = gql `
+  query getCompany ( $code: String, $token: String ) {
+    getCompany( code: $code, token: $token ) {
+      company_name
     }
   }
 `

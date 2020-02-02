@@ -24,8 +24,6 @@ export const ProfileContainers = ({ navigation }) => {
     })()
   }, [])
 
-  console.log( user );
-
   return (
     <>
       { !isOnline && <OfflieHeaderComponent /> }

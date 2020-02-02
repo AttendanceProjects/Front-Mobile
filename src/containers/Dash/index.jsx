@@ -6,3 +6,5 @@ export * from './Profile';
 export * from './ChangePassword';
 export * from './Detail';
 export * from './Filter';
+export * from './LiveAtt';
+export * from './PreCheck';

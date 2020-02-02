@@ -34,7 +34,7 @@ export const History = ({ navigation }) => {
       <HeaderComponent
         online={ isOnline }
         mid={{ msg: 'History', ls: 2, color: '#26282b' }}
-        left={{ icon: Platform.OS === 'android' ? 'list-ol' : 'sliders-h', top: Platform.OS === 'android' ? 10 : 1, action: navigation.openDrawer }}
+        left={{ icon: 'arrow-left', top: Platform.OS === 'android' ? 10 : 1, action: navigation.goBack }}
         right={{ icon: 'search', top: Platform.OS === 'android' ? 10 : 0, right: 20, action: () => navigation.navigate(  'Filter' ) }}
         />
         <ScrollView>
@@ -100,12 +100,10 @@ export const History = ({ navigation }) => {
                   ? <ActivityIndicator color={ 'blue' } size={ 'large' } style={{ position: 'absolute', right: 'auto', top: 'auto' }}/>
                   : message
                     ? <ErrorGlobal text={ message } size={ 30 }/>
-                    : !loading && UserHistory && UserHistory.getHistory.length === 0
-                      ? <View style={{ flex: 1, marginTop: Platform.OS === 'android' ? 200 : 150, alignItems: 'center', justifyContent: 'center' }}>
+                    : <View style={{ flex: 1, marginTop: Platform.OS === 'android' ? 200 : 150, alignItems: 'center', justifyContent: 'center' }}>
                         <Image source={ require('../../../assets/box-empty.png') } style={{ width: 150, height: 150 }} />
                         <Text style={{ fontSize: Platform.OS === 'android' ? 15 : 20, color: 'white', fontWeight: 'bold', marginTop: Platform.OS === 'android' ? 35 : 50, letterSpacing: 2 }}>No History Saved</Text>
                         </View>
-                      : null
             }
           </View>
       </ScrollView>

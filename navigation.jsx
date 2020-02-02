@@ -3,7 +3,7 @@ import { createAppContainer, createSwitchNavigator } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 import { createDrawerNavigator } from 'react-navigation-drawer';
-import { Signin, Forgot, Dash, History, Absent, CheckOutComponent, DetailContainers, ImageContainers, ProfileContainers, ChangePasswordContainers, FilterContainers } from './src/containers';
+import { Signin, Forgot, Dash, History, Absent, CheckOutComponent, DetailContainers, ImageContainers, ProfileContainers, ChangePasswordContainers, FilterContainers, LiveAttContainers, CheckContainers } from './src/containers';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
 import { HeaderComponent } from './src/components'
@@ -14,10 +14,6 @@ const StackSigninNavigation = createStackNavigator({
   Forgot: { screen: Forgot, navigationOptions: { title: 'Forgot Password' } }
 }, { initialRouteName: 'Signin' })
 
-const StackDashBoardNavigation = createStackNavigator({
-  Home: { screen: Dash, navigationOptions: { header: null } },
-  Checkout: { screen: CheckOutComponent, navigationOptions: { header: null } }
-})
 
 const StackHistoryNavigation = createStackNavigator({
   History: { screen: History, navigationOptions: { header: null } },
@@ -26,15 +22,19 @@ const StackHistoryNavigation = createStackNavigator({
   Filter: { screen: FilterContainers, navigationOptions: { title: 'Filter Search' } }
 })
 
+
+const StackDashBoardNavigation = createStackNavigator({
+  Home: { screen: Dash, navigationOptions: { header: null } },
+  LiveAtt: { screen: LiveAttContainers, navigationOptions: { title: 'Live Attendance' } },
+  Checkin: { screen: Absent, navigationOptions: { title: 'Check In' } },
+  History: { screen: StackHistoryNavigation, navigationOptions: { header: null } },
+  Checkout: { screen: CheckOutComponent, navigationOptions: { header: null } },
+  PreCheck: { screen: CheckContainers }
+})
+
 const StackProfileNavigation = createStackNavigator({
   Profile: { screen: ProfileContainers, navigationOptions: { header: null } },
   Change: { screen: ChangePasswordContainers }
-})
-
-const DrawerNavigation = createDrawerNavigator({
-  Home: { screen: StackDashBoardNavigation },
-  History: { screen: StackHistoryNavigation },
-  Profile: { screen: StackProfileNavigation }
 })
 
 // const StackAbsentProcess = createStackNavigator({
@@ -43,17 +43,17 @@ const DrawerNavigation = createDrawerNavigator({
 
 const TabsNavigation = createBottomTabNavigator({
   DashBoard: {
-    screen: DrawerNavigation,
+    screen: StackDashBoardNavigation,
     navigationOptions: {
       tabBarIcon: ({ tintColor }) => <FontAwesome5 name={'home'} color={ tintColor } />,
       title: 'Home'
     }
   },
-  Absent: {
-    screen: Absent,
+  Profile: {
+    screen: StackProfileNavigation,
     navigationOptions: {
-      tabBarIcon: ({ tintColor }) => <FontAwesome5 name={ 'plus' } color={ tintColor } />,
-      title: 'Absent'
+      tabBarIcon: ({ tintColor }) => <FontAwesome5 name={ 'user' } color={ tintColor } />,
+      title: 'Profile'
     }
   }
 })
