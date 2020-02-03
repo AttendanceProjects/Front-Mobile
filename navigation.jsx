@@ -19,7 +19,7 @@ const StackHistoryNavigation = createStackNavigator({
   History: { screen: History, navigationOptions: { header: null } },
   Detail: { screen: DetailContainers, navigationOptions: { header: ({ scene }) => <HeaderComponent mid={{ msg: scene.descriptor.navigation.state.params.date }} online={ true } left={{ icon: 'arrow-left', action: scene.descriptor.navigation.goBack, top: Platform.OS === 'android' ? 16 : 0}} /> } },
   Image: { screen: ImageContainers },
-  Filter: { screen: FilterContainers, navigationOptions: { title: 'Filter Search' } }
+  Filter: { screen: FilterContainers, navigationOptions: { header: null  } }
 })
 
 
@@ -27,7 +27,13 @@ const StackDashBoardNavigation = createStackNavigator({
   Home: { screen: Dash, navigationOptions: { header: null } },
   LiveAtt: { screen: LiveAttContainers, navigationOptions: { title: 'Live Attendance' } },
   Checkin: { screen: Absent, navigationOptions: { title: 'Check In' } },
-  History: { screen: StackHistoryNavigation, navigationOptions: { header: null } },
+  History: {
+    screen: StackHistoryNavigation,
+    navigationOptions: ({ navigation }) => ({
+      headerRight: (
+          <FontAwesome5 name={ 'search' } size={ 20 } color={ 'white' } style={{ marginRight: 20 }} onPress={() => navigation.navigate( "Filter" ) }/>
+      )
+  }) },
   Checkout: { screen: CheckOutComponent, navigationOptions: { header: null } },
   PreCheck: { screen: CheckContainers }
 })

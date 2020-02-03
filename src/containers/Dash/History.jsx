@@ -31,12 +31,6 @@ export const History = ({ navigation }) => {
   return (
     <View style={{ flex: 1, backgroundColor: '#353941' }}>
       { !isOnline && <OfflieHeaderComponent /> }
-      <HeaderComponent
-        online={ isOnline }
-        mid={{ msg: 'History', ls: 2, color: '#26282b' }}
-        left={{ icon: 'arrow-left', top: Platform.OS === 'android' ? 10 : 1, action: navigation.goBack }}
-        right={{ icon: 'search', top: Platform.OS === 'android' ? 10 : 0, right: 20, action: () => navigation.navigate(  'Filter' ) }}
-        />
         <ScrollView>
 
           <View style={{ marginTop: 10, marginHorizontal: 5 }}>

@@ -15,8 +15,8 @@ export const HeaderComponent = ({ left, mid, right, online }) => (
                     <Font
                       name={ left.icon }
                       size={ left.size ? left.size : 20 }
-                      onPress={ left.action && (() => left.action()) }
-                      style={{ position: 'absolute', top: left.top ? left.top : mid ? -2 : -25, left: 10 }}
+                      onPress={ () => left.action( 'Home' ) }
+                      style={{ position: 'absolute', top: left.top ? left.top : mid ? -2 : -25, left: 20 }}
                       />  
               }
             </View>

@@ -37,6 +37,8 @@ export const USER_ATT = gql`
       UserId {
         _id
         username
+        password
+        profile_image
         email
         role
       }
@@ -47,6 +49,7 @@ export const USER_ATT = gql`
         latitude
         longitude
       }
+      start_reason
       end
       end_image
       end_issues
@@ -77,14 +80,26 @@ export const GET_HISTORY = gql`
       UserId {
         _id
         username
-        email
+        password
         profile_image
+        email
         role
       }
       start
+      start_image
       start_issues
+      start_location {
+        latitude
+        longitude
+      }
+      start_reason
       end
+      end_image
       end_issues
+      end_location {
+        latitude
+        longitude
+      }
       end_reason
       date
     }
@@ -131,15 +146,26 @@ export const FILTER_ATT = gql`
       UserId {
         _id
         username
-        email
+        password
         profile_image
+        email
         role
       }
       start
+      start_image
       start_issues
+      start_location {
+        latitude
+        longitude
+      }
       start_reason
       end
+      end_image
       end_issues
+      end_location {
+        latitude
+        longitude
+      }
       end_reason
       date
     }
