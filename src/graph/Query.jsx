@@ -182,3 +182,47 @@ export const GET_COMPANY = gql `
     }
   }
 `
+
+// Correction
+
+export const USER_CORRECTION = gql `
+  query userCorrection ( $code: String, $token: String ){
+    userCorrection( code: $code, token: $token ) {
+      AttId {
+        _id
+        UserId {
+          _id
+          username
+          password
+          profile_image
+          email
+          role
+        }
+        start
+        start_image
+        start_issues
+        start_location {
+          latitude
+          longitude
+        }
+        start_reason
+        end
+        end_image
+        end_issues
+        end_location {
+          latitude
+          longitude
+        }
+        end_reason
+        date
+      }
+      UserId
+      createdAt
+      updatedAt
+      start
+      end
+      reason
+      status
+    }
+  }
+` 

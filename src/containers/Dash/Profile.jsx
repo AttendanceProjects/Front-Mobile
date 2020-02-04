@@ -30,9 +30,8 @@ export const ProfileContainers = ({ navigation }) => {
       <HeaderComponent
         online={ isOnline }
         right={{ icon: 'sign-out-alt', size: 20, nav: navigation.navigate, top: Platform.OS === 'android' ? 6 : 2 }}
-        mid={{ msg: 'Profile', ls: 2 }}
-        left={{ icon: Platform.OS === 'android' ? 'list-ol' : 'sliders-h', top: Platform.OS === 'android' ? 10 : 1, action: navigation.openDrawer }} />
-      <View style={{ flex: 1 }}>
+        mid={{ msg: 'Profile', ls: 2 }} />
+      <View style={{ flex: 1, backgroundColor: '#353941' }}>
         {
           loading
             ? 

@@ -13,9 +13,7 @@ export const LiveAttContainers = ({ navigation }) => {
   const [ loading, setLoading ] = useState( false );
   const [ error, setError ] = useState( false );
   const [ newDate ] = useState( new Date () );
-  const [ days ] = useState( ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] )
   const [ currentTime, setCurrentTime ] = useState( '' );
-  const [ currentDay, setCurrentDays ] = useState( '' );
   const [ msg, setMsg ] = useState( false );
   const [ msgOut, setOut ] = useState( false );
   const [ startReason, setStartReason ] = useState( '' );
@@ -27,7 +25,7 @@ export const LiveAttContainers = ({ navigation }) => {
   useEffect(() => {
     (async() => {
       setInterval(() => {
-        getCurrentTime({ setTime: setCurrentTime, setDay: setCurrentDays, days });
+        getCurrentTime({ setTime: setCurrentTime });
       }, 1000);
       await checkConnection({ save: setIsOnline });
       setLoading( true );
@@ -60,17 +58,6 @@ export const LiveAttContainers = ({ navigation }) => {
     })()
   }, [ isOnline ])
   
-  const goAbsent = () => {
-    if( startReason.length < 8 ) {
-      setErrorReason( 'Your reason invalid, min 8 char' );
-      setTimeout(() => setErrorReason( false ), 5000)
-    }
-    else {
-      navigation.navigate( 'Absent', { startReason } )
-      setErrorReason( false );
-      setMsg( false );
-    }
-  }
 
   const onRefresh = React.useCallback(async () => {
     setRefresh(true);
@@ -85,12 +72,17 @@ export const LiveAttContainers = ({ navigation }) => {
 
   const _onCheckin = () => {
     console.log( 'trigger' );
-    let date = new Date().toLocaleTimeString().split(':')[0];
+    setMsg( false );
+    let date
+    if( Platform.OS === 'android' ) date = new Date().toLocaleTimeString().split(':')[0];
+    else date = new Date().toLocaleTimeString().split('.')[0];
+    console.log( date );
     if( date < 8 ) {
       navigation.navigate( 'Checkin' );
       setStartReason( '' );
     }else if( !startReason ) {
       console.log( msg );
+      console.log( 'masuk kondisi kedua' );
       setMsg( true );
     }else if( startReason.length < 8 ){
       console.log( 'kondisi kedua' );
@@ -98,6 +90,7 @@ export const LiveAttContainers = ({ navigation }) => {
       setTimeout(() => setErrorReason( false ), 5000 );
       console.log( 'else' );
     }else {
+      console.log( 'masuk kondisi ke else' );
       navigation.navigate( 'Checkin', { startReason } );
       setStartReason( '' );
     }
@@ -130,7 +123,7 @@ export const LiveAttContainers = ({ navigation }) => {
     }
     // if( )
   }
-console.log( DailyUser )
+
   return (
     <>
       { !isOnline && <OfflieHeaderComponent /> }
@@ -148,28 +141,33 @@ console.log( DailyUser )
               <View style={ styles.ViewUpAttCheck }>
                 <View style={ styles.ViewAttCheck }>
                   <Text style={{ fontSize: 20 }}>Check In</Text>
-                  <Text style={{ marginTop: 10, color: DailyUser && DailyUser.dailyUser.msg === 'ok' ? 'green' : 'black' }}>{ Att && Att.userAtt ? Att.userAtt.start : ' - ' }</Text>
+                  <Text style={{ marginTop: 10, color: DailyUser && DailyUser.dailyUser.msg === 'ok' ? 'green' : 'black' }}>{ Att && Att.userAtt && Att.userAtt.start && Att.userAtt.start ? Att.userAtt.start : ' - ' }</Text>
                 </View>
                 <View style={ styles.ViewAttCheck }>
                   <Text style={{ fontSize: 20 }}>Check Out</Text>
-                  <Text style={{ marginTop: 10, color: DailyUser && DailyUser.dailyUser.msg === 'ok' ? 'green' : 'black'  }}>{ Att && Att.userAtt ? Att.userAtt.end : ' - ' }</Text>
+                  <Text style={{ marginTop: 10, color: DailyUser && DailyUser.dailyUser.msg === 'ok' ? 'green' : 'black'  }}>{ Att && Att.userAtt && Att.userAtt.end && Att.userAtt.end ? Att.userAtt.end : ' - ' }</Text>
                 </View>
               </View>
               <View style={ styles.ViewButton }>
                 <TouchableOpacity style={ styles.CheckButton } onPress={ (Att && Att.userAtt && Att.userAtt.start) ? () => alert( 'Allready Checkin' ) : _onCheckin }>
                   <Text style={{ color: 'white', fontWeight: 'bold' }}>{ (Att && Att.userAtt && Att.userAtt.start) ? ' Done ' : ' Check In ' }</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={ styles.CheckButton } onPress={ Att && Att.userAtt && Att.userAtt.end ? () => alert( 'Allready Checkout' ) : _onCheckout }>
-                  <Text style={{ color: 'white', fontWeight: 'bold' }}>{ Att && Att.userAtt && Att.userAtt.end ? ' Done ' : ' Check Out ' }</Text>
-                </TouchableOpacity>
+                {
+                  DailyUser && DailyUser.dailyUser && DailyUser.dailyUser.msg === 'ok'
+                    ?
+                    <TouchableOpacity style={ styles.CheckButton } onPress={ Att && Att.userAtt && Att.userAtt.end ? () => alert( 'Allready Checkout' ) : _onCheckout }>
+                      <Text style={{ color: 'white', fontWeight: 'bold' }}>{ Att && Att.userAtt && Att.userAtt.end ? ' Done ' : ' Check Out ' }</Text>
+                    </TouchableOpacity>
+                    : null
+                }
               </View>
             </View>
             { msg || msgOut
-                && 
+                ?
                   <View style={{ width: '100%', marginTop: 15, height: 50, alignItems: 'center', justifyContent: 'center' }}>
                     <TextInput keyboardType='default' autoCapitalize='none' placeholder={ ` ${ msg ? "You\'re late" : "To fast checkout" }, input your reason` } placeholderTextColor={ 'red' } style={{ height: Platform.OS === 'ios' && 25, backgroundColor: '#f1f1f6', textAlign: 'center', borderRadius: 10, color: 'black', fontWeight: 'bold', width: '80%' }} onChangeText={msg => setStartReason( msg )} value={ startReason }/>
                     {errorReason && <Text style={{ color: 'red', fontWeight: 'bold', fontSize: 10 }}>{ errorReason }</Text> }
-                  </View> }
+                  </View> : null }
             { error && <ErrorGlobal text={ error } /> }
           </View>
         </ScrollView>

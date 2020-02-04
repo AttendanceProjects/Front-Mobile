@@ -105,7 +105,7 @@ export const _checkLocation = async ({ id, osPlatform, action, type, notif, nav,
             setTimeout(() => {
               notif.gif( {} );
               notif.msg( false );
-              nav( 'Home' )
+              nav( 'LiveAtt' )
             }, 3000);
             if( data ) {
             } else notif.msg( 'Something Error please try again')
@@ -128,7 +128,7 @@ export const _checkLocation = async ({ id, osPlatform, action, type, notif, nav,
 }
 
 
-export const getCurrentTime = ({ setTime, setDay, days }) => {
+export const getCurrentTime = ({ setTime }) => {
   let hour = new Date().getHours();
   let minutes = new Date().getMinutes();
   let seconds = new Date().getSeconds();
@@ -156,9 +156,4 @@ export const getCurrentTime = ({ setTime, setDay, days }) => {
 
   setTime( hour + ':' + minutes + ':' + seconds + ' ' + am_pm );
 
-  days.map((item, key) => {
-    if (key == new Date().getDay()) {
-      setDay( item.toUpperCase() );
-    }
-  })
 }

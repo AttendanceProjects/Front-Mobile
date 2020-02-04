@@ -120,7 +120,7 @@ export const Absent = ({ navigation }) => {
           setMessage( `No Internet Connection, but your request will our keep.. Please screen shot this and upload if you done connected internet ${ splitPicture[splitPicture.length-1] }`);
           setTimeout(() => {
             setMessage( false );
-            navigation.navigate( 'Home' );
+            navigation.navigate( 'LiveAtt' );
           }, 20000)
         }
       }

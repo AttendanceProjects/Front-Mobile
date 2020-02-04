@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { HeaderComponent, ListComponent, ErrorGlobal, OfflieHeaderComponent, PermissionComponent } from '../../components'
+import { OfflieHeaderComponent, PermissionComponent } from '../../components'
 import { View, Text, Image, TouchableOpacity, AsyncStorage, ScrollView, Platform } from 'react-native';
 import { getAccess, checkConnection } from '../../service';
 import { Query } from '../../graph';
-import { _getCurrentLocation, getCurrentTime } from '../../helpers'
+import { _getCurrentLocation } from '../../helpers'
 import Font from 'react-native-vector-icons/FontAwesome5';
 import { useLazyQuery } from '@apollo/react-hooks';
 
@@ -12,18 +12,15 @@ export const Dash = ({ navigation }) => {
   const [ getCompany, { data: Company } ] = useLazyQuery( Query.GET_COMPANY );
   const [ usage ] = useState([ {name: 'History', icon: 'calendar-alt'}, {name: 'Attendance', icon: 'map-marker-alt'}, {name: 'Correction', icon: 'crop-alt'} ])
   const [ isOnline, setIsOnline ] = useState( false );
-  const [ loading, setLoading ] = useState( false );
   const [ error, setError ] = useState( false );
 
   useEffect(() => {
     (async () => {
       try {
-        setLoading( true );
         const { code, token } = await getAccess();
         await checkConnection({ save: setIsOnline });
         await getUser({ variables: { code, token } });
         await getCompany({ variables: { code, token } });
-        setLoading( false );
       }catch({ graphQLErrors }) { setError( graphQLErrors[0].message ) }
     })()
   }, [])
@@ -39,13 +36,11 @@ export const Dash = ({ navigation }) => {
     })()
   }, [ isOnline ])
 
-  // console.log( CheckUser );
-  // console.log( Company );
 
   const onPageChange = name => {
     if( name === 'History' ) navigation.navigate( 'History' );
     else if( name === 'Attendance' ) navigation.navigate( 'LiveAtt' );
-    else if( name === 'Correction' ) alert( 'comming soon' );
+    else if( name === 'Correction' ) navigation.navigate( 'Correction' );
   }
 
   return (

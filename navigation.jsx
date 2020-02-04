@@ -3,11 +3,23 @@ import { createAppContainer, createSwitchNavigator } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 import { createDrawerNavigator } from 'react-navigation-drawer';
-import { Signin, Forgot, Dash, History, Absent, CheckOutComponent, DetailContainers, ImageContainers, ProfileContainers, ChangePasswordContainers, FilterContainers, LiveAttContainers, CheckContainers } from './src/containers';
+import {
+  Signin,
+  Forgot,
+  Dash,
+  History,
+  Absent,
+  CheckOutComponent,
+  DetailContainers,
+  ImageContainers,
+  ProfileContainers,
+  ChangePasswordContainers,
+  FilterContainers,
+  LiveAttContainers,
+  CheckContainers,
+  CorrectionContainers
+} from './src/containers';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-
-import { HeaderComponent } from './src/components'
-import { Platform } from 'react-native';
 
 const StackSigninNavigation = createStackNavigator({
   Signin: { screen: Signin, navigationOptions: { header: null } },
@@ -17,9 +29,18 @@ const StackSigninNavigation = createStackNavigator({
 
 const StackHistoryNavigation = createStackNavigator({
   History: { screen: History, navigationOptions: { header: null } },
-  Detail: { screen: DetailContainers, navigationOptions: { header: ({ scene }) => <HeaderComponent mid={{ msg: scene.descriptor.navigation.state.params.date }} online={ true } left={{ icon: 'arrow-left', action: scene.descriptor.navigation.goBack, top: Platform.OS === 'android' ? 16 : 0}} /> } },
+  Detail: {
+    screen: DetailContainers,
+    navigationOptions: {
+      header: null
+    }
+  },
   Image: { screen: ImageContainers },
   Filter: { screen: FilterContainers, navigationOptions: { header: null  } }
+})
+
+const CorrectionDrawerNavigation = createDrawerNavigator({
+  All: { screen: CorrectionContainers, navigationOptions: { title: 'Home' } }
 })
 
 
@@ -32,10 +53,19 @@ const StackDashBoardNavigation = createStackNavigator({
     navigationOptions: ({ navigation }) => ({
       headerRight: (
           <FontAwesome5 name={ 'search' } size={ 20 } color={ 'white' } style={{ marginRight: 20 }} onPress={() => navigation.navigate( "Filter" ) }/>
-      )
-  }) },
+      ),
+    })
+  },
   Checkout: { screen: CheckOutComponent, navigationOptions: { header: null } },
-  PreCheck: { screen: CheckContainers }
+  PreCheck: { screen: CheckContainers },
+  Correction: {
+    screen: CorrectionDrawerNavigation,
+    navigationOptions: ({ navigation }) => ({
+      headerRight: (
+        <FontAwesome5 name={ 'braille' } size={ 25 } color={ 'white' } style={{ marginRight: 20 }} onPress={() => navigation.openDrawer()}/>
+      )
+    })
+  }
 })
 
 const StackProfileNavigation = createStackNavigator({
@@ -43,9 +73,6 @@ const StackProfileNavigation = createStackNavigator({
   Change: { screen: ChangePasswordContainers }
 })
 
-// const StackAbsentProcess = createStackNavigator({
-//   Absent: { screen: Absent, navigationOptions: { header: null } }
-// }, { initialRouteName: 'Absent' })
 
 const TabsNavigation = createBottomTabNavigator({
   DashBoard: {
