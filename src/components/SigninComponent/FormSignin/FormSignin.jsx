@@ -1,11 +1,11 @@
 import React from 'react';
 import { StyleSheet, View, Platform } from 'react-native';
-import { TextInputComponent, IconComponent } from '../../Spam'
+import { TextInputSensitiveComponent, TextInputNormalComponent, IconComponent } from '../../Spam'
 
 export default ({ code, setCode, req, setReq, pass, setPass, bindPass, seeComp, toggleBind }) => (
   <View style={ styles.backInput }>
     <View style={ styles.forInput }>
-      <TextInputComponent 
+      <TextInputNormalComponent 
         text='Company Code'
         value={ code }
         setValue={ setCode }
@@ -13,14 +13,14 @@ export default ({ code, setCode, req, setReq, pass, setPass, bindPass, seeComp, 
       <IconComponent name='searchengin' h={ 50 } w={ 50 } r={ -30 } t={ Platform.OS === 'android' ? 8 : 0 } press={ seeComp }/>
     </View>
     <View style={ styles.forInput }>
-      <TextInputComponent
+      <TextInputNormalComponent
         text='username / email'
         value={ req }
         setValue={ setReq }
         />
     </View>
     <View style={ styles.forInput }>
-      <TextInputComponent
+      <TextInputSensitiveComponent
         text='password'
         sensitive={ bindPass }
         value={ pass }

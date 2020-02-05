@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Text, View, Platform, AsyncStorage, Alert } from 'react-native';
-import { ErrorGlobal, LoadingComponent, CameraComponent } from '../../components/Spam';
+import { ErrorCheckInOutComponent, LoadingCheckInOutComponent, CameraComponent } from '../../components/Spam';
 import { Camera } from 'expo-camera';
 import { takeAPicture, _checkLocation, _getCurrentLocationOffline } from '../../helpers';
 import { getAccess, uploadImage, checkConnection, getServerTime } from '../../service';
@@ -145,10 +145,10 @@ export const Absent = ({ navigation }) => {
         message 
           ? 
             <View style={{ flex: 1 }}>
-              <ErrorGlobal text={ message } type={ 'checkin' }/>
+              <ErrorCheckInOutComponent text={ message }/>
             </View>
           : loading
-              ? <LoadingComponent gif={{ image: gif.uri, w: 250, h: 250 }}  text={{ first: gif.first, second: gif.second }} bg={ 'black' }/>
+              ? <LoadingCheckInOutComponent gif={{ image: gif.uri, w: 250, h: 250 }}  text={{ first: gif.first, second: gif.second }} bg={ '#353941' }/>
               : <CameraComponent setCamera={ setCamera } takePicture={ takePicture } type={ type }/>
       }
     </View>

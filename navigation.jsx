@@ -56,7 +56,7 @@ const StackDashBoardNavigation = createStackNavigator({
       ),
     })
   },
-  Checkout: { screen: CheckOutComponent, navigationOptions: { header: null } },
+  Checkout: { screen: CheckOutComponent },
   PreCheck: { screen: CheckContainers },
   Correction: {
     screen: CorrectionDrawerNavigation,

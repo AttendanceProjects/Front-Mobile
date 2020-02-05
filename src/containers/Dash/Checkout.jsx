@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Platform } from 'react-native';
 import { Camera } from 'expo-camera';
-import { CameraComponent, ErrorGlobal, LoadingComponent } from '../../components';
+import { CameraComponent, ErrorCheckInOutComponent, ErrorCameraComponent, LoadingCheckInOutComponent } from '../../components';
 import { getAccess, uploadImage } from '../../service';
 import { takeAPicture, _checkLocation } from '../../helpers';
 import { Mutation, Query } from '../../graph';
@@ -54,7 +54,7 @@ export const CheckOutComponent = ({ navigation }) => {
     return <View />
   }
   if (hasPermission === false) {
-    return <ErrorGlobal text={ 'Please Allow your Camera' } type={ 'nocamera' } />
+    return <ErrorCameraComponent text={ 'Please Allow your Camera' } type={ 'nocamera' } />
   }
 
 
@@ -64,11 +64,11 @@ export const CheckOutComponent = ({ navigation }) => {
         message 
           ? 
             <View style={{ flex: 1 }}>
-              <ErrorGlobal text={ message } type={ 'checkout' }/>
+              <ErrorCheckInOutComponent text={ message }/>
             </View>
           : loading
-              ? <LoadingComponent gif={{ image: gif.uri, w: 250, h: 250 }}  text={{ first: gif.first, second: gif.second }} bg={ 'black' }/>
-              : <CameraComponent setCamera={ setCamera } takePicture={ takePicture } type={ type } channel={{ back: navigation.goBack }}/>
+              ? <LoadingCheckInOutComponent gif={{ image: gif.uri, w: 250, h: 250 }}  text={{ first: gif.first, second: gif.second }} bg={ '#353941' }/>
+              : <CameraComponent setCamera={ setCamera } takePicture={ takePicture } type={ type } />
       }
     </View>
   )

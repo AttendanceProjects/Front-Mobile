@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, ScrollView, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
-import { HeaderComponent, OfflieHeaderComponent, ListComponent, ErrorGlobal, IconComponent } from '../../components';
+import { OfflieHeaderComponent, ListHistoryFilterComponent, ErrorFilterComponent } from '../../components';
 import { getAccess, checkConnection } from '../../service';
 import { useLazyQuery } from '@apollo/react-hooks';
 import { Query } from '../../graph';
@@ -45,9 +45,9 @@ export const History = ({ navigation }) => {
                     closeOnRowBeginSwipe={true}
                     closeOnScroll={true}
                     closeOnRowPress={true}
+                    keyExtractor={( item, index ) => index.toString()}
                     renderItem={ ({item}) => (
-                      <ListComponent
-                        key={ item._id }
+                      <ListHistoryFilterComponent
                         load={ loading }
                         bc= { '#c9485b' }
                         justy={ 'space-between' }
@@ -75,7 +75,6 @@ export const History = ({ navigation }) => {
                           },
                           empty: UserHistory.getHistory.length > 0 ? false : true,
                         }}
-                        nav={ navigation.navigate }
                       />
                     )}
                     renderHiddenItem={({ item }) => (
@@ -93,7 +92,7 @@ export const History = ({ navigation }) => {
                 loading
                   ? <ActivityIndicator color={ 'blue' } size={ 'large' } style={{ position: 'absolute', right: 'auto', top: 'auto' }}/>
                   : message
-                    ? <ErrorGlobal text={ message } size={ 30 }/>
+                    ? <ErrorFilterComponent text={ message } size={ 30 }/>
                     : <View style={{ flex: 1, marginTop: Platform.OS === 'android' ? 200 : 150, alignItems: 'center', justifyContent: 'center' }}>
                         <Image source={ require('../../../assets/box-empty.png') } style={{ width: 150, height: 150 }} />
                         <Text style={{ fontSize: Platform.OS === 'android' ? 15 : 20, color: 'white', fontWeight: 'bold', marginTop: Platform.OS === 'android' ? 35 : 50, letterSpacing: 2 }}>No History Saved</Text>

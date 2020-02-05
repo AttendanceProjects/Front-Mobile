@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Platform } from 'react-native';
 import Font from 'react-native-vector-icons/FontAwesome5';
-import { LoadingComponent, ErrorGlobal } from '../../components';
+import { LoadingFilterComponent, ErrorFilterComponent } from '../../components';
 import { getAccess, getServerTime } from '../../service';
 import { useLazyQuery } from '@apollo/react-hooks';
 import { Query } from '../../graph';
 import { SwipeListView } from 'react-native-swipe-list-view';
-import { ListComponent } from '../../components';
+import { ListHistoryFilterComponent } from '../../components';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 
@@ -14,7 +14,7 @@ export const FilterContainers = ({ navigation }) => {
   const [ selectName, setSelectName ] = useState( [] );
   const [ loading, setLoading ] = useState( false );
   const [ access, setAccess ] = useState( {} );
-  const [ getFilter, { data: filtering } ] = useLazyQuery( Query.FILTER_ATT );
+  const [ getFilter, { data: filtering } ] = useLazyQuery( Query.FILTER_ATT, { fetchPolicy: 'no-cache' } );
   const [ errorMessage, setErrorMessage ] = useState( false );
   const [ selectQuery, setSelect ] = useState( 'late' );
   const [ show, setShow ] = useState( false );
@@ -27,7 +27,7 @@ export const FilterContainers = ({ navigation }) => {
           setLoading( true )
           try{
             const { code, token } = access;
-            await getFilter({ variables: { code, token, category: selectQuery }, fetchPolicy: 'network-only' });
+            await getFilter({ variables: { code, token, category: selectQuery } });
             setLoading( false );
           }catch({ graphQLErrors }) { setErrorMessage( graphQLErrors[0].message ) }
         }
@@ -38,7 +38,7 @@ export const FilterContainers = ({ navigation }) => {
           setKeyWord( new Date() );
           setLoading( true );
           const { code, token } = access;
-          await getFilter({ variables: { code, token, category: selectQuery, search: new Date().toDateString() }, fetchPolicy: 'network-only' })
+          await getFilter({ variables: { code, token, category: selectQuery, search: new Date().toDateString() } })
           setLoading( false );
         }catch({ graphQLErrors }){ console.log(graphQLErrors[0].message ) }
       })()
@@ -49,7 +49,7 @@ export const FilterContainers = ({ navigation }) => {
           setLoading( true )
           const { code, token } = await getAccess();
           setAccess({ code, token })
-          await getFilter({ variables: { code, token, category: 'late' }, fetchPolicy: 'network-only' });
+          await getFilter({ variables: { code, token, category: 'late' } });
           setLoading( false );
         }catch({ graphQLErrors }) { setErrorMessage( graphQLErrors[0].message ) }
       })()
@@ -78,7 +78,7 @@ export const FilterContainers = ({ navigation }) => {
     try {
       setLoading( true );
       const { code, token } = access;
-      await getFilter({ variables: { code, token, search: new Date( Platform.OS === 'android' ? date : keyWord ).toDateString(), category: selectQuery }, fetchPolicy: 'network-only' });
+      await getFilter({ variables: { code, token, search: new Date( Platform.OS === 'android' ? date : keyWord ).toDateString(), category: selectQuery } });
       setShow( false );
       setLoading( false );
     }catch({ graphQLErrors }) { setErrorMessage( graphQLErrors[0].message ) }
@@ -100,8 +100,8 @@ export const FilterContainers = ({ navigation }) => {
   return (
     <View style={{ backgroundColor: '#353941', flex: 1, padding: 10, justifyContent: 'space-between' }}>
       <View style={{ flex: 0.12, backgroundColor: '#26282b', borderRadius: 20, borderBottomEndRadius: 80, borderTopStartRadius: 80, borderTopEndRadius: 0, borderBottomStartRadius: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 10 }}>
-        { selectName && selectName.map(el => (
-          <TouchableOpacity style={{ flex: 0.24, alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }} onPress={ () => onPageChange( el.name ) }>
+        { selectName && selectName.map((el, i) => (
+          <TouchableOpacity key={ i } style={{ flex: 0.24, alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }} onPress={ () => onPageChange( el.name ) }>
             <View style={{ height: 40, width: 40, borderRadius: 20, borderTopStartRadius: el.name === 'late' ? 80 : 20, borderBottomEndRadius: el.name === 'absent' ? 80 : 20, backgroundColor: el.status ? 'red' : '#26282b', alignItems: 'center', justifyContent: 'center' }}>
               <Font name={ el.icon } size={ 25 } color={ 'white' }/>
             </View>
@@ -111,7 +111,7 @@ export const FilterContainers = ({ navigation }) => {
       </View>
       <View style={{ flex: 0.87, backgroundColor: '#26282b', borderRadius: 25, padding: 5 }}>
         { loading
-            ? <LoadingComponent text={{ first: "Please Wait...", second: "Fetching Data" }} color={ 'red' }/>
+            ? <LoadingFilterComponent text={{ first: "Please Wait...", second: "Fetching Data" }} color={ 'red' }/>
             : filtering && filtering.filter && filtering.filter.length > 0 && selectQuery !== 'date'
                 ? 
                 <SwipeListView
@@ -123,7 +123,7 @@ export const FilterContainers = ({ navigation }) => {
                   closeOnScroll={true}
                   closeOnRowPress={true}
                   renderItem={ ({item}) => (
-                    <ListComponent
+                    <ListHistoryFilterComponent
                       key={ item._id }
                       load={ loading }
                       bc= { '#c9485b' }
@@ -143,7 +143,6 @@ export const FilterContainers = ({ navigation }) => {
                         type: 'date',
                         username: item.UserId.username,
                         role: item.UserId.role,
-                        name: 'history',
                         startTime: item.start,
                         startIssues: item.start_issues,
                         endTime: item.end,
@@ -153,9 +152,9 @@ export const FilterContainers = ({ navigation }) => {
                         },
                         empty: filtering.filter.length > 0 ? false : true,
                       }}
-                      nav={ navigation.navigate }
                     />
                   )}
+                  keyExtractor={( item, index ) => index.toString()}
                   renderHiddenItem={({ item }) => (
                     <TouchableOpacity
                       style={{ width: 50, right: 15, top: 25, position: 'absolute', flexDirection: 'row-reverse', marginTop: 20, marginLeft: 20, height: 50, alignItems: 'center' }}
@@ -198,7 +197,7 @@ export const FilterContainers = ({ navigation }) => {
                           </View>
                         </View> 
                         { loading && filtering && !filtering.filter
-                            ? <LoadingComponent text={{ first: "Please Wait...", second: "Fetching Data" }} color={ 'red' }/>
+                            ? <LoadingFilterComponent text={{ first: "Please Wait...", second: "Fetching Data" }} color={ 'red' }/>
                             : filtering && filtering.filter && filtering.filter.length > 0 && selectQuery === 'date'
                               ?
                                 <SwipeListView
@@ -210,7 +209,7 @@ export const FilterContainers = ({ navigation }) => {
                                   closeOnScroll={true}
                                   closeOnRowPress={true}
                                   renderItem={ ({item}) => (
-                                    <ListComponent
+                                    <ListHistoryFilterComponent
                                       key={ item._id }
                                       load={ loading }
                                       bc= { '#c9485b' }
@@ -230,7 +229,6 @@ export const FilterContainers = ({ navigation }) => {
                                         type: 'date',
                                         username: item.UserId.username,
                                         role: item.UserId.role,
-                                        name: 'history',
                                         startTime: item.start,
                                         startIssues: item.start_issues,
                                         endTime: item.end,
@@ -241,9 +239,9 @@ export const FilterContainers = ({ navigation }) => {
                                         },
                                         empty: filtering.filter.length > 0 ? false : true,
                                       }}
-                                      nav={ navigation.navigate }
                                     />
                                   )}
+                                  keyExtractor={( item, index ) => index.toString()}
                                   renderHiddenItem={({ item }) => (
                                     <TouchableOpacity
                                       style={{ width: 50, right: 15, top: 25, position: 'absolute', flexDirection: 'row-reverse', marginTop: 20, marginLeft: 20, height: 50, alignItems: 'center' }}
@@ -255,9 +253,9 @@ export const FilterContainers = ({ navigation }) => {
                                   leftOpenValue={75}
                                   rightOpenValue={-75}
                                 />
-                                  : <ErrorGlobal type={ 'filter' } text={ 'Empty Data' } size={ 30 } /> }
+                                  : <ErrorFilterComponent text={ 'Empty Data' } size={ 30 } /> }
                       </>
-                    : <ErrorGlobal type={ 'filter' } text={ 'Empty Data' } size={ 30 }/>}
+                    : <ErrorFilterComponent text={ 'Empty Data' } size={ 30 }/>}
       </View>
     </View>
   )

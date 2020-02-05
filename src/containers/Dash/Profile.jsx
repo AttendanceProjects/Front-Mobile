@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Image, ActivityIndicator, TouchableOpacity, Platform } from 'react-native';
 import { checkConnection, getAccess } from '../../service'
-import { HeaderComponent, OfflieHeaderComponent } from '../../components';
+import { ProfileHeaderComponent, OfflieHeaderComponent } from '../../components';
 import { useLazyQuery } from '@apollo/react-hooks';
 import { Query } from '../../graph';
 import Font from 'react-native-vector-icons/FontAwesome5'
@@ -27,7 +27,7 @@ export const ProfileContainers = ({ navigation }) => {
   return (
     <>
       { !isOnline && <OfflieHeaderComponent /> }
-      <HeaderComponent
+      <ProfileHeaderComponent
         online={ isOnline }
         right={{ icon: 'sign-out-alt', size: 20, nav: navigation.navigate, top: Platform.OS === 'android' ? 6 : 2 }}
         mid={{ msg: 'Profile', ls: 2 }} />

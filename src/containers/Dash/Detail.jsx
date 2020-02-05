@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, ActivityIndicator } from 'react-native';
 import { Query } from '../../graph';
 import { useLazyQuery } from '@apollo/react-hooks';
-import { MapComponent, LoadingComponent, ClockComponent } from '../../components';
+import { MapComponent, ClockComponent } from '../../components';
 
 export const DetailContainers = ({ navigation }) => {
   const [ history, { data } ] = useLazyQuery( Query.GET_ATT_ID );
@@ -42,7 +42,7 @@ export const DetailContainers = ({ navigation }) => {
               <Text>Bottom</Text>
             </View>
           </>
-        : <LoadingComponent />
+        : <ActivityIndicator color={ 'blue' } />
       }
     </View>
   )

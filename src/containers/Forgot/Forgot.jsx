@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Platform, Alert } from 'react-native';
-import { LogoComponent, TextInputComponent, TouchComponent, IconComponent, LoadingComponent, ErrorComponent } from '../../components/Spam';
+import { LogoComponent, TextInputNormalComponent, TextInputSensitiveComponent, TouchComponent, IconComponent, LoadingSimpleComponent, SimpleError } from '../../components/Spam';
 import { Mutation } from '../../graph';
 import { useMutation } from '@apollo/react-hooks';
 
@@ -77,7 +77,7 @@ please contact us dcar.developer@gmail.com`)
         />
         <View style={ styles.bodyContainer }>
           <View style={ styles.emailText }>
-            <TextInputComponent
+            <TextInputNormalComponent
               text='Input Company Code'
               value={ code }
               setValue={ setCode }
@@ -85,7 +85,7 @@ please contact us dcar.developer@gmail.com`)
             <IconComponent name='searchengin' h={ 50 } w={ 50 } r={ -30 } t={ Platform.OS === 'android' ? 8 : 0 } press={ watchCompany }/>
           </View>
           <View style={ styles.emailText }>
-            <TextInputComponent
+            <TextInputNormalComponent
               text='Input Registered Email'
               value={ email }
               setValue={ setEmail }
@@ -96,14 +96,14 @@ please contact us dcar.developer@gmail.com`)
               &&
               <>
                 <View style={ styles.emailText }>
-                  <TextInputComponent
+                  <TextInputNormalComponent
                     text='Secret Code'
                     value={ secretCode }
                     setValue={ setSecretCode }
                     />
                 </View>
                 <View style={ styles.emailText }>
-                  <TextInputComponent
+                  <TextInputSensitiveComponent
                     text='New Password'
                     value={ newPass }
                     setValue={ setNewPass }
@@ -123,11 +123,11 @@ please contact us dcar.developer@gmail.com`)
             spacing={ 2 }
             />
             { loading ? Platform.OS === 'android'
-                    ? <LoadingComponent color='blue' t={ bindSecret ? 210 : 123 }/>
-                    : <LoadingComponent color='blue' t={ bindSecret ? 165 : 100 }/> : null }
+                    ? <LoadingSimpleComponent color='blue' t={ bindSecret ? 210 : 123 }/>
+                    : <LoadingSimpleComponent color='blue' t={ bindSecret ? 165 : 100 }/> : null }
             { message ? Platform.OS === 'android'
-                    ? <ErrorComponent.SimpleError text={ message } t={ bindSecret ? 210 : 123 } />
-                    : <ErrorComponent.SimpleError text={ message } t={ bindSecret ? 165 : 100 } /> : null }
+                    ? <SimpleError text={ message } t={ bindSecret ? 210 : 123 } co={ 'red' } size={ 15 }/>
+                    : <SimpleError text={ message } t={ bindSecret ? 165 : 100 } co={ 'red' } size={ 15 }/> : null }
         </View>
     </View>
   )

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Platform, Alert, TouchableHighlight, AsyncStorage } from 'react-native';
-import { TouchComponent, LogoComponent, LoadingComponent, SimpleError, OfflieHeaderComponent, FormSigninComponent } from '../../components'
+import { TouchComponent, LogoComponent, LoadingSimpleComponent, SimpleError, OfflieHeaderComponent, FormSigninComponent } from '../../components'
 import { checkConnection, getAccess } from '../../service'
 import { Mutation, Query } from '../../graph';
 import { useMutation, useLazyQuery } from '@apollo/react-hooks'
@@ -52,7 +52,6 @@ export const Signin = ({ navigation }) => {
 
 
   const signin = async () => {
-    console.log( 'trigger' )
     await checkConnection({ save: setOnline })
     setError( false )
     setLoading( true )
@@ -112,8 +111,8 @@ export const Signin = ({ navigation }) => {
               size={ Platform.OS === 'android' ? 15 : 20}
               />
           </View>
-            { loading && <LoadingComponent color='blue' t={ 225 } /> }
-            { error && <SimpleError text={ error } t={ 249 }/> }
+            { loading && <LoadingSimpleComponent color='blue' t={ 225 } /> }
+            { error && <SimpleError text={ error } t={ 249 } co={ 'red' } size={ 15 }/> }
         </View>
           { !isOnline && <TouchComponent h={ 30 } w={ '80%' } text='Presence Offline' />}
       </View>

@@ -71,8 +71,8 @@ export const Dash = ({ navigation }) => {
         <View style={{ flex: 0.75, padding: 8 }}>
           <View style={{ flex: 1, backgroundColor: '#26282b', borderRadius: 35, padding: 20, flexDirection: 'row', justifyContent: 'space-around' }}>
             { usage
-                &&  usage.map(el => (
-                      <TouchableOpacity style={{ alignItems: 'center', justifyContent: 'center' }} onPress={() => onPageChange( el.name ) }>
+                &&  usage.map((el, i) => (
+                      <TouchableOpacity key={ i } style={{ alignItems: 'center', justifyContent: 'center' }} onPress={() => onPageChange( el.name ) }>
                         <Font name={ el.icon } size={ 30 } color={ 'white' }/>
                         <Text style={{ color: 'white' }}>{ el.name }</Text>
                       </TouchableOpacity>
