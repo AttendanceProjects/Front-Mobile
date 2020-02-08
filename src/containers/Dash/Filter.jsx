@@ -84,7 +84,7 @@ export const FilterContainers = ({ navigation }) => {
     }catch({ graphQLErrors }) { setErrorMessage( graphQLErrors[0].message ) }
   }
 
-  const onPageChange = async ( name ) => {
+  const _onPageChange = async ( name ) => {
     setLoading( true );
     let newVal = [];
     await selectName.forEach((el, i) => {
@@ -97,11 +97,13 @@ export const FilterContainers = ({ navigation }) => {
     setLoading( false );
   }
 
+  const _onNavigationChange = _ => navigation.navigate('Detail', { id: item._id, access, date: item.date })
+
   return (
     <View style={{ backgroundColor: '#353941', flex: 1, padding: 10, justifyContent: 'space-between' }}>
       <View style={{ flex: 0.12, backgroundColor: '#26282b', borderRadius: 20, borderBottomEndRadius: 80, borderTopStartRadius: 80, borderTopEndRadius: 0, borderBottomStartRadius: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 10 }}>
         { selectName && selectName.map((el, i) => (
-          <TouchableOpacity key={ i } style={{ flex: 0.24, alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }} onPress={ () => onPageChange( el.name ) }>
+          <TouchableOpacity key={ i } style={{ flex: 0.24, alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }} onPress={ () => _onPageChange( el.name ) }>
             <View style={{ height: 40, width: 40, borderRadius: 20, borderTopStartRadius: el.name === 'late' ? 80 : 20, borderBottomEndRadius: el.name === 'absent' ? 80 : 20, backgroundColor: el.status ? 'red' : '#26282b', alignItems: 'center', justifyContent: 'center' }}>
               <Font name={ el.icon } size={ 25 } color={ 'white' }/>
             </View>
@@ -158,7 +160,7 @@ export const FilterContainers = ({ navigation }) => {
                   renderHiddenItem={({ item }) => (
                     <TouchableOpacity
                       style={{ width: 50, right: 15, top: 25, position: 'absolute', flexDirection: 'row-reverse', marginTop: 20, marginLeft: 20, height: 50, alignItems: 'center' }}
-                      onPress={ () => navigation.navigate('Detail', { id: item._id, access, date: item.date })}
+                      onPress={() => _onNavigationChange()}
                       >
                         <Font name={ 'pen-alt' } size={ 30 } color={ 'white' } />
                     </TouchableOpacity>
@@ -245,7 +247,7 @@ export const FilterContainers = ({ navigation }) => {
                                   renderHiddenItem={({ item }) => (
                                     <TouchableOpacity
                                       style={{ width: 50, right: 15, top: 25, position: 'absolute', flexDirection: 'row-reverse', marginTop: 20, marginLeft: 20, height: 50, alignItems: 'center' }}
-                                      onPress={ () => navigation.navigate('Detail', { id: item._id, access, date: item.date })}
+                                      onPress={() => _onNavigationChange()}
                                       >
                                         <Font name={ 'pen-alt' } size={ 30 } color={ 'white' } />
                                     </TouchableOpacity>

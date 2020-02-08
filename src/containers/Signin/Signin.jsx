@@ -38,16 +38,16 @@ export const Signin = ({ navigation }) => {
   }
 
   useEffect(() => {
-    const getAccessApp = async () => { 
+    (async () => { 
       await checkConnection({ save: setOnline })
       await getAccess()
-    }
-    if( getAccessApp() && isOnline ) {
-      setError( false )
-      try {
-        CheckSignin( getAccess() )
-      }catch({ graphQlErrors }) { setError( graphQlErrors[0].message ); setTimeout(() => setError( false ), 2000) }
-    }
+      if( isOnline ) {
+        setError( false )
+        try {
+          await CheckSignin( getAccess() )
+        }catch({ graphQlErrors }) { setError( graphQlErrors[0].message ); setTimeout(() => setError( false ), 2000) }
+      }
+    })()
   }, [])
 
 
@@ -75,6 +75,8 @@ export const Signin = ({ navigation }) => {
     } else setLoading( false )
   }
 
+  const _onPageChange = _ => navigation.navigate( 'Forgot' );
+
   CheckUser 
     && CheckUser.checkSignin && navigation.navigate('DashBoard')
 
@@ -95,7 +97,7 @@ export const Signin = ({ navigation }) => {
             seeComp={ showCompany }
             toggleBind={ toggleWatcher }
             />
-          <TouchableHighlight style={ styles.highlightForgot } onPress={() => navigation.navigate( 'Forgot' )}>
+          <TouchableHighlight style={ styles.highlightForgot } onPress={() => _onPageChange()}>
             <Text style={ styles.textForgot }> Forgot Password ? </Text>
           </TouchableHighlight>
           <View style={ styles.btnBtm }>

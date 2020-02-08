@@ -39,7 +39,7 @@ Something Error. Please try again later`}
 
 export const ErrorCheckInOutComponent = ({ text }) => (
   <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-    <Image source={ type === 'checkin' || type === 'checkout' ? require('../../../assets/badRequest.png') : require('../../../assets/sadforerror.png') } style={{ width: 200, height: 200 }} />
+    <Image source={ require('../../../assets/sadforerror.png') } style={{ width: 200, height: 200 }} />
     <Text style={{ fontSize: 20, color: 'red', textAlign: 'center' }}>
       { text ? text : `Whopss!! Sorry, 
 Something Error. Please try again later`}

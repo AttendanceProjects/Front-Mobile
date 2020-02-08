@@ -28,3 +28,19 @@ export const LoadingFilterComponent = ({ text, color }) => (
     <Text style={{ fontSize: 15, color: 'red', letterSpacing: 2, marginTop: 10 }}>{ text.second }</Text>
   </View>
 )
+
+export const SuccessCheckInOutComponent = ({ text }) => (
+  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+    <Image source={ require('../../../assets/success.png') } style={{ width: 200, height: 200 }} />
+    <Text style={{ fontSize: 20, color: 'red', textAlign: 'center' }}>
+      { text === 'checkin' ? 'Check In Successfully' : 'Check Out Successfully' }
+    </Text>
+  </View>
+)
+
+export const CorrectionLoadingComponent = _ => (
+  <View style={{ alignItems: 'center', justifyContent: 'center', height: '100%', width: '100%' }}>
+    <ActivityIndicator size={ 'large' } color={ 'white' }/>
+    <Text style={{ marginTop: 10, color: 'white', fontWeight: 'bold' }}>Loading Getting Data...</Text>
+  </View>
+)

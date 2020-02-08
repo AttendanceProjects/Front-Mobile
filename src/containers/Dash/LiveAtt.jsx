@@ -8,7 +8,7 @@ import { useLazyQuery } from '@apollo/react-hooks';
 
 export const LiveAttContainers = ({ navigation }) => {
   const [ fetch, { data: Att } ] = useLazyQuery( Query.USER_ATT );
-  const [ getDailyUser, { data: DailyUser } ] = useLazyQuery( Query.GET_DAILY_USER, { fetchPolicy: 'no-cache' } );
+  const [ getDailyUser, { data: DailyUser } ] = useLazyQuery( Query.GET_DAILY_USER );
   const [ refreshing, setRefresh ] = useState( false );
   const [ loading, setLoading ] = useState( false );
   const [ error, setError ] = useState( false );
@@ -48,16 +48,16 @@ export const LiveAttContainers = ({ navigation }) => {
   }
 
 
-  useEffect(() => {
-    (async() => {
-      const offline = await AsyncStorage.getItem('offline');
-      if( offline ) {
-        const { location, url, time } = await JSON.parse( offline );
-        console.log( 'masik simpan di local loation dan url pidturenya', location, url, time );
-        console.log( 'masuk sini ?' )
-      }
-    })()
-  }, [ isOnline ])
+  // useEffect(() => {
+  //   (async() => {
+  //     const offline = await AsyncStorage.getItem('offline');
+  //     if( offline ) {
+  //       const { location, url, time } = await JSON.parse( offline );
+  //       console.log( 'masik simpan di local loation dan url pidturenya', location, url, time );
+  //       console.log( 'masuk sini ?' )
+  //     }
+  //   })()
+  // }, [ isOnline ])
   
 
   const onRefresh = React.useCallback(async () => {
@@ -74,22 +74,31 @@ export const LiveAttContainers = ({ navigation }) => {
   // console.log( DailyUser, 'daily' );
 
   const _onCheckin = () => {
-    setMsg( false );
     let date
     if( Platform.OS === 'android' ) date = new Date().toLocaleTimeString().split(':')[0];
     else date = new Date().toLocaleTimeString().split('.')[0];
     if( date < 8 ) {
+      console.log( 'masuk kondisi langsung' )
       navigation.navigate( 'Checkin' );
       setStartReason( '' );
     }else if( !startReason ) {
+      console.log( 'masuk kondisi dimana tidak ada startreason ');
       setMsg( true );
     }else if( startReason.length < 8 ){
+      console.log( 'masuk kondisi diama start reason lengthnya di bawah delapan' );
       setErrorReason( 'Your Reason invalid, min 8 Char' );
       setTimeout(() => setErrorReason( false ), 5000 );
     }else {
+      console.log( 'masuk kondisi dimana disini adalah else' );
+      setMsg( false );
       navigation.navigate( 'Checkin', { startReason } );
       setStartReason( '' );
     }
+  }
+
+  const _onValidateCheckin = _ => {
+    if( Att && Att.userAtt && Att.userAtt.start ) alert( 'Allready Checkin' );
+    else _onCheckin();
   }
 
   const _onCheckout = () => {
@@ -110,6 +119,11 @@ export const LiveAttContainers = ({ navigation }) => {
       navigation.navigate( 'Checkout', { id: Att.userAtt._id, issues: startReason } )
       setStartReason( '' );
     }
+  }
+
+  const _onValidateCheckout = _ => {
+    if( Att && Att.userAtt && Att.userAtt.end ) alert( 'Allready Checkout' );
+    else _onCheckout();
   }
 
   return (
@@ -142,13 +156,13 @@ export const LiveAttContainers = ({ navigation }) => {
                       </View>
                     </View>
                     <View style={ styles.ViewButton }>
-                      <TouchableOpacity style={ styles.CheckButton } onPress={ (Att && Att.userAtt && Att.userAtt.start) ? () => alert( 'Allready Checkin' ) : _onCheckin }>
+                      <TouchableOpacity style={ styles.CheckButton } onPress={() => _onValidateCheckin()}>
                         <Text style={{ color: 'white', fontWeight: 'bold' }}>{ (Att && Att.userAtt && Att.userAtt.start) ? ' Done ' : ' Check In ' }</Text>
                       </TouchableOpacity>
                       {
                         DailyUser && DailyUser.dailyUser && DailyUser.dailyUser.msg === 'ok'
                           ?
-                          <TouchableOpacity style={ styles.CheckButton } onPress={ Att && Att.userAtt && Att.userAtt.end ? () => alert( 'Allready Checkout' ) : _onCheckout }>
+                          <TouchableOpacity style={ styles.CheckButton } onPress={() => _onValidateCheckout()}>
                             <Text style={{ color: 'white', fontWeight: 'bold' }}>{ Att && Att.userAtt && Att.userAtt.end ? ' Done ' : ' Check Out ' }</Text>
                           </TouchableOpacity>
                           : null
@@ -160,7 +174,7 @@ export const LiveAttContainers = ({ navigation }) => {
             { msg || msgOut
                 ?
                   <View style={{ width: '100%', marginTop: 15, height: 50, alignItems: 'center', justifyContent: 'center' }}>
-                    <TextInput keyboardType='default' autoCapitalize='none' placeholder={ ` ${ msg ? "You\'re late" : "To fast checkout" }, input your reason` } placeholderTextColor={ 'red' } style={{ height: Platform.OS === 'ios' && 25, backgroundColor: '#f1f1f6', textAlign: 'center', borderRadius: 10, color: 'black', fontWeight: 'bold', width: '80%' }} onChangeText={msg => setStartReason( msg )} value={ startReason }/>
+                    <TextInput keyboardType='default' autoCapitalize='none' placeholder={ ` ${ msg ? "You\'re late" : "To fast checkout" }, input your reason` } placeholderTextColor={ 'red' } style={{ height: Platform.OS === 'ios' ? 25 : 25, backgroundColor: '#f1f1f6', textAlign: 'center', borderRadius: 10, color: 'black', fontWeight: 'bold', width: '80%' }} onChangeText={msg => setStartReason( msg )} value={ startReason }/>
                     {errorReason && <Text style={{ color: 'red', fontWeight: 'bold', fontSize: 10 }}>{ errorReason }</Text> }
                   </View> : null }
             { error && <ErrorCheckInOutComponent text={ error } /> }

@@ -2,7 +2,7 @@ import React from 'react';
 import { Camera } from 'expo-camera';
 import Font from 'react-native-vector-icons/FontAwesome5';
 import * as FaceDetector from 'expo-face-detector';
-import { View, TouchableOpacity, Text, Platform } from 'react-native';
+import { View, TouchableOpacity } from 'react-native';
 
 export const CameraComponent = ({ setCamera, takePicture, type }) => (
   <Camera

@@ -16,28 +16,34 @@ export const Dash = ({ navigation }) => {
 
   useEffect(() => {
     (async () => {
-      try {
-        const { code, token } = await getAccess();
-        await checkConnection({ save: setIsOnline });
-        await getUser({ variables: { code, token } });
-        await getCompany({ variables: { code, token } });
-      }catch({ graphQLErrors }) { setError( graphQLErrors[0].message ) }
-    })()
-  }, [])
-
-  useEffect(() => {
-    (async() => {
       const offline = await AsyncStorage.getItem('offline');
       if( offline ) {
         const { location, url, time } = await JSON.parse( offline );
-        console.log( 'masik simpan di local loation dan url pidturenya', location, url, time );
-        console.log( 'masuk sini ?' )
-      }
+        console.log( 'masuk simplan di local because no internet connection' , location, url, time );
+      }else {
+        try {
+          const { code, token } = await getAccess();
+          await checkConnection({ save: setIsOnline });
+          await getUser({ variables: { code, token } });
+          await getCompany({ variables: { code, token } });
+        }catch({ graphQLErrors }) { setError( graphQLErrors[0].message ) }
+        }
     })()
-  }, [ isOnline ])
+  }, [])
+
+  // useEffect(() => {
+  //   (async() => {
+  //     const offline = await AsyncStorage.getItem('offline');
+  //     if( offline ) {
+  //       const { location, url, time } = await JSON.parse( offline );
+  //       console.log( 'masik simpan di local loation dan url pidturenya', location, url, time );
+  //       console.log( 'masuk sini ?' )
+  //     }
+  //   })()
+  // }, [ isOnline ])
 
 
-  const onPageChange = name => {
+  const _onPageChange = name => {
     if( name === 'History' ) navigation.navigate( 'History' );
     else if( name === 'Attendance' ) navigation.navigate( 'LiveAtt' );
     else if( name === 'Correction' ) navigation.navigate( 'Correction' );
@@ -72,7 +78,7 @@ export const Dash = ({ navigation }) => {
           <View style={{ flex: 1, backgroundColor: '#26282b', borderRadius: 35, padding: 20, flexDirection: 'row', justifyContent: 'space-around' }}>
             { usage
                 &&  usage.map((el, i) => (
-                      <TouchableOpacity key={ i } style={{ alignItems: 'center', justifyContent: 'center' }} onPress={() => onPageChange( el.name ) }>
+                      <TouchableOpacity key={ i } style={{ alignItems: 'center', justifyContent: 'center' }} onPress={() => _onPageChange( el.name ) }>
                         <Font name={ el.icon } size={ 30 } color={ 'white' }/>
                         <Text style={{ color: 'white' }}>{ el.name }</Text>
                       </TouchableOpacity>

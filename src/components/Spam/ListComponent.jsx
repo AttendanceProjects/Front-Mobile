@@ -1,38 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Image, TextInput, Platform } from 'react-native';
-import { TouchComponent, LoadingListComponent } from '../Spam';
+import React from 'react';
+import { View, Platform } from 'react-native';
+import { LoadingListComponent } from './Loading';
 
 import { BtmListComponent, TopListComponent } from '../ListPerComponent'
-/*
-  load
-  bc
-  justy
-  size{
-    role
-    time
-    name
-    date
-  }
-  typeParent {
-    date
-    image {
-      start
-      end
-    }
-    type
-    username
-    role
-    name
-    startTime
-    startIssues
-    endTime
-    endIssues
-    reason{
-      end
-    }
-    empty
-  }
-*/
 
 
 export const ListHistoryFilterComponent = ({ load, bc, justy, size, typeParent }) => (

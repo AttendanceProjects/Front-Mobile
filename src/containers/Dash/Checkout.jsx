@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Platform } from 'react-native';
 import { Camera } from 'expo-camera';
-import { CameraComponent, ErrorCheckInOutComponent, ErrorCameraComponent, LoadingCheckInOutComponent } from '../../components';
+import { CameraComponent, ErrorCheckInOutComponent, ErrorCameraComponent, LoadingCheckInOutComponent, SuccessCheckInOutComponent } from '../../components';
 import { getAccess, uploadImage } from '../../service';
 import { takeAPicture, _checkLocation } from '../../helpers';
 import { Mutation, Query } from '../../graph';
@@ -11,6 +11,7 @@ export const CheckOutComponent = ({ navigation }) => {
   const [ hasPermission, setHasPermission ] = useState( false );
   const [ loading, setLoading ] = useState( false );
   const [ message, setMessage ] = useState( false );
+  const [ success, setSuccess ] = useState( false );
   const [ camera, setCamera ] = useState( false );
   const [ gif, setGif ] = useState( {} );
   const [ type ] = useState(Camera.Constants.Type.front);
@@ -35,8 +36,8 @@ export const CheckOutComponent = ({ navigation }) => {
       try {
         const { message } = await takeAPicture({ access: { code, token }, upload: uploadImage, camera, loading: setLoading, message: setMessage, action: { mutation: checkout }, gifLoad: setGif, type: { msg: 'checkout', id: attId, query: Query.USER_ATT, daily: Query.GET_DAILY_USER } });
         if( message ) {
-          setGif({ uri: 'https://media.giphy.com/media/WiIuC6fAOoXD2/giphy.gif', first: 'Please Wait...', second: "Checking Location..." })
-          await _checkLocation({ nav: navigation.navigate, id: attId, osPlatform: Platform.OS, action: { upFailed: failed, updateLocation: checkoutLocation, query: Query.USER_ATT, daily: Query.GET_DAILY_USER,  history: Query.GET_HISTORY }, type: 'checkout', notif: { gif: setGif, msg: setMessage }, access: { code, token }, reason: issues })
+          setGif({ uri: 'https://media.giphy.com/media/VseXvvxwowwCc/giphy.gif', first: 'Please Wait...', second: "Checking Location..." })
+          await _checkLocation({ nav: navigation.navigate, id: attId, osPlatform: Platform.OS, action: { upFailed: failed, updateLocation: checkoutLocation, query: Query.USER_ATT, daily: Query.GET_DAILY_USER,  history: Query.GET_HISTORY }, type: 'checkout', notif: { gif: setGif, msg: setSuccess }, access: { code, token }, reason: issues })
         }
       } catch(err) {
         setMessage( err );
@@ -66,8 +67,12 @@ export const CheckOutComponent = ({ navigation }) => {
             <View style={{ flex: 1 }}>
               <ErrorCheckInOutComponent text={ message }/>
             </View>
+          : !message && success
+            ? <View style={{ flex: 1 }}>
+                <SuccessCheckInOutComponent text={ 'checkout' } />
+              </View>
           : loading
-              ? <LoadingCheckInOutComponent gif={{ image: gif.uri, w: 250, h: 250 }}  text={{ first: gif.first, second: gif.second }} bg={ '#353941' }/>
+              ? <LoadingCheckInOutComponent gif={{ image: gif.uri, w: 250, h: 250 }}  text={{ first: gif.first, second: gif.second }} bg={ 'black' }/>
               : <CameraComponent setCamera={ setCamera } takePicture={ takePicture } type={ type } />
       }
     </View>

@@ -107,3 +107,14 @@ export const FAIL_PROCESS = gql`
     }
   }
 `
+
+
+// Correction 
+
+export const CREATE_CORRECTION = gql`
+  mutation createCorrection ( $code: String, $token: String, $image: String, $start_time: String, $end_time: String, $reason: String, $id: String ) {
+    createCorrection( code: $code, token: $token, id: $id, start_time: $start_time, end_time: $end_time, reason: $reason, image: $image ) {
+      msg
+    }
+  }
+`

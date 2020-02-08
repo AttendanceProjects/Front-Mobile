@@ -17,7 +17,9 @@ import {
   FilterContainers,
   LiveAttContainers,
   CheckContainers,
-  CorrectionContainers
+  CorrectionContainers,
+  CreateCorrectionContainers,
+  FormCorrectionContainers
 } from './src/containers';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
@@ -39,8 +41,14 @@ const StackHistoryNavigation = createStackNavigator({
   Filter: { screen: FilterContainers, navigationOptions: { header: null  } }
 })
 
+const StackCreateCorrectionNavigation = createStackNavigator({
+  Create: { screen: CreateCorrectionContainers, navigationOptions: { header: null } },
+  Form: { screen: FormCorrectionContainers, navigationOptions: { header: null } }
+})
+
 const CorrectionDrawerNavigation = createDrawerNavigator({
-  All: { screen: CorrectionContainers, navigationOptions: { title: 'Home' } }
+  All: { screen: CorrectionContainers, navigationOptions: { title: 'Home' } },
+  Create: { screen: StackCreateCorrectionNavigation, navigationOptions: { title: 'New Request' } }
 })
 
 

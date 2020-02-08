@@ -190,14 +190,7 @@ export const USER_CORRECTION = gql `
     userCorrection( code: $code, token: $token ) {
       AttId {
         _id
-        UserId {
-          _id
-          username
-          password
-          profile_image
-          email
-          role
-        }
+        UserId
         start
         start_image
         start_issues
@@ -219,10 +212,19 @@ export const USER_CORRECTION = gql `
       UserId
       createdAt
       updatedAt
-      start
-      end
+      start_time
+      end_time
+      image
       reason
       status
     }
   }
 ` 
+
+export const CHECK_AVAILABLE_ATT = gql`
+  query check ( $code: String, $token: String, $id: String ) {
+    check( code: $code, token: $token, id: $id ) {
+      msg
+    }
+  }
+`

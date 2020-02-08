@@ -9,7 +9,7 @@ export const takeAPicture = ({ camera, type, action, loading, message, gifLoad, 
     const { code, token } = access;
     if( uri ) {
       loading( true );
-      gifLoad({ uri: 'https://media.giphy.com/media/WiIuC6fAOoXD2/giphy.gif', first: 'Please Wait...', second: type.msg === 'checkout' ? 'Process Check Out' : 'Process Check In' })
+      gifLoad({ uri: 'https://media.giphy.com/media/VseXvvxwowwCc/giphy.gif', first: 'Please Wait...', second: type.msg === 'checkout' ? 'Process Check Out' : 'Process Check In' })
       const formData = new FormData();
       formData.append( 'image', { name: `${ picName[picName.length-1] }/${ type.msg }.jpg`, type: 'image/jpg', uri })
       const { success, error } = await upload({ code, token, formData });
@@ -36,7 +36,7 @@ export const takeAPicture = ({ camera, type, action, loading, message, gifLoad, 
           }, 10000)
         }
       } else if( error ){
-        gifLoad({ uri: 'https://media.giphy.com/media/TqiwHbFBaZ4ti/giphy.gif', first: 'woops something error', second: 'Please try again in 5 Second' })
+        gifLoad({ uri: 'https://media.giphy.com/media/VseXvvxwowwCc/giphy.gif', first: 'woops something error', second: 'Please try again in 5 Second' })
         setTimeout(() => {
           loading( false );
           message( false );
@@ -46,7 +46,7 @@ export const takeAPicture = ({ camera, type, action, loading, message, gifLoad, 
       }
     } else {
       loading( false );
-      gifLoad({ uri: 'https://media.giphy.com/media/TqiwHbFBaZ4ti/giphy.gif', first: 'sorry cant take a picture', second: 'please try again' })
+      gifLoad({ uri: 'https://media.giphy.com/media/VseXvvxwowwCc/giphy.gif', first: 'sorry cant take a picture', second: 'please try again' })
       setTimeout(() => {
         gifLoad( {} );
       }, 2000);
