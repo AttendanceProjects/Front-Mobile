@@ -4,12 +4,13 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import Font from 'react-native-vector-icons/FontAwesome5';
 import { useLazyQuery, useMutation } from '@apollo/react-hooks';
 import { Query, Mutation } from '../../../graph'
-import { getAccess, uploadImage } from '../../../service';
+import { getAccess, uploadImage, getServerTime } from '../../../service';
 import * as ImagePicker from 'expo-image-picker';
 import * as Permissions from 'expo-permissions';
 
 export const FormCorrectionContainers = ({ navigation }) => {
   const [ show, setShow ] = useState( false );
+  const [ serverTime, setServerTime ] = useState( '' );
   const [ loading, setLoading ] = useState( false );
   const [ keyword, setKeyWord ] = useState( new Date() );
   const [ startDate, setStartDate ] = useState( '' ); // for android
@@ -29,6 +30,9 @@ export const FormCorrectionContainers = ({ navigation }) => {
       await _getPermissionAsync();
       const { id } = navigation.state.params;
       const { code, token } = await getAccess();
+      const { time, error } = await getServerTime({ code, token });
+      if( error ) console.log( error );
+      setServerTime( time )
       if ( id, code, token ) {
         await setAccess({ code, token, id })
         await fetchAtt({ variables: { code, token, id } });
@@ -48,28 +52,37 @@ export const FormCorrectionContainers = ({ navigation }) => {
     try { 
       setLoading( true );
       const { token, code, id } = access;
-      console.log( 'id ', id );
       let formData = new FormData();
       formData.append( 'image', { name: `correction-${ new Date().toLocaleString() }.jpg`, type: 'image/jpg', uri: images })
       const { success, error } =  await uploadImage({ code, token, formData })
-      console.log( 'success', success, error );
-      if( success ) {
-        const { data } = await created({ variables: { code, token, id, start_time: startDate, end_time: endDate, image: success, reason }, refetchQueries: [{ query: Query.USER_CORRECTION, variables: { code, token } }]})
-        console.log( 'success', data );
-        if( data && data.createCorrection ) {
-          setSuccess( data.createCorrection.msg )
-          setLoading( false )
-          setTimeout(() => {
-            navigation.navigate( 'All' );
-            _clearForm();
-            setSuccess( false );
-          }, 5000)
+      if( startDate, endDate, reason ) {
+        if( success ) {
+          const { data } = await created({ variables: { code, token, id, start_time: startDate, end_time: endDate, image: success, reason }, refetchQueries: [{ query: Query.USER_CORRECTION, variables: { code, token } }]})
+          if( data && data.createCorrection ) {
+            setSuccess( data.createCorrection.msg )
+            setLoading( false )
+            setTimeout(() => {
+              navigation.navigate( 'All' );
+              _clearForm();
+              setSuccess( false );
+            }, 5000)
+          }
+        }else {
+          setMessage( error );
+          setLoading( false );
+          setTimeout(() => setMessage( false ), 5000);
         }
       }else {
-        setMessage( error );
         setLoading( false );
+        setMessage( 'please complete all requirment' );
+        setTimeout(() => setMessage( false ), 5000);
       }
-    }catch({ graphQLErrors }) { setMessage( graphQLErrors[0].message ); console.log( graphQLErrors ); setLoading( false ); }
+    }catch({ graphQLErrors }) {
+      if( graphQLErrors[0].message === 'Validation Error' ) setMessage( 'something required!' );
+      else setMessage( graphQLErrors[0].message );
+      setLoading( false );
+      setTimeout(() => setMessage( false ), 4000)
+    }
   }
 
   const _getPermissionAsync = async () => {
@@ -109,9 +122,11 @@ export const FormCorrectionContainers = ({ navigation }) => {
   // for Android
   const setDate = async (event, time) => {
     if( Platform.OS === 'android' ){
+      setShow( false )
       setLoading( true );
       if( event.type === 'set' ){
-        await searchDate( time );
+        if ( show === 'start' ) setStartDate( time );
+        else setEndDate( time );
         setShow( false );
       }else {
         await setKeyWord( new Date () );
@@ -138,11 +153,11 @@ export const FormCorrectionContainers = ({ navigation }) => {
                 <View style={{ borderBottomColor: 'grey', borderBottomWidth: 1, height: 65, justifyContent: 'space-around' }}>
                   <View style={{ width: '100%', justifyContent: 'space-between', flexDirection: 'row' }}>
                     <Text>Before</Text>
-                    <Text style={{ fontWeight: 'bold', fontSize: 20 }}>{ Att.findAttId && Att.findAttId.date ? Att.findAttId.date : 'No Date' }</Text>
+                    <Text style={{ fontWeight: 'bold', fontSize: Platform.OS === 'android' ? 15 : 20 }}>{ Att.findAttId && Att.findAttId.date ? Att.findAttId.date : 'No Date' }</Text>
                   </View>
                   <View style={{ marginTop: 5, flexDirection: 'row', width: '100%' }}>
-                    <Text style={{ width: '50%'}}><Text style={{ fontSize: 13 }}>Check In:</Text> &nbsp; <Text style={{ fontWeight: 'bold', fontSize: 18  }}>{ Att.findAttId && Att.findAttId.start ? Att.findAttId.start : '00:00:00 AM' }</Text></Text>
-                    <Text style={{ width: '50%' }}><Text style={{ fontSize: 13 }}>Check Out:</Text> &nbsp; <Text style={{ fontWeight: 'bold', fontSize: 18  }}>{ Att.findAttId && Att.findAttId.end ? Att.findAttId.end : '00:00:00 AM' }</Text></Text>
+                    <Text style={{ width: '50%'}}><Text style={{ fontSize: 13 }}>Check In:</Text> &nbsp; <Text style={{ fontWeight: 'bold', fontSize: Platform.OS === 'android' ? 15 : 18  }}>{ Att.findAttId && Att.findAttId.start ? Att.findAttId.start : '00:00:00 AM' }</Text></Text>
+                    <Text style={{ width: '50%' }}><Text style={{ fontSize: 13 }}>Check Out:</Text> &nbsp; <Text style={{ fontWeight: 'bold', fontSize: Platform.OS === 'android' ? 15 : 18  }}>{ Att.findAttId && Att.findAttId.end ? Att.findAttId.end : '00:00:00 AM' }</Text></Text>
                   </View>
                 </View>
                 <View style={{ borderBottomColor: 'grey', borderBottomWidth: 1, marginTop: 20, justifyContent: 'space-around', height: 50 }}>
@@ -152,7 +167,7 @@ export const FormCorrectionContainers = ({ navigation }) => {
                     
                     <View style={{ width: '50%', flexDirection: 'row', justifyContent: 'space-around' }}>
                       <View style={{ height: '100%', padding: 5, width: '50%'  }}>
-                        <Text>{ startDate ? startDate.toLocaleTimeString() : '00:00:00 AM' }</Text>
+                        <Text>{ startDate ? startDate.toLocaleTimeString() : serverTime }</Text>
                       </View>
                       <TouchableOpacity onPress={() => setShow( 'start' )}>
                         <Font name={ 'pen-alt' } size={ 20 } color={ 'black' }/>
@@ -160,7 +175,7 @@ export const FormCorrectionContainers = ({ navigation }) => {
                     </View>
                     <View style={{ width: '50%', flexDirection: 'row', justifyContent: 'space-around' }}>
                       <View style={{ height: '100%', padding: 5 , width: '50%' }}>
-                        <Text>{ endDate ? endDate .toLocaleTimeString(): '00:00:00 AM' }</Text>
+                        <Text>{ endDate ? endDate .toLocaleTimeString(): serverTime }</Text>
                       </View>
                       <TouchableOpacity onPress={() => setShow( 'end' )}>
                         <Font name={ 'pen-alt' } size={ 20 } color={ 'black' } />
@@ -172,7 +187,7 @@ export const FormCorrectionContainers = ({ navigation }) => {
                 <View style={{ height: 50, flexDirection: 'row' }}>
                   <View style={{ width: '50%', padding: 5 }}>
                     <Text> Reason </Text>
-                    <TextInput keyboardType='default' autoCapitalize='none' value={ reason } onChangeText={ msg => setReason ( msg ) } style={{ borderWidth: 1, borderColor: 'black', padding: 1, height: 25, width: '100%', border: 'none', fontWeight: 'bold', marginTop: 10 }} placeholder={ 'Input your Reason Here' } placeholderTextColor={ 'black' }/>
+                    <TextInput keyboardType='default' autoCapitalize='none' value={ reason } onChangeText={ msg => setReason ( msg ) } style={{ borderWidth: 1, borderColor: 'black', padding: Platform.OS === 'android' ? 2 : 1, height: 25, width: '100%', fontWeight: 'bold', fontSize: Platform.OS === 'android' ? 10 : 15, marginTop: 10 }} placeholder={ 'Input your Reason Here' } placeholderTextColor={ 'black' }/>
                   </View>
 
                   <View style={{ width: '50%', flexDirection: 'row', justifyContent: "flex-end"}}>
@@ -183,9 +198,9 @@ export const FormCorrectionContainers = ({ navigation }) => {
                   { !images 
                       ? <TouchableOpacity
                           onPress={ _pickImage }
-                          style={{ backgroundColor: '#a9fffd', height: 30, width: 150, border: 'none', borderRadius: 20, marginTop: 10, justifyContent: 'center', alignItems: 'center' }}
+                          style={{ backgroundColor: '#a9fffd', height: 30, width: 150, borderRadius: 20, marginTop: 10, justifyContent: 'center', alignItems: 'center' }}
                         ><Text style={{ color: 'black', fontWeight: 'bold', letterSpacing: 1 }}>Choose Image</Text></TouchableOpacity>
-                      : <TouchableOpacity onPress={() => setImages( '' )} style={{ marginTop: 10, backgroundColor: '#f64b3c', height: 30, width: 50, border: 'none', borderRadius: 10, justifyContent: 'center', alignItems: 'center' }}><Text>Cancel</Text></TouchableOpacity>}
+                      : <TouchableOpacity onPress={() => setImages( '' )} style={{ marginTop: 10, backgroundColor: '#f64b3c', height: 30, width: 50, borderRadius: 10, justifyContent: 'center', alignItems: 'center' }}><Text>Cancel</Text></TouchableOpacity>}
                   </View>
                 </View>
               </>
@@ -197,7 +212,7 @@ export const FormCorrectionContainers = ({ navigation }) => {
                 { message && <Text style={{ fontStyle: 'italic', color: 'red', fontSize: 18 }}>{ message }</Text> }
                 { success && <Text style={{ fontStyle: 'italic', color: 'green', fontSize: 18 }}>{ success }</Text>}
                 <TouchableOpacity style={{ backgroundColor: '#5f85db', width: 100, height: 25, borderRadius: 10,  marginTop: 5, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }} onPress={() => _onCreateCorrection()}>
-                  <Text style={{ fontWeight: 'bold', color: 'white' }}>Send Request</Text>
+                  <Text style={{ fontWeight: 'bold', color: 'white', fontSize: Platform.OS === 'android' ? 10 : 15 }}>Send Request</Text>
                 </TouchableOpacity>
               </View>
             : null }

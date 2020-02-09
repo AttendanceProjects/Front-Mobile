@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { OfflieHeaderComponent, PermissionComponent } from '../../components'
 import { View, Text, Image, TouchableOpacity, AsyncStorage, ScrollView, Platform } from 'react-native';
-import { getAccess, checkConnection } from '../../service';
+import { getAccess, checkConnection, getServerTime } from '../../service';
 import { Query } from '../../graph';
 import { _getCurrentLocation } from '../../helpers'
 import Font from 'react-native-vector-icons/FontAwesome5';
@@ -23,6 +23,8 @@ export const Dash = ({ navigation }) => {
       }else {
         try {
           const { code, token } = await getAccess();
+          // const { time, error } = await getServerTime({ code, token });
+          // console.log( 'time from server', Platform.OS  , time.split(':') )
           await checkConnection({ save: setIsOnline });
           await getUser({ variables: { code, token } });
           await getCompany({ variables: { code, token } });

@@ -13,7 +13,7 @@ export const uploadImage = async ({ code, token, formData }) => {
   try{
     const { data } = await server(code)({
                               method: 'post', 
-                              url: '/attendance/upload',
+                              url: '/upload',
                               data: formData, 
                               headers: {
                                 Accept: 'application/json',
@@ -31,7 +31,7 @@ export const getServerTime = async ({ code, token }) => {
                               url: '/time',
                               headers: { token }                            
                             })
-                            console.log( data );
+                            // console.log( data );
     return { time: data.time }
   }catch(err) {
     if( err.response.data ) return { error: err.response.data.msg };

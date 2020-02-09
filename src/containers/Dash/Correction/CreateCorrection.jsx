@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, ActivityIndicator, ScrollView, Platform } from 'react-native';
 import { useLazyQuery } from '@apollo/react-hooks';
 import { Query } from '../../../graph';
 import { getAccess } from '../../../service';
@@ -49,40 +49,42 @@ export const CreateCorrectionContainers = ({ navigation }) => {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#353941', justifyContent: loading ? 'center' : "flex-start", alignItems: loading ? 'center' : 'flex-start' }}>
-      { loading
-          &&  <CorrectionLoadingComponent />}
-      { check && check.check ? triggerCheck( check.check.msg ) : null }
-      {
-        Att && Att.getHistory && !loading
-          ? 
-          <View>
-            <Text style={{ fontSize: 30, fontWeight: 'bold', color: 'white', textAlign: 'center' }}>Select Attendance</Text>
-            { Att.getHistory.map(el => (
-                <TouchableOpacity key={ el._id } style={{ height: 60, width: '100%', marginTop: 15, paddingLeft: 10, paddingRight: 10 }} onPress={_ => checkAvailable( el._id )}>
-                  <View style={{ width: '100%', backgroundColor: '#90b8f8', borderRadius: 5, height: '100%' }}>
-                    <View style={{ width: '100%',  flexDirection: 'row', justifyContent: 'space-around', height: message ? '80%' : '100%' }} >
-                      <View style={{ width: '45%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
-                        <Text style={{ fontWeight: 'bold', color: 'white', fontSize: 14 }}>{ el.date }</Text>
+    <ScrollView>
+      <View style={{ flex: 1, backgroundColor: '#353941', justifyContent: loading ? 'center' : "flex-start", alignItems: loading ? 'center' : 'flex-start' }}>
+        { loading
+            &&  <CorrectionLoadingComponent />}
+        { check && check.check ? triggerCheck( check.check.msg ) : null }
+        {
+          Att && Att.getHistory && !loading
+            ? 
+            <View>
+              <Text style={{ fontSize: 30, fontWeight: 'bold', color: 'white', textAlign: 'center' }}>Select Attendance</Text>
+              { Att.getHistory.map(el => (
+                  <TouchableOpacity key={ el._id } style={{ height: 60, width: '100%', marginTop: 15, paddingLeft: 10, paddingRight: 10 }} onPress={_ => checkAvailable( el._id )}>
+                    <View style={{ width: '100%', backgroundColor: '#90b8f8', borderRadius: 5, height: '100%' }}>
+                      <View style={{ width: '100%',  flexDirection: 'row', justifyContent: 'space-around', height: message ? '80%' : '100%' }} >
+                        <View style={{ width: '45%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
+                          <Text style={{ fontWeight: 'bold', color: 'white', fontSize: 14 }}>{ el.date }</Text>
+                        </View>
+                        <View style={{ width: '55%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
+                          <Text style={{ fontWeight: 'bold', color: 'white', fontSize: Platform.OS === 'android' ? 10 : 12, letterSpacing: 2 }}>Check In : <Text style={{ color: 'green', fontWeight: 'bold', fontSize: Platform.OS === 'android' ? 12 : 15 }}>{ el.start }</Text></Text>
+                          <Text style={{ fontWeight: 'bold', color: 'white', fontSize: Platform.OS === 'android' ? 10 : 12, letterSpacing: 2 }}>Check Out : <Text style={{ color: 'green', fontWeight: 'bold', fontSize: Platform.OS === 'android' ? 12 : 15 }}>{ el.end }</Text></Text>
+                        </View>
+                        { loadingCheck
+                          &&  <View style={{ width: '15%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
+                                <ActivityIndicator color={ 'red' } />
+                              </View> }
+                        
                       </View>
-                      <View style={{ width: '55%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
-                        <Text style={{ fontWeight: 'bold', color: 'white', fontSize: 14, letterSpacing: 2 }}>Check In : <Text style={{ color: 'green', fontWeight: 'bold' }}>{ el.start }</Text></Text>
-                        <Text style={{ fontWeight: 'bold', color: 'white', fontSize: 14, letterSpacing: 2 }}>Checkout : <Text style={{ color: 'green', fontWeight: 'bold' }}>{ el.end }</Text></Text>
-                      </View>
-                      { loadingCheck
-                        &&  <View style={{ width: '15%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
-                              <ActivityIndicator color={ 'red' } />
-                            </View> }
-                      
+                      { message
+                        && <Text style={{ fontSize: 12, color: 'red', fontWeight: 'bold', letterSpacing: 2, textAlign: 'center' }}>{ message }</Text>}
                     </View>
-                    { message
-                      && <Text style={{ fontSize: 12, color: 'red', fontWeight: 'bold', letterSpacing: 2, textAlign: 'center' }}>{ message }</Text>}
-                  </View>
-                </TouchableOpacity>
-            )) }
-          </View>
-          : null
-      }
-    </View>
+                  </TouchableOpacity>
+              )) }
+            </View>
+            : null
+        }
+      </View>
+    </ScrollView>
   )
 }

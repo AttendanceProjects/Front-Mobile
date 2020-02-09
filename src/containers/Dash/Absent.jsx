@@ -35,67 +35,52 @@ export const Absent = ({ navigation }) => {
     const { code, token } = await getAccess();
     const { time, error } = await getServerTime({ code, token });
     const { startReason } =  navigation.state.params ? await navigation.state.params : '';
-    const date = new Date( time )
-    if( date.toLocaleTimeString().split(':')[0] < 8 && date.toLocaleTimeString().split(' ')[1] === 'AM' || startReason ){
+    if( time.split(':')[0] < 8 && time.split(' ')[1] === 'AM' || startReason ){
       let id
       if( camera ) {
         await checkConnection({ save: setIsOnline });
         if( isOnline ) {
           try {
-            if( navigation.state.params ){
-              var { message: messageNo, id: idNo } = await takeAPicture({
-                access: { code, token },
-                start_reason: startReason,
-                upload: uploadImage,
-                camera,
-                loading: setLoading,
-                message: setMessage,
-                action: { 
-                  mutation: attendance,
-                  query: Query.USER_ATT,
-                  daily: Query.GET_DAILY_USER,
-                  history: Query.GET_HISTORY,
-                  filter: Query.FILTER_ATT
-                },
-                gifLoad: setGif,
-                type: { msg: 'checkin' } 
-              });
-            } else {
-              var { message: messageYes, id: idYes } = await takeAPicture({
-                access: { code, token },
-                upload: uploadImage,
-                camera,
-                loading: setLoading,
-                message: setMessage,
-                action: {
-                  mutation: attendance,
-                  query: Query.USER_ATT,
-                  daily: Query.GET_DAILY_USER,
-                  history: Query.GET_HISTORY,
-                  filter: Query.FILTER_ATT
-                },
-                gifLoad: setGif,
-                type: { msg: 'checkin' }
-              });
-            }
-            if( messageNo || messageYes ) {
+            let { message, id } = await takeAPicture({
+              access: { code, token },
+              start_reason: startReason ? startReason : '',
+              upload: uploadImage,
+              camera,
+              loading: setLoading,
+              message: setMessage,
+              action: { 
+                mutation: attendance,
+                query: Query.USER_ATT,
+                daily: Query.GET_DAILY_USER,
+                history: Query.GET_HISTORY,
+                // filter: Query.FILTER_ATT
+              },
+              gifLoad: setGif,
+              type: { msg: 'checkin' } 
+            });
+            console.log( 'checkin success', message );
+            if( message && id ) {
               setGif({ uri: 'https://media.giphy.com/media/VseXvvxwowwCc/giphy.gif', first: 'Please Wait...', second: "Checking Location..." })
-              await _checkLocation({
+              const { msg } = await _checkLocation({
                 nav: navigation.navigate,
-                id: idNo ? idNo : idYes,
+                id,
                 osPlatform: Platform.OS,
                 action: {
                   upFailed: failed,
                   updateLocation: location,
-                  query: Query.USER_ATT,
+                  // query: Query.USER_ATT,
                   daily: Query.GET_DAILY_USER,
-                  history: Query.GET_HISTORY,
-                  filter: Query.FILTER_ATT
+                  // history: Query.GET_HISTORY,
+                  // filter: Query.FILTER_ATT
                 },
                 type: 'checkin',
                 notif: { gif: setGif, msg: setSuccess },
                 access: { code, token }
               })
+              console.log( 'check location', msg );
+            }else {
+              setMessage( 'something error' );
+              setTimeout(() => { setLoading( false ); navigation.navigate( 'LiveAtt' ) }, 5000);
             }
           } catch(err) {
             setMessage( err );
@@ -112,10 +97,12 @@ export const Absent = ({ navigation }) => {
           await AsyncStorage.setItem('offline', JSON.stringify({
             location: {
               longitude: coords.longitude,
-              latitude: coords.latitude
+              latitude: coords.latitude,
+              accuracy: coords.accuracy
             },
             url: picture.uri,
-            time: new Date( IndoTime ) 
+            time: new Date( IndoTime ) ,
+            type: 'checkin'
           }));
           const splitPicture = picture.uri.split('-');
           setMessage( `No Internet Connection, but your request will our keep.. Please screen shot this and upload if you done connected internet ${ splitPicture[splitPicture.length-1] }`);
@@ -126,9 +113,9 @@ export const Absent = ({ navigation }) => {
         }
       }
     }else if( error ){
-      Alert.alert('Warning', 'Something wrong, please try again', [ {text: 'Oke', onPress: () => navigation.navigate( 'DashBoard' ) } ] );
+      Alert.alert('Warning', 'Something wrong when take time from server, please try again', [ {text: 'Oke', onPress: () => navigation.navigate( 'Absent' ) } ] );
     }else {
-      Alert.alert('Warning', 'You are late, give us reason by click "checkin" in dashboard', [ {text: 'Oke', onPress: () => navigation.navigate( 'DashBoard' ) } ] );
+      Alert.alert('Warning', 'You are late, give us reason by click "checkin" in dashboard', [ {text: 'Oke', onPress: () => navigation.navigate( 'LiveAtt' ) } ] );
     }
   }
 

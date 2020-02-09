@@ -57,7 +57,6 @@ export const FilterContainers = ({ navigation }) => {
   }, [ selectQuery, access ])
 
   const setDate = async (event, date) => {
-    console.log( 'onchange', date, event)
     if( Platform.OS === 'android' ){
       setLoading( true );
       if( event.type === 'set' ){
@@ -69,7 +68,6 @@ export const FilterContainers = ({ navigation }) => {
       }
       setLoading( false );
     }else {
-      console.log( 'masuk else', date );
       await setKeyWord( date );
     }
   }
@@ -150,6 +148,7 @@ export const FilterContainers = ({ navigation }) => {
                         endTime: item.end,
                         endIssues: item.end_issues,
                         reason: {
+                          start: item.start_reason,
                           end: item.end_reason
                         },
                         empty: filtering.filter.length > 0 ? false : true,

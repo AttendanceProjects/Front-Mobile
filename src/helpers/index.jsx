@@ -16,13 +16,14 @@ export const takeAPicture = ({ camera, type, action, loading, message, gifLoad, 
       if( success ) {
         try {
           if( type.msg === 'checkin' ) {
-            const { data } = await action.mutation({ variables: { code, token, start_image: success, start_reason }, refetchQueries: [ {query: action.query, variables: {code, token}}, {query: action.daily, variables: {code, token}}, {query: action.history, variables: {code, token}} ] });
+            const { data } = await action.mutation({ variables: { code, token, start_image: success, start_reason }, refetchQueries: [ {query: action.history, variables: { code, token }}, {query: action.query, variables: {code, token}}, {query: action.daily, variables: {code, token}} ] });
             message( false );
             gifLoad( {} );
             resolve({ message: 'success', id: data.createAtt._id })
           }
           else if ( type.msg === 'checkout' ) {
-            const { data } = await action.mutation({ variables: { code, token, end_image: success, id: type.id }, refetchQueries: [ {query: type.query, variables: {code, token}}, {query: type.daily, variables: {code, token}} ] });
+            //{query: type.query, variables: {code, token}}, 
+            const { data } = await action.mutation({ variables: { code, token, end_image: success, id: type.id, end: 'false' }, refetchQueries: [ {query: type.daily, variables: {code, token}} ] });
             message( false );
             gifLoad( {} );
             resolve({ message: 'success', id: data.updateAtt._id })
@@ -89,6 +90,7 @@ export const _getCurrentLocationOffline = () => {
 export const _checkLocation = async ({ id, osPlatform, action, type, notif, nav, access, reason }) => {
   return new Promise ( async (resolve, reject) => {
     const { code, token } = access;
+    console.log( 'masuk checklocation', code, token, type )
     try {
       const { coords } = await _getCurrentLocation({ os: osPlatform });
       if( coords ) {
@@ -98,16 +100,17 @@ export const _checkLocation = async ({ id, osPlatform, action, type, notif, nav,
         else os = 'ios';
         if( longitude && latitude && accuracy && type && os ) {
           try {
+            //{query: action.query, variables: { code, token }}, 
             // , refetchQueries: [ {query: action.query, variables: { code, token }}, {query: action.daily, variables: {code, token}}, {query: action.history, variables: {code, token}} ]
-            const { data } = await action.updateLocation({ variables: { code, token, os, type, reason, latitude: String(latitude), accuracy: String(accuracy), longitude: String(longitude), id }, refetchQueries: [ {query: action.query, variables: { code, token }}, {query: action.daily, variables: {code, token}} ] })
-            if( data ) notif.msg( `${ type === 'checkin' ? 'Check In' : 'Check Out' } Successfully!`);
-            resolve({ msg: 'success' })
-            setTimeout(() => {
-              notif.gif( {} );
-              notif.msg( false );
-              nav( 'LiveAtt' )
-            }, 3000);
+            const { data } = await action.updateLocation({ variables: { code, token, os, type, reason, latitude: String(latitude), accuracy: String(accuracy), longitude: String(longitude), id }, refetchQueries: [{query: action.daily, variables: {code, token}} ] })
             if( data ) {
+              notif.msg( `${ type } Successfully!`);
+              resolve({ msg: 'success' })
+              setTimeout(() => {
+                notif.gif( {} );
+                notif.msg( false );
+                nav( 'LiveAtt' )
+              }, 3000);
             } else notif.msg( 'Something Error please try again')
           }catch({ graphQLErrors }) { notif.msg( graphQLErrors[0].message ) }
         }

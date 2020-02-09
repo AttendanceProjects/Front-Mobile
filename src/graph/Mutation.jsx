@@ -51,6 +51,15 @@ export const CHANGE_PASS = gql`
   }
 `
 
+export const UPDATE_PROFILE_IMAGE = gql`
+  mutation updateProfile ($code: String, $token: String, $image: String) {
+    updateProfile( code: $code, token: $token, image: $image ) {
+      _id
+      profile_image
+    }
+  }
+`
+
 // Attendance
 
 export const CREATE_ATT = gql`
@@ -61,9 +70,17 @@ export const CREATE_ATT = gql`
   }
 `
 
+export const CREATE_ATT_OFFILE = gql`
+  mutation createOffline ( $code: String, $token: String, $start_image: String, $start_reason: String, $clock: String ) {
+    createOffline( code: $code, token: $token, start_image: $start_image, start_reason: $start_reason, clock: $clock ) {
+      _id
+    }
+  }
+`
+
 export const CHECK_OUT_ATT = gql`
-  mutation updateAtt ( $code: String, $token: String, $end_image: String, $id: String ) {
-    updateAtt ( code: $code, token: $token, end_image: $end_image, id: $id ) {
+  mutation updateAtt ( $code: String, $token: String, $end_image: String, $id: String, $end: String ) {
+    updateAtt ( code: $code, token: $token, end_image: $end_image, id: $id , end: $end) {
       _id
     }
   }

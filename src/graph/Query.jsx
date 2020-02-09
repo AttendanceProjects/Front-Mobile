@@ -6,6 +6,7 @@ import { gql } from 'apollo-boost'
 export const CHECK_SIGN_IN = gql`
   query checkUserSignin ( $code: String, $token: String ) {
     checkSignin ( code: $code, token: $token ) {
+      _id
       username
       email
       role
@@ -188,6 +189,7 @@ export const GET_COMPANY = gql `
 export const USER_CORRECTION = gql `
   query userCorrection ( $code: String, $token: String ){
     userCorrection( code: $code, token: $token ) {
+      _id
       AttId {
         _id
         UserId
