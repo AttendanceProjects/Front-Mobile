@@ -57,7 +57,7 @@ export const takeAPicture = ({ camera, type, action, loading, message, gifLoad, 
 }
 
 function _getCurrentLocation ({ os }) {
-  return new Promise ( async (resolve, reject) => {
+  return new Promise (async (resolve, reject) => {
     let { status } = await Permissions.askAsync( Permissions.LOCATION );
     if( status !== 'granted' ) reject({ error: 'Please set allow your Location Device to next process' });
     else if( status === 'granted' ){
@@ -75,6 +75,18 @@ function _getCurrentLocation ({ os }) {
 }
 
 export const CheckLocation = _getCurrentLocation;
+
+
+export const _getLocationBeforeAbsent = () => {
+  return new Promise (async resolve => {
+    let { status } = await Permissions.askAsync( Permissions.LOCATION );
+    if( status !== 'granted' ) resolve({ error: 'Please set allow your location device to next process' });
+    else {
+      const { coords: { longitude, latitude } } = await Location.getCurrentPositionAsync({});
+      resolve({ longitude, latitude });
+    }
+  })
+}
 
 export const _getCurrentLocationOffline = () => {
   return new Promise ( async (resolve, reject) => {

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Platform, AsyncStorage } from 'react-native';
+import { View, Platform, AsyncStorage, Alert } from 'react-native';
 import { Camera } from 'expo-camera';
 import { CameraComponent, ErrorCheckInOutComponent, ErrorCameraComponent, LoadingCheckInOutComponent, SuccessCheckInOutComponent } from '../../components';
 import { getAccess, uploadImage, checkConnection } from '../../service';
-import { takeAPicture, _checkLocation, _getCurrentLocationOffline } from '../../helpers';
+import { takeAPicture, _checkLocation, _getCurrentLocationOffline, _getLocationBeforeAbsent } from '../../helpers';
 import { Mutation, Query } from '../../graph';
 import { useMutation } from '@apollo/react-hooks';
+import { getDistance } from 'geolib';
 
 export const CheckOutComponent = ({ navigation }) => {
   const [ hasPermission, setHasPermission ] = useState( false );
@@ -38,20 +39,30 @@ export const CheckOutComponent = ({ navigation }) => {
     if( camera ) {
       await checkConnection({ save: setIsOnline });
       if( isOnline ) {
-        try {
-          //, query: Query.USER_ATT, 
-          const { message } = await takeAPicture({ access: { code, token }, upload: uploadImage, camera, loading: setLoading, message: setMessage, action: { mutation: checkout }, gifLoad: setGif, type: { msg: 'checkout', id: attId, daily: Query.GET_DAILY_USER } });
-          if( message ) {
-            setGif({ uri: 'https://media.giphy.com/media/VseXvvxwowwCc/giphy.gif', first: 'Please Wait...', second: "Checking Location..." })
-            await _checkLocation({ nav: navigation.navigate, id: attId, osPlatform: Platform.OS, action: { upFailed: failed, updateLocation: checkoutLocation, query: Query.USER_ATT, daily: Query.GET_DAILY_USER,  history: Query.GET_HISTORY }, type: 'checkout', notif: { gif: setGif, msg: setSuccess }, access: { code, token }, reason: issues ? issues : '' })
-          }else setMessage( 'something error, please try again' );
-        } catch(err) {
-          setMessage( err );
-          await failed({ code, token, id })
-          setTimeout(() => {
-            navigation.navigate( 'Home' );
-            setLoading( false );
-          }, 6000)
+        const { longitude, latitude, error } = await _getLocationBeforeAbsent();
+        if ( error ) Alert.alert("Warning", error);
+        else {
+          const dist = getDistance(
+            { latitude: latitude, longitude: longitude },
+            { latitude: -6.157839, longitude: 106.819318} //---------- LOCATION COMPANY 106.81931855395794 -6.157839617035091
+          )
+          const calculate = dist * 84000;
+          if( calculate < 550000 ){
+            try {
+              const { message } = await takeAPicture({ access: { code, token }, upload: uploadImage, camera, loading: setLoading, message: setMessage, action: { mutation: checkout }, gifLoad: setGif, type: { msg: 'checkout', id: attId, daily: Query.GET_DAILY_USER } });
+              if( message ) {
+                setGif({ uri: 'https://media.giphy.com/media/VseXvvxwowwCc/giphy.gif', first: 'Please Wait...', second: "Checking Location..." })
+                await _checkLocation({ nav: navigation.navigate, id: attId, osPlatform: Platform.OS, action: { upFailed: failed, updateLocation: checkoutLocation, query: Query.USER_ATT, daily: Query.GET_DAILY_USER,  history: Query.GET_HISTORY }, type: 'checkout', notif: { gif: setGif, msg: setSuccess }, access: { code, token }, reason: issues ? issues : '' })
+              }else setMessage( 'something error, please try again' );
+            } catch(err) {
+              setMessage( err );
+              await failed({ code, token, id })
+              setTimeout(() => {
+                navigation.navigate( 'Home' );
+                setLoading( false );
+              }, 6000)
+            }
+          }else Alert.alert('Warning', 'You are out of range, please approach the company area' )
         }
       }else {
         const picture = await camera.takePictureAsync({ quality: 0.5 });

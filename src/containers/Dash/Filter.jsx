@@ -134,25 +134,7 @@ export const FilterContainers = ({ navigation }) => {
                         name: Platform.OS === 'android' ? 10 : 16,
                         date: Platform.OS === 'android' ? 15 : 20
                       }}
-                      typeParent={{
-                        date: item.date,
-                        image: {
-                          start: item.start_image,
-                          end: item.end_image
-                        },
-                        type: 'date',
-                        username: item.UserId.username,
-                        role: item.UserId.role,
-                        startTime: item.start,
-                        startIssues: item.start_issues,
-                        endTime: item.end,
-                        endIssues: item.end_issues,
-                        reason: {
-                          start: item.start_reason,
-                          end: item.end_reason
-                        },
-                        empty: filtering.filter.length > 0 ? false : true,
-                      }}
+                      typeParent={{ date: item.date, image: { start: item.start_image, end: item.end_image }, type: 'date', username: item.UserId.username, role: item.UserId.role, startTime: item.start, startIssues: item.start_issues, endTime: item.end, endIssues: item.end_issues, reason: { start: item.start_reason, end: item.end_reason }, empty: filtering.filter.length > 0 ? false : true }}
                     />
                   )}
                   keyExtractor={( item, index ) => index.toString()}
@@ -181,12 +163,7 @@ export const FilterContainers = ({ navigation }) => {
                             { show
                                 &&
                                 <>
-                                  <DateTimePicker value={ keyWord }
-                                        mode={ 'date' }
-                                        // is24Hour={true}
-                                        display="default"
-                                        onTouchCancel={test => console.log( 'trigger cancel', test )}
-                                        onChange={ setDate }/>
+                                  <DateTimePicker value={ keyWord } mode={ 'date' } display="default" onTouchCancel={test => console.log( 'trigger cancel', test )} onChange={ setDate }/>
                                   { Platform.OS === 'ios' 
                                       && <View style={{ width: '100%', justifyItems: 'center', alignItems: 'center' }}>
                                       <TouchableOpacity onPress={() => searchDate()} style={{ width: '25%', borderRadius: 20, backgroundColor: 'red', alignItems: 'center', justifyContent: 'center', height: 30 }}>

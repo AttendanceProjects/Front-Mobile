@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Text, View, Platform, AsyncStorage, Alert } from 'react-native';
 import { ErrorCheckInOutComponent, LoadingCheckInOutComponent, CameraComponent, SuccessCheckInOutComponent } from '../../components/Spam';
 import { Camera } from 'expo-camera';
-import { takeAPicture, _checkLocation, _getCurrentLocationOffline } from '../../helpers';
+import { takeAPicture, _checkLocation, _getCurrentLocationOffline, _getLocationBeforeAbsent } from '../../helpers';
 import { getAccess, uploadImage, checkConnection, getServerTime } from '../../service';
 import { Mutation, Query } from '../../graph';
 import { useMutation } from '@apollo/react-hooks';
+import { getDistance } from 'geolib'
 
 export const Absent = ({ navigation }) => {
   const [hasPermission, setHasPermission] = useState(null);
@@ -21,9 +22,9 @@ export const Absent = ({ navigation }) => {
   const [ location ] = useMutation( Mutation.UPDATE_LOCATION );
   const [ failed ] = useMutation( Mutation.FAIL_PROCESS );
 
-
   useEffect(() => {
     (async () => {
+      // getPosition();
       await checkConnection({ save: setIsOnline });
       const { status } = await Camera.requestPermissionsAsync();
       if( status === 'granted' ) setHasPermission(status === 'granted');
@@ -40,55 +41,35 @@ export const Absent = ({ navigation }) => {
       if( camera ) {
         await checkConnection({ save: setIsOnline });
         if( isOnline ) {
-          try {
-            let { message, id } = await takeAPicture({
-              access: { code, token },
-              start_reason: startReason ? startReason : '',
-              upload: uploadImage,
-              camera,
-              loading: setLoading,
-              message: setMessage,
-              action: { 
-                mutation: attendance,
-                query: Query.USER_ATT,
-                daily: Query.GET_DAILY_USER,
-                history: Query.GET_HISTORY,
-                // filter: Query.FILTER_ATT
-              },
-              gifLoad: setGif,
-              type: { msg: 'checkin' } 
-            });
-            console.log( 'checkin success', message );
-            if( message && id ) {
-              setGif({ uri: 'https://media.giphy.com/media/VseXvvxwowwCc/giphy.gif', first: 'Please Wait...', second: "Checking Location..." })
-              const { msg } = await _checkLocation({
-                nav: navigation.navigate,
-                id,
-                osPlatform: Platform.OS,
-                action: {
-                  upFailed: failed,
-                  updateLocation: location,
-                  // query: Query.USER_ATT,
-                  daily: Query.GET_DAILY_USER,
-                  // history: Query.GET_HISTORY,
-                  // filter: Query.FILTER_ATT
-                },
-                type: 'checkin',
-                notif: { gif: setGif, msg: setSuccess },
-                access: { code, token }
-              })
-              console.log( 'check location', msg );
-            }else {
-              setMessage( 'something error' );
-              setTimeout(() => { setLoading( false ); navigation.navigate( 'LiveAtt' ) }, 5000);
-            }
-          } catch(err) {
-            setMessage( err );
-            await failed({ code, token, id })
-            setTimeout(() => {
-              navigation.navigate( 'Home' );
-              setLoading( false );
-            }, 6000)
+          const { longitude, latitude, error } = await _getLocationBeforeAbsent();
+          if( error ) Alert.alert('Warning', error );
+          else {
+            const dist = getDistance(
+              { latitude: latitude, longitude: longitude },
+              { latitude: -6.157771, longitude: 106.819315}
+            )
+            const calculate = dist * 84000;
+            if( calculate < 550000 ) {
+              try {
+                let { message, id } = await takeAPicture({ access: { code, token }, start_reason: startReason ? startReason : '', upload: uploadImage, camera, loading: setLoading, message: setMessage, action: { mutation: attendance, query: Query.USER_ATT, daily: Query.GET_DAILY_USER, history: Query.GET_HISTORY, }, gifLoad: setGif, type: { msg: 'checkin' } });
+                console.log( 'checkin success', message );
+                if( message && id ) {
+                  setGif({ uri: 'https://media.giphy.com/media/VseXvvxwowwCc/giphy.gif', first: 'Please Wait...', second: "Checking Location..." })
+                  const { msg } = await _checkLocation({ nav: navigation.navigate, id, osPlatform: Platform.OS, action: { upFailed: failed, updateLocation: location, daily: Query.GET_DAILY_USER, }, type: 'checkin', notif: { gif: setGif, msg: setSuccess }, access: { code, token } })
+                  console.log( 'check location', msg );
+                }else {
+                  setMessage( 'something error' );
+                  setTimeout(() => { setLoading( false ); navigation.navigate( 'LiveAtt' ) }, 5000);
+                }
+              } catch(err) {
+                setMessage( err );
+                await failed({ code, token, id })
+                setTimeout(() => {
+                  navigation.navigate( 'Home' );
+                  setLoading( false );
+                }, 6000)
+              }
+            }else Alert.alert('Warning', 'You are out of range, please approach the company area')
           }
         }else{
           const picture = await camera.takePictureAsync({ quality: 0.5 });
