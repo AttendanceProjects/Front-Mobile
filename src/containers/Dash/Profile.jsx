@@ -110,10 +110,10 @@ export const ProfileContainers = ({ navigation }) => {
                     <Font name={ 'key' } size={ 25 } />
                     <Text style={{ fontSize: Platform.OS === 'android' ? 10 : 12, fontWeight: 'bold' }}>Change Pass</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={{ alignItems: 'center', justifyContent: 'center', height: 60, width: 75, borderRadius: 20, backgroundColor: '#f0134d' }}>
+                  {/* <TouchableOpacity style={{ alignItems: 'center', justifyContent: 'center', height: 60, width: 75, borderRadius: 20, backgroundColor: '#f0134d' }} onPress={() => navigation.navigate( 'Approval' )}>
                     <Font name={ 'calendar-check' } size={ 25 } />
                     <Text style={{ fontSize: 12, fontWeight: 'bold' }}>Approval</Text>
-                  </TouchableOpacity>
+                  </TouchableOpacity> */}
                 </View>
               </View>
             : <Text>Something error</Text>

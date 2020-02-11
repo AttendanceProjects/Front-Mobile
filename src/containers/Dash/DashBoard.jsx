@@ -23,8 +23,6 @@ export const Dash = ({ navigation }) => {
       }else {
         try {
           const { code, token } = await getAccess();
-          // const { time, error } = await getServerTime({ code, token });
-          // console.log( 'time from server', Platform.OS  , time.split(':') )
           await checkConnection({ save: setIsOnline });
           await getUser({ variables: { code, token } });
           await getCompany({ variables: { code, token } });
@@ -33,16 +31,16 @@ export const Dash = ({ navigation }) => {
     })()
   }, [])
 
-  // useEffect(() => {
-  //   (async() => {
-  //     const offline = await AsyncStorage.getItem('offline');
-  //     if( offline ) {
-  //       const { location, url, time } = await JSON.parse( offline );
-  //       console.log( 'masik simpan di local loation dan url pidturenya', location, url, time );
-  //       console.log( 'masuk sini ?' )
-  //     }
-  //   })()
-  // }, [ isOnline ])
+  useEffect(() => {
+    (async() => {
+      const offline = await AsyncStorage.getItem('offline');
+      if( offline ) {
+        const { location, url, time } = await JSON.parse( offline );
+        console.log( 'masik simpan di local loation dan url pidturenya', location, url, time );
+        console.log( 'masuk sini ?' )
+      }
+    })()
+  }, [ isOnline ])
 
 
   const _onPageChange = name => {
@@ -90,7 +88,12 @@ export const Dash = ({ navigation }) => {
         <View style={{ flex: 0.35, padding: 8, flexDirection: 'row', alignItems: 'center' }}>
           <ScrollView horizontal={ true }>
             <PermissionComponent type={{ name: 'Cuti', icon: 'calendar-alt' }} />
-            <PermissionComponent type={{ name: 'Permission', icon: 'sticky-note'}} />
+            <PermissionComponent type={{ name: 'Permission', icon: 'sticky-note' }} />
+            { CheckUser && CheckUser.checkSignin
+                ? CheckUser.checkSignin.role === 'master' || CheckUser.checkSignin.role === 'HR Staff' || CheckUser.checkSignin.role === 'director'
+                    ? <PermissionComponent type={{ name: 'Request Correction', icon: 'user-edit' }} w={ 180 }/>
+                    : null
+                : null }
           </ScrollView>
         </View>
       </View>

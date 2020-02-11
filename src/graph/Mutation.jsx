@@ -60,6 +60,20 @@ export const UPDATE_PROFILE_IMAGE = gql`
   }
 `
 
+export const FILTER_EMPLOYEE = gql `
+  mutation filterEmployee ( $code: String, $token: String, $search: String ) {
+    filterEmployee ( code: $code, token: $token, search: $search ) {
+      _id
+      username
+      email
+      role
+      phone
+      profile_image
+      gender
+    }
+  }
+`
+
 // Attendance
 
 export const CREATE_ATT = gql`

@@ -20,6 +20,7 @@ export const FormCorrectionContainers = ({ navigation }) => {
   const [ success, setSuccess ] = useState( false );
   const [ message, setMessage ] = useState( false );
   const [ access, setAccess ] = useState( {} );
+  const [ defaultTime, setDefault ] = useState( '' );
   const [ fetchAtt, { data: Att } ] = useLazyQuery( Query.GET_ATT_ID );
   const [ created ] = useMutation( Mutation.CREATE_CORRECTION );
 
@@ -27,6 +28,7 @@ export const FormCorrectionContainers = ({ navigation }) => {
   useEffect(() => {
     (async () => {
       setLoading( true );
+      setDefault( new Date().toISOString() )
       await _getPermissionAsync();
       const { id } = navigation.state.params;
       const { code, token } = await getAccess();
@@ -121,6 +123,7 @@ export const FormCorrectionContainers = ({ navigation }) => {
 
   // for Android
   const setDate = async (event, time) => {
+    console.log( time );
     if( Platform.OS === 'android' ){
       setShow( false )
       setLoading( true );
@@ -167,7 +170,7 @@ export const FormCorrectionContainers = ({ navigation }) => {
                     
                     <View style={{ width: '50%', flexDirection: 'row', justifyContent: 'space-around' }}>
                       <View style={{ height: '100%', padding: 5, width: '50%'  }}>
-                        <Text>{ startDate ? startDate.toLocaleTimeString() : serverTime }</Text>
+                        <Text>{ startDate ? startDate.toLocaleTimeString() : keyword ? keyword.toISOString().slice(0, 19).split('T')[1] : '-' }</Text>
                       </View>
                       <TouchableOpacity onPress={() => setShow( 'start' )}>
                         <Font name={ 'pen-alt' } size={ 20 } color={ 'black' }/>
@@ -175,7 +178,7 @@ export const FormCorrectionContainers = ({ navigation }) => {
                     </View>
                     <View style={{ width: '50%', flexDirection: 'row', justifyContent: 'space-around' }}>
                       <View style={{ height: '100%', padding: 5 , width: '50%' }}>
-                        <Text>{ endDate ? endDate .toLocaleTimeString(): serverTime }</Text>
+                        <Text>{ endDate ? endDate .toLocaleTimeString(): keyword ? keyword.toISOString().slice(0, 19).split('T')[1] : '-' }</Text>
                       </View>
                       <TouchableOpacity onPress={() => setShow( 'end' )}>
                         <Font name={ 'pen-alt' } size={ 20 } color={ 'black' } />

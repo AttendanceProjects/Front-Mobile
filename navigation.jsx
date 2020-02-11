@@ -19,7 +19,9 @@ import {
   CheckContainers,
   CorrectionContainers,
   CreateCorrectionContainers,
-  FormCorrectionContainers
+  FormCorrectionContainers,
+  EmployeeContainers,
+  FilterEmployeeContainers
 } from './src/containers';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
@@ -78,7 +80,12 @@ const StackDashBoardNavigation = createStackNavigator({
 
 const StackProfileNavigation = createStackNavigator({
   Profile: { screen: ProfileContainers, navigationOptions: { header: null } },
-  Change: { screen: ChangePasswordContainers }
+  Change: { screen: ChangePasswordContainers },
+})
+
+const StackEmployeeNavigation = createStackNavigator({
+  Employee: { screen: EmployeeContainers },
+  Filter: { screen: FilterEmployeeContainers }
 })
 
 
@@ -95,6 +102,13 @@ const TabsNavigation = createBottomTabNavigator({
     navigationOptions: {
       tabBarIcon: ({ tintColor }) => <FontAwesome5 name={ 'user' } color={ tintColor } />,
       title: 'Profile'
+    }
+  },
+  Employee: {
+    screen: StackEmployeeNavigation,
+    navigationOptions: {
+      tabBarIcon: ({ tintColor }) => <FontAwesome5 name={ 'briefcase' } color={ tintColor } />,
+      title: 'Employee'
     }
   }
 })

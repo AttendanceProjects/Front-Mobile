@@ -53,6 +53,7 @@ export const CorrectionContainers = () => {
                       </View>
                       <View style={{ width: '100%', flexDirection: 'row' }}>
                         <View style={{ width: '50%', marginTop: 10, flexDirection: 'row'}}>
+                          { console.log( item.end_time ) }
                           <Image source={ item.image ? { uri: item.image } : require('../../../../assets/defaultImage.png')} style={{ height: 80, width: 80 }}/>
                           <View style={{ marginLeft: 10, justifyContent: 'space-around' }}>
                             <Text style={{ fontSize: 13, fontStyle: 'italic' }}>Req Changes</Text>

@@ -19,12 +19,16 @@ export const CHECK_SIGN_IN = gql`
   }
 `
 
-export const APPROVAL = gql`
-  query seeAllApproval ( $code: String ) {
-    approval ( code: $code ) {
+export const ALL_EMPLOYEE = gql`
+  query seeEmployee ( $code: String, $token: String ) {
+    seeEmployee( code: $code, token: $token ) {
+      _id
       username
       email
       role
+      phone
+      profile_image
+      gender
     }
   }
 `
