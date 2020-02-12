@@ -6,9 +6,7 @@ import Font from 'react-native-vector-icons/FontAwesome5';
 export const ProfileHeaderComponent = ({ online, right, mid }) => {
 
   const _onSignOut = async _ => {
-    console.log( 'masuk on signout' )
     if( right ) {
-      console.log( 'masuk kondisi ada right dan right action' )
       await AsyncStorage.removeItem( 'access' );
       right.nav( 'Signin' );
     }

@@ -49,14 +49,12 @@ export const Absent = ({ navigation }) => {
               { latitude: -6.157771, longitude: 106.819315}
             )
             const calculate = dist * 84000;
-            if( calculate < 550000 ) {
+            if( calculate < 600000 ) {
               try {
                 let { message, id } = await takeAPicture({ access: { code, token }, start_reason: startReason ? startReason : '', upload: uploadImage, camera, loading: setLoading, message: setMessage, action: { mutation: attendance, query: Query.USER_ATT, daily: Query.GET_DAILY_USER, history: Query.GET_HISTORY, }, gifLoad: setGif, type: { msg: 'checkin' } });
-                console.log( 'checkin success', message );
                 if( message && id ) {
                   setGif({ uri: 'https://media.giphy.com/media/VseXvvxwowwCc/giphy.gif', first: 'Please Wait...', second: "Checking Location..." })
-                  const { msg } = await _checkLocation({ nav: navigation.navigate, id, osPlatform: Platform.OS, action: { upFailed: failed, updateLocation: location, daily: Query.GET_DAILY_USER, }, type: 'checkin', notif: { gif: setGif, msg: setSuccess }, access: { code, token } })
-                  console.log( 'check location', msg );
+                  await _checkLocation({ nav: navigation.navigate, id, osPlatform: Platform.OS, action: { upFailed: failed, updateLocation: location, daily: Query.GET_DAILY_USER, }, type: 'checkin', notif: { gif: setGif, msg: setSuccess }, access: { code, token } })
                 }else {
                   setMessage( 'something error' );
                   setTimeout(() => { setLoading( false ); navigation.navigate( 'LiveAtt' ) }, 5000);

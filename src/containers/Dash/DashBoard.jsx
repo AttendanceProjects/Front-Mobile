@@ -19,14 +19,13 @@ export const Dash = ({ navigation }) => {
       const offline = await AsyncStorage.getItem('offline');
       if( offline ) {
         const { location, url, time } = await JSON.parse( offline );
-        console.log( 'masuk simplan di local because no internet connection' , location, url, time );
       }else {
         try {
           const { code, token } = await getAccess();
           await checkConnection({ save: setIsOnline });
           await getUser({ variables: { code, token } });
           await getCompany({ variables: { code, token } });
-        }catch({ graphQLErrors }) { setError( graphQLErrors[0].message ) }
+        }catch({ graphQLErrors }) { setError( graphQLErrors[0].message ); _onClear( setError ); }
         }
     })()
   }, [])
@@ -41,6 +40,8 @@ export const Dash = ({ navigation }) => {
       }
     })()
   }, [ isOnline ])
+
+  const _onClear = meth => setTimeout(() => meth( false ), 2000)
 
 
   const _onPageChange = name => {

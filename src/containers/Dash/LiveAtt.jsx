@@ -6,9 +6,11 @@ import { Query, Mutation } from '../../graph';
 import { _getCurrentLocation, getCurrentTime } from '../../helpers'
 import { useLazyQuery, useMutation } from '@apollo/react-hooks';
 
+var abortController = new AbortController()
+
 export const LiveAttContainers = ({ navigation }) => {
-  const [ fetch, { data: Att } ] = useLazyQuery( Query.USER_ATT );
-  const [ getDailyUser, { data: DailyUser } ] = useLazyQuery( Query.GET_DAILY_USER );
+  const [ fetch, { data: Att } ] = useLazyQuery( Query.USER_ATT, { fetchPolicy: 'network-only' } );
+  const [ getDailyUser, { data: DailyUser } ] = useLazyQuery( Query.GET_DAILY_USER , { fetchPolicy: 'network-only' });
   const [ access, setAccess ] = useState( {} );
   const [ refreshing, setRefresh ] = useState( false );
   const [ loading, setLoading ] = useState( false );
@@ -28,32 +30,33 @@ export const LiveAttContainers = ({ navigation }) => {
 
   const [ upLocation ] = useMutation( Mutation.UPDATE_LOCATION );
 
-
   useEffect(() => {
-    (async() => {
+    (async () => {
+      console.log( 'trigger use effect pertama liveatt' );
       setInterval(() => {
         getCurrentTime({ setTime: setCurrentTime });
       }, 1000);
       await checkConnection({ save: setIsOnline });
       setLoading( true );
-      const { msg } = await fetching();
-      if( msg ){
-        setLoading( false ); 
-      }
+      await fetching();
+      setLoading( false );
+
+      return () => abortController.abort();
     })()
   }, [])
 
   const fetching = async () => {
     const { code, token } = await getAccess();
     setAccess({ code, token });
-    return new Promise((resolve, reject) => {
-      try {
-        fetch({ variables: { code, token }, fetchPolicy: 'network-only' });
-        getDailyUser({ variables: { code, token }, fetchPolicy: 'network-only' });
-        resolve({ msg: 'success' })
-      }catch({ graphQLErrors }) { setError( graphQLErrors[0].message ) }
-    })
+    return Promise.all([
+      fetchUser({ code, token }),
+      fetchDaily({ code, token })
+    ], { signal: abortController.signal })
   }
+
+  const fetchUser = ({ code, token }) => fetch({ variables: { code, token } })
+
+  const fetchDaily = ({ code, token }) => getDailyUser({ variables: { code, token } })
 
   const _onRemoveAsync = async _ => await AsyncStorage.removeItem( 'access' );
 
@@ -123,11 +126,9 @@ Do you want proccess?
   const onRefresh = React.useCallback(async () => {
     setRefresh(true);
     setLoading( true );
-    const { msg } = await fetching();
-    if( msg ) {
-      setLoading( false );
-      setRefresh( false );
-    }
+    await fetching();
+    setLoading( false );
+    setRefresh( false );
   }, [refreshing]);
 
   const _onCheckin = async () => {
@@ -197,7 +198,7 @@ Do you want proccess?
     <>
       { !isOnline && <OfflieHeaderComponent /> }
       <KeyboardAvoidingView behavior='position'>
-        <ScrollView  style={{ backgroundColor: '#26282b' }} refreshControl={ Platform.OS === 'ios' ? <Text><RefreshControl refreshing={ refreshing } onRefresh={ onRefresh } /></Text> : <RefreshControl refreshing={ refreshing } onRefresh={ onRefresh } /> }>
+        <ScrollView  style={{ backgroundColor: '#26282b' }} refreshControl={ Platform.OS === 'ios' ? <View><RefreshControl refreshing={ refreshing } onRefresh={ onRefresh }/></View> : <RefreshControl refreshing={ refreshing } onRefresh={ onRefresh } /> }>
           <View style={{ backgroundColor: '#90b8f8', height: 200, alignItems: 'center', justifyContent: 'center' }}>
             <Text style={{ fontSize: 50, fontWeight: 'bold', color: '#f44336' }}>{ currentTime && currentTime.toUpperCase() }</Text>
             <Text style={{ marginTop: 20, fontWeight: 'bold', fontSize: 20 }}>{ newDate.toDateString () }</Text>

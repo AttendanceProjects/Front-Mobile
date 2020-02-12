@@ -22,7 +22,7 @@ export const BtmListComponent = ({ typeParent, size }) => {
         }
       </View>
       <View style={{ flex: 0.42, alignItems: 'center', justifyContent: 'center', backgroundColor: typeParent.endIssues === 'ok' ? '#deff8b' : typeParent.endIssues === 'warning' ? '#f6eec7' : '#ec7373', borderColor: '#c7ecee', borderWidth: 1, borderRadius: 20, height: Platform.OS === 'android' ? 65 : 70 }}>
-        <Text style={{ fontWeight: 'bold', fontSize: Platform.OS === 'android' && 10 }}>Check Out</Text>
+        <Text style={{ fontWeight: 'bold', fontSize: Platform.OS === 'android' ? 10 : 15 }}>Check Out</Text>
         {
           typeParent && typeParent.endTime
             ?  <Text style={{ fontWeight: 'bold', fontSize: size.time ? size.time : 18, color: 'blue' }}>{ typeParent.endTime }</Text>

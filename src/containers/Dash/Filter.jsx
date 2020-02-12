@@ -149,7 +149,6 @@ export const FilterContainers = ({ navigation }) => {
                   leftOpenValue={75}
                   rightOpenValue={-75}
                   />
-                // : filtering && filtering.filter && selectQuery === 'date'
                 : selectQuery === 'date'
                     ?
                       <>

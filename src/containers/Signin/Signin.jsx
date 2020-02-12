@@ -13,9 +13,8 @@ export const Signin = ({ navigation }) => {
   const [ watchPassword, setWatchPassword ] = useState( true );
   const [ loading, setLoading ] = useState( false );
   const [ error, setError ] = useState( false );
-  const [ access, setAccess ] = useState( {} );
   const [ submitSignin ] = useMutation( Mutation.SIGN_IN );
-  const [ getUser, { data: CheckUser } ] = useLazyQuery( Query.CHECK_SIGN_IN, { variables: { code: access.code, token: access.token } } );
+  const [ getUser, { data: CheckUser } ] = useLazyQuery( Query.CHECK_SIGN_IN );
 
   const toggleWatcher = () => { setWatchPassword( false ); setTimeout(() => setWatchPassword( true ),2000) }
 
@@ -24,31 +23,25 @@ export const Signin = ({ navigation }) => {
 0001 - PT.Lim Digital Asia
     `)
   }
-  
-  const CheckSignin = async ( access ) => {
-    setError( false )
-    const parse = await access,
-      { code, token } = await parse;
-    await setAccess({ code, token })
-    try {
-      if( code && token ) {
-        getUser()
-      }
-    } catch({ graphQLErrors }) { setError( graphQLErrors[0].message ); setTimeout(() => setError( false ), 2000) }
-  }
 
   useEffect(() => {
     (async () => { 
       await checkConnection({ save: setOnline })
-      await getAccess()
+      const { token, code } = await getAccess()
       if( isOnline ) {
         setError( false )
         try {
-          await CheckSignin( getAccess() )
+          await getUser({ variables: { code, token } })
         }catch({ graphQlErrors }) { setError( graphQlErrors[0].message ); setTimeout(() => setError( false ), 2000) }
       }
     })()
   }, [])
+
+  useEffect(() => {
+    if( CheckUser && CheckUser.checkSignin ) {
+      navigation.navigate( 'DashBoard' );
+    }
+  }, [ CheckUser ])
 
 
   const signin = async () => {
@@ -76,9 +69,6 @@ export const Signin = ({ navigation }) => {
   }
 
   const _onPageChange = _ => navigation.navigate( 'Forgot' );
-
-  CheckUser 
-    && CheckUser.checkSignin && navigation.navigate('DashBoard')
 
   return (
     <>
