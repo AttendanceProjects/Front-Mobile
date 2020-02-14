@@ -1,28 +1,39 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ActivityIndicator } from 'react-native';
+import { View, Text, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { Query } from '../../graph';
 import { useLazyQuery } from '@apollo/react-hooks';
 import { MapComponent, ClockComponent } from '../../components';
+import Font from 'react-native-vector-icons/FontAwesome5'
 
 export const DetailContainers = ({ navigation }) => {
   const [ history, { data } ] = useLazyQuery( Query.GET_ATT_ID );
-  const [ loading, setLoading ] = useState( false );
+  const [ loading, setLoading ] = useState( true );
   const [ message, setMessage ] = useState( false );
+  const [ getId, setId ] = useState( '' );
 
   useEffect(() => {
     (async() => {
+      setLoading( true );
       const { access, id } = navigation.state.params,
         { code, token } = access;
+      setId( id );
       try {
         await history({ variables: { code, token, id } });
-      }catch({ graphQLErrors }) { setMessage( graphQLErrors[0].message ) }
+        setLoading( false );
+      }catch({ graphQLErrors }) { setMessage( graphQLErrors[0].message ); setLoading( false ); _onClear( setMessage ) }
     })()
   }, [])
+
+  const _onClear = meth => setTimeout(() => meth( false ), 3500);
   
   return (
-    <View style={{ flex: 1, backgroundColor: '#353941', justifyContent: 'space-around', alignItems: 'center' }}>
+    <View style={{ flex: 1, backgroundColor: '#353941', justifyContent: loading ? 'center' : 'space-around', alignItems: 'center' }}>
+      { loading
+          && <ActivityIndicator color='blue' size='large' /> }
+      { message 
+          && <Text style={{ fontSize: 20, color: 'red', fontWeight: 'bold' }}>{ message }</Text>  }
       {
-        data && data.findAttId
+        data && data.findAttId && !loading && !message
           ?
           <>
             <View style={{ flex: 0.85, padding: 10 , justifyContent: 'space-around', width: '95%', alignItems: 'center' }}>
@@ -38,11 +49,14 @@ export const DetailContainers = ({ navigation }) => {
                 />
               </View>
             </View>
-            <View style={{ flex: 0.1, backgroundColor: 'blue', width: '95%' }}>
-              <Text>Bottom</Text>
+            <View style={{ flex: 0.1, width: '95%', alignItems: 'center', justifyContent: 'center' }}>
+              <TouchableOpacity onPress={() => navigation.navigate( 'Form', { id: getId })}style={{ justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'white', height: 70, borderRadius: 10, shadowOpacity: 1, shadowColor: 'white', width: 100 }}>
+                <Font name='crop-alt' size={ 25 } />
+                <Text style={{ fontSize: Platform.OS === 'android' ? 15 : 18, color: 'white', fontWeight: 'bold' }}>Correction</Text>
+              </TouchableOpacity>
             </View>
           </>
-        : <ActivityIndicator color={ 'blue' } />
+        : null
       }
     </View>
   )

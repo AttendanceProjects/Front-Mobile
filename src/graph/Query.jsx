@@ -33,6 +33,16 @@ export const ALL_EMPLOYEE = gql`
   }
 `
 
+
+export const CHECK_PIN = gql `
+  query checkPin ( $code: String, $token: String ) {
+    checkPin ( code: $code, token: $token ) {
+      status
+      message
+    }
+  }
+`
+
 // Attendance 
 
 export const USER_ATT = gql`
@@ -184,6 +194,12 @@ export const GET_COMPANY = gql `
   query getCompany ( $code: String, $token: String ) {
     getCompany( code: $code, token: $token ) {
       company_name
+      location {
+        longitude
+        latitude
+      }
+      start
+      end
     }
   }
 `
@@ -215,7 +231,14 @@ export const USER_CORRECTION = gql `
         end_reason
         date
       }
-      UserId
+      UserId {
+        _id
+        username
+        password
+        profile_image
+        email
+        role
+      }
       createdAt
       updatedAt
       start_time

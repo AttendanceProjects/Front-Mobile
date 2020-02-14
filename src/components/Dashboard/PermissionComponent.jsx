@@ -2,8 +2,11 @@ import React from 'react';
 import { View, Text, TouchableOpacity, Platform } from 'react-native';
 import Font from 'react-native-vector-icons/FontAwesome5';
 
-export const PermissionComponent = ({ type, w }) => (
-  <TouchableOpacity style={{ backgroundColor: 'white', height: 50, width: w ? w : Platform.OS === 'android' ? 120 : 110, borderRadius: 20, alignItems: 'center', flexDirection: 'row', marginLeft: 10 }}>
+export const PermissionComponent = ({ type, w , action}) => (
+  <TouchableOpacity
+    onPress={() => action()}
+    style={{ backgroundColor: 'white', height: 50, width: w ? w : Platform.OS === 'android' ? 120 : 110, borderRadius: 20, alignItems: 'center', flexDirection: 'row', marginLeft: 10 }}
+    >
     <View style={{ alignItems: 'center', justifyContent: 'center', marginLeft: 10 }}>
       <Font name={ type && type.icon ? type.icon : 'null' } size={ 20 } />
     </View>

@@ -10,3 +10,4 @@ export * from './LiveAtt';
 export * from './PreCheck';
 export * from './Correction';
 export * from './Employee';
+export * from './Prepare';

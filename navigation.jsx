@@ -21,7 +21,9 @@ import {
   CreateCorrectionContainers,
   FormCorrectionContainers,
   EmployeeContainers,
-  FilterEmployeeContainers
+  FilterEmployeeContainers,
+  GetAllCorrection,
+  PrepareApplication
 } from './src/containers';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
@@ -75,7 +77,8 @@ const StackDashBoardNavigation = createStackNavigator({
         <FontAwesome5 name={ 'braille' } size={ 25 } color={ 'white' } style={{ marginRight: 20 }} onPress={() => navigation.openDrawer()}/>
       )
     })
-  }
+  },
+  Admin: { screen: GetAllCorrection }
 })
 
 const StackProfileNavigation = createStackNavigator({
@@ -114,8 +117,9 @@ const TabsNavigation = createBottomTabNavigator({
 })
 
 const SwitchNavigation = createSwitchNavigator({
+  Prepare: { screen: PrepareApplication },
   Home: { screen: StackSigninNavigation },
   DashBoard: { screen: TabsNavigation }
-}, { initialRouteName: 'Home' })
+}, { initialRouteName: 'Prepare' })
 
 export default createAppContainer( SwitchNavigation );

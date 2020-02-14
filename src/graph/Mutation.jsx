@@ -149,3 +149,29 @@ export const CREATE_CORRECTION = gql`
     }
   }
 `
+
+export const SEE_REQ_CORRECTION = gql`
+  mutation reqIn ( $code: String, $token: String, $pin_security: String ) {
+    reqIn ( code: $code, token: $token, pin_security: $pin_security ) {
+      _id
+      AttId
+      UserId  {
+        _id
+        username
+        profile_image
+        email
+        phone
+      },
+      reason
+      image
+      start
+      start_time
+      end
+      end_time
+      status
+      createdAt
+      updatedAt
+    }
+  }
+`
+

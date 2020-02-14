@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Platform, Alert, TouchableHighlight, AsyncStorage } from 'react-native';
 import { TouchComponent, LogoComponent, LoadingSimpleComponent, SimpleError, OfflieHeaderComponent, FormSigninComponent } from '../../components'
-import { checkConnection, getAccess } from '../../service'
-import { Mutation, Query } from '../../graph';
-import { useMutation, useLazyQuery } from '@apollo/react-hooks'
+import { checkConnection } from '../../service'
+import { Mutation } from '../../graph';
+import { useMutation } from '@apollo/react-hooks'
 
 export const Signin = ({ navigation }) => {
   const [ isOnline, setOnline ] = useState( true );
@@ -14,7 +14,6 @@ export const Signin = ({ navigation }) => {
   const [ loading, setLoading ] = useState( false );
   const [ error, setError ] = useState( false );
   const [ submitSignin ] = useMutation( Mutation.SIGN_IN );
-  const [ getUser, { data: CheckUser } ] = useLazyQuery( Query.CHECK_SIGN_IN );
 
   const toggleWatcher = () => { setWatchPassword( false ); setTimeout(() => setWatchPassword( true ),2000) }
 
@@ -27,21 +26,9 @@ export const Signin = ({ navigation }) => {
   useEffect(() => {
     (async () => { 
       await checkConnection({ save: setOnline })
-      const { token, code } = await getAccess()
-      if( isOnline ) {
-        setError( false )
-        try {
-          await getUser({ variables: { code, token } })
-        }catch({ graphQlErrors }) { setError( graphQlErrors[0].message ); setTimeout(() => setError( false ), 2000) }
-      }
     })()
   }, [])
 
-  useEffect(() => {
-    if( CheckUser && CheckUser.checkSignin ) {
-      navigation.navigate( 'DashBoard' );
-    }
-  }, [ CheckUser ])
 
 
   const signin = async () => {

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Platform, AsyncStorage, Alert } from 'react-native';
+import { View, Platform, AsyncStorage, Alert, ActivityIndicator } from 'react-native';
 import { Camera } from 'expo-camera';
 import { CameraComponent, ErrorCheckInOutComponent, ErrorCameraComponent, LoadingCheckInOutComponent, SuccessCheckInOutComponent } from '../../components';
 import { getAccess, uploadImage, checkConnection } from '../../service';
 import { takeAPicture, _checkLocation, _getCurrentLocationOffline, _getLocationBeforeAbsent } from '../../helpers';
 import { Mutation, Query } from '../../graph';
-import { useMutation } from '@apollo/react-hooks';
+import { useMutation, useLazyQuery } from '@apollo/react-hooks';
 import { getDistance } from 'geolib';
 
 export const CheckOutComponent = ({ navigation }) => {
@@ -22,16 +22,29 @@ export const CheckOutComponent = ({ navigation }) => {
   const [ failed ] = useMutation( Mutation.FAIL_PROCESS );
 
   const [ isOnline, setIsOnline ] = useState( false );
+  const [ distanceLoading, setDistanceLoading ] = useState( false );
+  const [ getCompany, { data: company } ] = useLazyQuery( Query.GET_COMPANY );
+  const [ access, setAccess ] = useState( false );
 
   useEffect(() => {
     (async () => {
       await checkConnection({ save: setIsOnline })
-      const { status } = await Camera.requestPermissionsAsync();
-      if( status === 'granted' ) setHasPermission(status === 'granted');
-      else if( status !== 'granted' && !loading ) setMessage( 'Please set allow your camera to access this application');
+      const { code, token } = await getAccess();
+      if( code && token ) {
+        setAccess({ code, token });
+        const { status } = await Camera.requestPermissionsAsync();
+        if( status === 'granted' ) {
+          setHasPermission(status === 'granted');
+          try {
+            await getCompany({ variables: { code, token } })
+          }catch({ graphQLErrors }) { setMessage( graphQLErrors[0].message ); _onClear( setMessage ); }
+        }
+        else if( status !== 'granted' && !loading ) setMessage( 'Please set allow your camera to access this application');
+      }
     })();
   }, []);
 
+  const _onClear = meth => setTimeout(() => meth( false ), 3000)
 
   const takePicture = async () => {
     const { code, token } = await getAccess();
@@ -39,30 +52,48 @@ export const CheckOutComponent = ({ navigation }) => {
     if( camera ) {
       await checkConnection({ save: setIsOnline });
       if( isOnline ) {
-        const { longitude, latitude, error } = await _getLocationBeforeAbsent();
-        if ( error ) Alert.alert("Warning", error);
-        else {
-          const dist = getDistance(
-            { latitude: latitude, longitude: longitude },
-            { latitude: -6.157839, longitude: 106.819318} //---------- LOCATION COMPANY 106.81931855395794 -6.157839617035091
-          )
-          const calculate = dist * 84000;
-          if( calculate < 550000 ){
-            try {
-              const { message } = await takeAPicture({ access: { code, token }, upload: uploadImage, camera, loading: setLoading, message: setMessage, action: { mutation: checkout }, gifLoad: setGif, type: { msg: 'checkout', id: attId, daily: Query.GET_DAILY_USER } });
-              if( message ) {
-                setGif({ uri: 'https://media.giphy.com/media/VseXvvxwowwCc/giphy.gif', first: 'Please Wait...', second: "Checking Location..." })
-                await _checkLocation({ nav: navigation.navigate, id: attId, osPlatform: Platform.OS, action: { upFailed: failed, updateLocation: checkoutLocation, query: Query.USER_ATT, daily: Query.GET_DAILY_USER,  history: Query.GET_HISTORY }, type: 'checkout', notif: { gif: setGif, msg: setSuccess }, access: { code, token }, reason: issues ? issues : '' })
-              }else setMessage( 'something error, please try again' );
-            } catch(err) {
-              setMessage( err );
-              await failed({ code, token, id })
-              setTimeout(() => {
-                navigation.navigate( 'Home' );
-                setLoading( false );
-              }, 6000)
+        setDistanceLoading( true );
+        if( company && company.getCompany && company.getCompany.location && company.getCompany.location.longitude && company.getCompany.location.latitude ) {
+          const { longitude, latitude, error } = await _getLocationBeforeAbsent();
+          const { longitude: compLongitude, latitude: compLatitude } = company.getCompany.location;
+          if ( error ){
+            Alert.alert("Warning", error);
+            setDistanceLoading( false );
+          ;}
+          else {
+            const dist = getDistance(
+              { latitude: latitude, longitude: longitude },
+              { latitude: compLatitude ? compLatitude : -6.157771, longitude: compLongitude ? compLongitude : 106.819315 } //---------- LOCATION COMPANY 106.81931855395794 -6.157839617035091
+            )
+            const calculate = dist * 84000;
+            if( calculate < 1000000 ){
+              setDistanceLoading( false );
+              try {
+                const { message } = await takeAPicture({ access: { code, token }, upload: uploadImage, camera, loading: setLoading, message: setMessage, action: { mutation: checkout }, gifLoad: setGif, type: { msg: 'checkout', id: attId, daily: Query.GET_DAILY_USER } });
+                if( message ) {
+                  setGif({ uri: 'https://media.giphy.com/media/VseXvvxwowwCc/giphy.gif', first: 'Please Wait...', second: "Checking Location..." })
+                  await _checkLocation({ nav: navigation.navigate, id: attId, osPlatform: Platform.OS, action: { upFailed: failed, updateLocation: checkoutLocation, query: Query.USER_ATT, daily: Query.GET_DAILY_USER,  history: Query.GET_HISTORY }, type: 'checkout', notif: { gif: setGif, msg: setSuccess }, access: { code, token }, reason: issues ? issues : '' })
+                }else setMessage( 'something error, please try again' );
+              } catch(err) {
+                setMessage( err );
+                await failed({ code, token, id })
+                setDistanceLoading( false );
+                setTimeout(() => {
+                  navigation.navigate( 'Home' );
+                  setLoading( false );
+                }, 6000)
+              }
+            }else {
+              Alert.alert('Warning', 'You are out of range, please approach the company area' );
+              setDistanceLoading( false );
             }
-          }else Alert.alert('Warning', 'You are out of range, please approach the company area' )
+          }
+        }else{
+          setDistanceLoading( false );
+          Alert.alert('Whoops', 'something error, try again',[
+            { text: 'No' },
+            { text: 'Yes', onPress: _ => takePicture() }
+          ])
         }
       }else {
         const picture = await camera.takePictureAsync({ quality: 0.5 });
@@ -101,20 +132,20 @@ export const CheckOutComponent = ({ navigation }) => {
 
   return (
     <View style={{ flex: 1 }}>
-      {
-        message 
-          ? 
-            <View style={{ flex: 1 }}>
-              <ErrorCheckInOutComponent text={ message }/>
-            </View>
-          : !message && success
-            ? <View style={{ flex: 1 }}>
-                <SuccessCheckInOutComponent text={ 'checkout' } />
+      { distanceLoading && !message && !success && !loading
+          ?  <View style={{ width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center' }}>
+                <ActivityIndicator size='large' color='white' />
               </View>
-          : loading
-              ? <LoadingCheckInOutComponent gif={{ image: gif.uri, w: 250, h: 250 }}  text={{ first: gif.first, second: gif.second }} bg={ 'black' }/>
-              : <CameraComponent setCamera={ setCamera } takePicture={ takePicture } type={ type } />
-      }
+          : null }
+      { message && !distanceLoading && !loading && !success
+          ? <ErrorCheckInOutComponent text={ message }/>
+          : null }
+      { !message && success && !distanceLoading && !loading
+          ? <SuccessCheckInOutComponent text={ 'checkout' } />
+          : null }
+      { loading && !success && !distanceLoading && !message
+          ? <LoadingCheckInOutComponent gif={{ image: gif.uri && gif.uri, w: 250, h: 250 }}  text={{ first: gif.first && gif.first, second: gif.second && gif.second }} bg={ 'black' }/>
+          : <CameraComponent setCamera={ setCamera } takePicture={ takePicture } type={ type } /> }
     </View>
   )
 }
