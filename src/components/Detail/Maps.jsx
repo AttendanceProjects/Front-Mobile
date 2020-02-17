@@ -4,8 +4,8 @@ import { StyleSheet, Image, View, Dimensions } from 'react-native';
 
 
 export const MapCorrections = ({ start, end }) => (
-  <View style={{ height: '100%', width: '80%', marginLeft: 20, alignItems: 'flex-end' }}>
-      <MapView style={{ height: '100%', width: '90%' }}
+  <View style={{ height: '100%', width: '100%', marginLeft: 20, alignItems: 'flex-end' }}>
+      <MapView style={{ height: '100%', width: '100%' }}
         camera={{
           center: {
             // latitude: location ? location.latitude : -6.2607917,

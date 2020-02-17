@@ -1,6 +1,6 @@
 import React from 'react';
 import Font from 'react-native-vector-icons/FontAwesome5'
-import { View, Text, Image, Linking, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 
 export const ListEmployeeComponent = ({ el, _onSendEmail, _onChatWa, i, username, _onCalling }) => (
   <View style={{ height: 100, width: '100%', flexDirection: 'row', marginTop: i !== 0 ? 10 : 0 }}>

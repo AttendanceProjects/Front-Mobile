@@ -26,7 +26,7 @@ export const LoadingFilterComponent = ({ text, color }) => (
 )
 
 export const SuccessCheckInOutComponent = ({ text }) => (
-  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+  <View style={{ height: '100%', width: '100%', justifyContent: 'center', alignItems: 'center' }}>
     <Image source={ require('../../../assets/success.png') } style={{ width: 200, height: 200 }} />
     <Text style={{ fontSize: 20, color: 'red', textAlign: 'center' }}>
       { text === 'checkin' ? 'Check In Successfully' : 'Check Out Successfully' }

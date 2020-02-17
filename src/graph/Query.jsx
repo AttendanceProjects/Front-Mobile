@@ -15,6 +15,7 @@ export const CHECK_SIGN_IN = gql`
       identityNumber
       religion
       gender
+      pin_security
     }
   }
 `
@@ -33,15 +34,6 @@ export const ALL_EMPLOYEE = gql`
   }
 `
 
-
-export const CHECK_PIN = gql `
-  query checkPin ( $code: String, $token: String ) {
-    checkPin ( code: $code, token: $token ) {
-      status
-      message
-    }
-  }
-`
 
 // Attendance 
 
@@ -254,6 +246,50 @@ export const CHECK_AVAILABLE_ATT = gql`
   query check ( $code: String, $token: String, $id: String ) {
     check( code: $code, token: $token, id: $id ) {
       msg
+    }
+  }
+`
+
+export const GET_CORRECTION_ID = gql`
+  query getOneCorrection ( $code: String, $token: String, $id: String ) {
+    getOneCorrection( code: $code, token: $token, id: $id ) {
+      _id
+      AttId {
+        _id
+        UserId
+        start
+        start_image
+        start_issues
+        start_location {
+          latitude
+          longitude
+        }
+        start_reason
+        end
+        end_image
+        end_issues
+        end_location {
+          latitude
+          longitude
+        }
+        end_reason
+        date
+      }
+      UserId {
+        _id
+        username
+        password
+        profile_image
+        email
+        role
+      }
+      createdAt
+      updatedAt
+      start_time
+      end_time
+      image
+      reason
+      status
     }
   }
 `

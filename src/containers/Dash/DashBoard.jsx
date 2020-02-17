@@ -2,15 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { OfflieHeaderComponent, PermissionComponent } from '../../components'
 import { View, Text, Image, TouchableOpacity, AsyncStorage, ScrollView, Platform, TextInput, Button, ActivityIndicator } from 'react-native';
 import { getAccess, checkConnection, getServerTime } from '../../service';
-import { Query } from '../../graph';
+import { Query, Mutation } from '../../graph';
 import { _getCurrentLocation } from '../../helpers'
 import Font from 'react-native-vector-icons/FontAwesome5';
-import { useLazyQuery } from '@apollo/react-hooks';
+import { useLazyQuery, useMutation } from '@apollo/react-hooks';
 
-export const Dash = ({ navigation }) => {
+export const Dash = ({ navigation: { navigate: push } }) => {
   const [ getUser, { data: CheckUser } ] = useLazyQuery( Query.CHECK_SIGN_IN );
   const [ getCompany, { data: Company } ] = useLazyQuery( Query.GET_COMPANY );
-  const [ checkPinSecurity, { data: check } ] = useLazyQuery( Query.CHECK_PIN );
+  const [ checkPinSecurity ] = useMutation( Mutation.CHECK_PIN );
   const [ usage ] = useState([ {name: 'History', icon: 'calendar-alt'}, {name: 'Attendance', icon: 'map-marker-alt'}, {name: 'Correction', icon: 'crop-alt'} ])
   const [ isOnline, setIsOnline ] = useState( false );
   const [ access, setAccess ] = useState( {} );
@@ -31,7 +31,8 @@ export const Dash = ({ navigation }) => {
       }else {
         try {
           const { code, token } = await getAccess();
-          setAction({ code, token });
+          setAccess({ code, token });
+
           await checkConnection({ save: setIsOnline });
           await getUser({ variables: { code, token } });
           await getCompany({ variables: { code, token } });
@@ -53,13 +54,12 @@ export const Dash = ({ navigation }) => {
 
 
   const _onPageChange = name => {
-    if( name === 'History' ) navigation.navigate( 'History' );
-    else if( name === 'Attendance' ) navigation.navigate( 'LiveAtt' );
-    else if( name === 'Correction' ) navigation.navigate( 'Correction' );
+    if( name === 'History' ) push( 'History' );
+    else if( name === 'Attendance' ) push( 'LiveAtt' );
+    else if( name === 'Correction' ) push( 'Correction' );
   }
 
   const _onAction = async _ => {
-    console.log( 'trigger' );
     setAction( !action );
   }
 
@@ -73,42 +73,37 @@ export const Dash = ({ navigation }) => {
     setPinLoading( true );
     try {
       const { token, code } = access;
-      const { data: { checkPin: { status, message } } } = await checkPinSecurity({ variables: { code, token, pin_security } })
-      if( status && message ) {
-        console.log( 'dpaat status', message );
-        setPinMessage({ status, message })
-        setPinLoading( false );
-        if( status === 'ok' ){
-          setPinMessage( 'Welcome' )
-          setTimeout(() => {
-            navigation.navigate( 'Admin' );
-            setPinMessage ( {} );
-          }, 3000)
+      if( code, token ) {
+        const { data: { checkPin: { status, message } } } = await checkPinSecurity({ variables: { code, token, pin_security } })
+        if( status && message ) {
+          setPinMessage({ status, message })
+          setPinLoading( false );
+          if( status === 'ok' ){
+            setTimeout(async () => {
+              await setPin( [] )
+              push( 'Admin', { pin_security } );
+              setPinMessage ( false );
+              setAction( false )
+            }, 1500)
+          }
+          setTimeout(() => setPinMessage( false ), 2000)
         }
-        setTimeout(() => setPinMessage( {} ), 2000)
-        setPin( [] );
+      }else{
+        setPinMessage({ status: 'error', message: 'You\'re logout, please signin again' });
+        setTimeout(() => push( 'Signin' ), 2000)
       }
     }catch({ graphQLErrors }) { setPinMessage({ status: 'nope', message: graphQLErrors[0].message }); setPinMessage( {} ); setPinLoading( false ); setPin( [] ); }
   }
 
   const _onClickNum = async num => {
-    if( num || num === 0 ) {
-      if( pin.length === 0 ) setPin([ num ]);
-      else {
-        let arr = [ ...pin ];
-        if( pin.length === 6 ){
-          console.log( 'masuk pin length 6 ', pin)
-          const pin_security = Number( pin.join('') );
-          await _onActionCheck( pin_security );
-        }else {
-          console.log( 'masuk else', pin );
-          arr.push( num );
-          setPin( arr )
-        }
-      }
+    let temp = [ ...pin, num ];
+    if( temp.length > 5 ) {
+      const pin_security = Number( temp.join( '' ) );
+      await _onActionCheck( pin_security );
     }
+    await setPin( temp );
   }
-
+  
   return (
     <View style={{ backgroundColor: '#5b5656', flex: 1, position: 'relative' }}>
       { !isOnline && <OfflieHeaderComponent /> }
@@ -166,8 +161,8 @@ export const Dash = ({ navigation }) => {
         </View>
       </View>
       
-      { !action
-          &&  <PinComponent
+      { action
+          ?  <PinComponent
                 setHideSec={ setHideSec }
                 hideSec={ hideSec }
                 _onClickNum={ _onClickNum }
@@ -177,13 +172,13 @@ export const Dash = ({ navigation }) => {
                 pinLoading={ pinLoading }
                 pin={ pin }
                 pinMessage={ pinMessage }
-              />  }
+              />  : null}
     </View>
   )
 }
 
 const PinComponent = ({ setHideSec, hideSec, _onClickNum, setAction, setPin, action, pinLoading, pin, pinMessage }) => (
-  <View style={{ height: !action ? '100%' : 0, width: '100%', opacity: 0.95, backgroundColor: 'black', position: 'absolute', alignItems: 'center', justifyContent: 'center' }}>
+  <View style={{ height: action ? '100%' : 0, width: '100%', opacity: 0.95, backgroundColor: 'black', position: 'absolute', alignItems: 'center', justifyContent: 'center' }}>
     <View style={{ height: '75%', width: '75%', backgroundColor: 'white' }}>
       <View style={{ height: 50, backgroundColor: 'grey', width: '100%', justifyContent: 'center', alignItems: 'center' }}>
           <Text style={{ fontSize: 18, letterSpacing: 1, fontWeight: 'bold', color: 'white' }}>Authorization Required</Text>
@@ -195,7 +190,7 @@ const PinComponent = ({ setHideSec, hideSec, _onClickNum, setAction, setPin, act
           { pinMessage && pinMessage.status && pinMessage.message
               ? <Text style={{ fontSize: 20, color: pinMessage.status === 'ok' ? 'green' : 'red' }}>{ pinMessage.message }</Text>
               : null }
-          <TouchableOpacity style={{ position: 'absolute', right: 15, top: 15 }} onPress={() => setHideSec( !hideSec )}>
+          <TouchableOpacity style={{ position: 'absolute', right: 15, top: 15 }} onPress={() => { setHideSec( true ); setTimeout(() => setHideSec( false ), 2000) }}>
             <Font name={ hideSec ? 'eye' : 'eye-slash' } size={ 15 } />
           </TouchableOpacity>
       </View>

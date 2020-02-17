@@ -7,7 +7,11 @@ export const checkConnection = async ({ save }) => {
   save( connection.isConnected )
 }
 
-export const getAccess = async () => JSON.parse( await AsyncStorage.getItem('access')) 
+export const getAccess = async () => {
+  const data = JSON.parse( await AsyncStorage.getItem('access'))
+  if( data ) return data
+  else return false
+}
 
 export const uploadImage = async ({ code, token, formData }) => {
   try{

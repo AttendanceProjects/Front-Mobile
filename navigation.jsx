@@ -87,7 +87,7 @@ const StackProfileNavigation = createStackNavigator({
 })
 
 const StackEmployeeNavigation = createStackNavigator({
-  Employee: { screen: EmployeeContainers },
+  Employee: { screen: EmployeeContainers, navigationOptions: { title: 'All Employee' } },
   Filter: { screen: FilterEmployeeContainers }
 })
 

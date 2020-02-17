@@ -1,90 +1,95 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator, ScrollView, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, ActivityIndicator, ScrollView, RefreshControl, Platform, Image } from 'react-native';
 import { useLazyQuery } from '@apollo/react-hooks';
 import { Query } from '../../../graph';
 import { getAccess } from '../../../service';
-import { CorrectionLoadingComponent } from '../../../components';
+import { ListCorrectionComponent } from '../../../components';
 
-export const CreateCorrectionContainers = ({ navigation }) => {
-  const [ access, setAccess ] = useState( {} );
+export const CreateCorrectionContainers = ({ navigation: { navigate: push } }) => {
   const [ loading, setLoading ] = useState( false );
   const [ loadingCheck, setLoadingCheck ] = useState( false );
+  const [ refreshing, setRefresh ] = useState( false );
   const [ message, setMessage ] = useState( false );
   const [ getAttId, setAttId ] = useState( '' );
   const [ fetchHistory, { data: Att } ] = useLazyQuery( Query.GET_HISTORY, { fetchPolicy: 'no-cache' } );
   const [ checkAtt, { data: check } ] = useLazyQuery( Query.CHECK_AVAILABLE_ATT, { fetchPolicy: 'no-cache' } );
 
   useEffect(() => {
-    (async() => {
-      try {
-        setMessage( false );
-        setLoading( true );
-        const { code, token } = await getAccess();
-        if( code, token ) {
-          setAccess({ code, token });
-          await fetchHistory({ variables: { code, token }})
+    fetching()
+  }, []);
+
+  const fetching = async _ => {
+    setLoading( true );
+    try {
+      setMessage( false );
+      const { code, token } = await getAccess();
+      if( code, token ) {
+        await fetchHistory({ variables: { code, token }})
+        setTimeout(() => {
           setLoading( false )
-        }
-      }catch({ graphQLErrors }) { setMessage( graphQLErrors[0].message ); setLoading( false ); }
-    })()
-  }, [])
+        }, 800);
+      }
+    }catch({ graphQLErrors }) { setMessage( graphQLErrors[0].message ); setLoading( false ); _onClear( setMessage ) }
+  }
+
+  const _onClear = meth => setTimeout(() => meth( false ), 2000);
+
+  const onRefresh = React.useCallback(async () => {
+    setRefresh(true);
+    await fetching();
+    setRefresh( false );
+  }, [ refreshing ]);
 
   const checkAvailable = async id => {
     setAttId( '' );
     try {
       setMessage( false );
       setLoadingCheck( true );
-      const { code, token } = access;
+      const { code, token } = await getAccess();
       if( code, token ) {
         await checkAtt({ variables: { code, token, id } })
         await setAttId( id );
         setLoadingCheck( false );
       }
-    }catch({ graphQLErrors }) { setMessage( graphQLErrors[0].message ); setLoadingCheck( false ); }
+    }catch({ graphQLErrors }) { setMessage( graphQLErrors[0].message ); setLoadingCheck( false ); _onClear( setMessage ) }
   }
 
   const triggerCheck = ( msg ) => {
-    if( msg === 'ok' ) navigation.navigate( 'Form', { id: getAttId } );
+    if( msg === 'ok' ) push( 'Form', { id: getAttId } );
     else setMessage( 'Something Wrong' );
   }
+  
 
   return (
-    <ScrollView>
-      <View style={{ flex: 1, backgroundColor: '#353941', justifyContent: loading ? 'center' : "flex-start", alignItems: loading ? 'center' : 'flex-start' }}>
-        { loading
-            &&  <CorrectionLoadingComponent />}
-        { check && check.check ? triggerCheck( check.check.msg ) : null }
-        {
-          Att && Att.getHistory && !loading
-            ? 
-            <View>
-              <Text style={{ fontSize: 30, fontWeight: 'bold', color: 'white', textAlign: 'center' }}>Select Attendance</Text>
-              { Att.getHistory.map(el => (
-                  <TouchableOpacity key={ el._id } style={{ height: 60, width: '100%', marginTop: 15, paddingLeft: 10, paddingRight: 10 }} onPress={_ => checkAvailable( el._id )}>
-                    <View style={{ width: '100%', backgroundColor: '#90b8f8', borderRadius: 5, height: '100%' }}>
-                      <View style={{ width: '100%',  flexDirection: 'row', justifyContent: 'space-around', height: message ? '80%' : '100%' }} >
-                        <View style={{ width: '45%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
-                          <Text style={{ fontWeight: 'bold', color: 'white', fontSize: 14 }}>{ el.date }</Text>
-                        </View>
-                        <View style={{ width: '55%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
-                          <Text style={{ fontWeight: 'bold', color: 'white', fontSize: Platform.OS === 'android' ? 10 : 12, letterSpacing: 2 }}>Check In : <Text style={{ color: 'green', fontWeight: 'bold', fontSize: Platform.OS === 'android' ? 12 : 15 }}>{ el.start }</Text></Text>
-                          <Text style={{ fontWeight: 'bold', color: 'white', fontSize: Platform.OS === 'android' ? 10 : 12, letterSpacing: 2 }}>Check Out : <Text style={{ color: 'green', fontWeight: 'bold', fontSize: Platform.OS === 'android' ? 12 : 15 }}>{ el.end }</Text></Text>
-                        </View>
-                        { loadingCheck
-                          &&  <View style={{ width: '15%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
-                                <ActivityIndicator color={ 'red' } />
-                              </View> }
-                        
-                      </View>
-                      { message
-                        && <Text style={{ fontSize: 12, color: 'red', fontWeight: 'bold', letterSpacing: 2, textAlign: 'center' }}>{ message }</Text>}
-                    </View>
-                  </TouchableOpacity>
-              )) }
+    <View style={{ flex: 1, backgroundColor: '#353941' }}>
+    { loading && !message
+        ? <View style={{ width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center' }}>
+            <ActivityIndicator size='large' color='white' />
+            <Text style={{ color: 'white', fontWeight: 'bold', letterSpacing: 1, marginTop: 10, fontSize: Platform.OS === 'android' ? 15: 20 }}>Please wait...</Text>
+          </View>
+        : null }
+    { message && !loading
+        ? <View style={{ wdith: '100%', height: '100%', justifyContent: 'center', alignItems: 'center' }}>
+            <Image source={ require('../../../../assets/sadforerror.png') } style={{ width: 150, height: 150 }} />
+            <Text style={{ fontSize: 12, color: 'red', fontWeight: 'bold', letterSpacing: 2, textAlign: 'center' }}>{ message }</Text>
+          </View>
+        : null }
+    {
+      Att && Att.getHistory.length && !loading && !message
+        ? 
+          <ScrollView style={{ flex: 1,}} refreshControl={ Platform.OS === 'ios' ? <View><RefreshControl refreshing={ refreshing } onRefresh={ onRefresh }/></View> : <RefreshControl refreshing={ refreshing } onRefresh={ onRefresh } /> }>
+            <View style={{ height: '100%', width: '100%' }}>
+              { check && check.check && !loading 
+                  ? triggerCheck( check.check.msg )
+                  : null }
+              
+                  <View>
+                    <Text style={{ fontSize: 30, fontWeight: 'bold', color: 'white', textAlign: 'center' }}>Select Attendance</Text>
+                    { Att.getHistory.map(el => <ListCorrectionComponent key={ el._id } item={ el } checkAvailable={ checkAvailable } loadingCheck={ loadingCheck } message={ message }/>) }
+                  </View>
             </View>
-            : null
-        }
-      </View>
-    </ScrollView>
+          </ScrollView>
+      : null }
+    </View>
   )
 }

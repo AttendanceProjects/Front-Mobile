@@ -28,7 +28,7 @@ export const FormCorrectionContainers = ({ navigation }) => {
   useEffect(() => {
     (async () => {
       setLoading( true );
-      setDefault( new Date().toISOString() )
+      setDefault( new Date().toISOString("en-US", {timeZone: "Asia/Jakarta"}) )
       await _getPermissionAsync();
       const { id } = navigation.state.params;
       const { code, token } = await getAccess();
@@ -58,8 +58,11 @@ export const FormCorrectionContainers = ({ navigation }) => {
       formData.append( 'image', { name: `correction-${ new Date().toLocaleString() }.jpg`, type: 'image/jpg', uri: images })
       const { success, error } =  await uploadImage({ code, token, formData })
       if( startDate, endDate, reason ) {
+        const start_time = new Date( startDate ).toLocaleString("en-US", {timeZone: "Asia/Jakarta"})
+        const end_time = new Date( endDate ).toLocaleString("en-US", {timeZone: "Asia/Jakarta"})
+        console.log( start_time, end_time );
         if( success ) {
-          const { data } = await created({ variables: { code, token, id, start_time: startDate, end_time: endDate, image: success, reason }, refetchQueries: [{ query: Query.USER_CORRECTION, variables: { code, token } }]})
+          const { data } = await created({ variables: { code, token, id, start_time, end_time, image: success, reason }, refetchQueries: [{ query: Query.USER_CORRECTION, variables: { code, token } }]})
           if( data && data.createCorrection ) {
             setSuccess( data.createCorrection.msg )
             setLoading( false )

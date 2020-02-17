@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Platform, TextInput, TouchableOpacity, ActivityIndicator, ScrollView, Alert } from 'react-native';
+import { View, Text, Platform, TextInput, TouchableOpacity, ActivityIndicator, ScrollView, Alert, Linking } from 'react-native';
 import { useMutation, useLazyQuery } from '@apollo/react-hooks';
 import { Mutation, Query } from '../../../graph';
 import { getAccess } from '../../../service'
@@ -100,12 +100,26 @@ export const FilterEmployeeContainers = ({ navigation }) => {
   }
 
   const _onChatWa = ({ phone }) => {
+    if( user && user.checkSignin ) {
+      if ( phone === user.checkSignin.phone ) Alert.alert('Warning', 'cant chat yourself' );
+      else _alertWa( phone )
+    }else _alertWa( phone )
+  }
+
+  const _alertWa = phone => {
     Alert.alert('Attention', `chat with ${ phone }`, [
       { text: 'No' },
       { text: 'Yes', onPress: () => {
         Linking.openURL(`https://api.whatsapp.com/send?phone=${ phone.split('')[0] === '0' ? phone.slice(1, phone.length ) : phones }&text=i%20want%20ask%20you%20something%20sir`)
       }}
     ])
+  }
+
+  const _onCalling = ({ phone }) => {
+    if( user && user.checkSignin ) {
+      if ( phone === user.checkSignin.phone ) Alert.alert('Warning', 'cant call yourself' );
+      else Linking.openURL(`tel:${ phone }`)
+    }else Linking.openURL(`tel:${ phone }`)
   }
 
   return (
@@ -132,7 +146,7 @@ export const FilterEmployeeContainers = ({ navigation }) => {
       <ScrollView style={{ width: '100%', padding: 10 }}>
         {
           items && items.length && !loading && user && user.checkSignin
-            ? items.map((el, i) => <ListEmployeeComponent key={ el._id } i={ i } el={ el } _onChatWa={ _onChatWa } _onSendEmail={ _onSendEmail } username={ user.checkSignin.username }/> )
+            ? items.map((el, i) => <ListEmployeeComponent key={ el._id } i={ i } el={ el } _onChatWa={ _onChatWa } _onSendEmail={ _onSendEmail } username={ user.checkSignin.username } _onCalling={ _onCalling }/> )
             : null
         }
       </ScrollView>

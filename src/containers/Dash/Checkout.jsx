@@ -22,14 +22,16 @@ export const CheckOutComponent = ({ navigation }) => {
   const [ failed ] = useMutation( Mutation.FAIL_PROCESS );
 
   const [ isOnline, setIsOnline ] = useState( false );
-  const [ distanceLoading, setDistanceLoading ] = useState( false );
   const [ getCompany, { data: company } ] = useLazyQuery( Query.GET_COMPANY );
   const [ access, setAccess ] = useState( false );
+  const [ parameter, setParameter ] = useState( false );
 
   useEffect(() => {
     (async () => {
       await checkConnection({ save: setIsOnline })
       const { code, token } = await getAccess();
+      const { id, issues } = await navigation.state && navigation.state.params
+      setParameter({ id, issues })
       if( code && token ) {
         setAccess({ code, token });
         const { status } = await Camera.requestPermissionsAsync();
@@ -48,26 +50,22 @@ export const CheckOutComponent = ({ navigation }) => {
 
   const takePicture = async () => {
     const { code, token } = await getAccess();
-    const { id: attId, issues } = navigation.state.params;
+    const { id: attId, issues } = parameter;
+    console.log( id, issues, 'from params' );
     if( camera ) {
       await checkConnection({ save: setIsOnline });
       if( isOnline ) {
-        setDistanceLoading( true );
         if( company && company.getCompany && company.getCompany.location && company.getCompany.location.longitude && company.getCompany.location.latitude ) {
           const { longitude, latitude, error } = await _getLocationBeforeAbsent();
           const { longitude: compLongitude, latitude: compLatitude } = company.getCompany.location;
-          if ( error ){
-            Alert.alert("Warning", error);
-            setDistanceLoading( false );
-          ;}
+          if ( error )  Alert.alert("Warning", error);
           else {
             const dist = getDistance(
               { latitude: latitude, longitude: longitude },
               { latitude: compLatitude ? compLatitude : -6.157771, longitude: compLongitude ? compLongitude : 106.819315 } //---------- LOCATION COMPANY 106.81931855395794 -6.157839617035091
             )
             const calculate = dist * 84000;
-            if( calculate < 1000000 ){
-              setDistanceLoading( false );
+            // if( calculate < 1000000 ){
               try {
                 const { message } = await takeAPicture({ access: { code, token }, upload: uploadImage, camera, loading: setLoading, message: setMessage, action: { mutation: checkout }, gifLoad: setGif, type: { msg: 'checkout', id: attId, daily: Query.GET_DAILY_USER } });
                 if( message ) {
@@ -77,19 +75,14 @@ export const CheckOutComponent = ({ navigation }) => {
               } catch(err) {
                 setMessage( err );
                 await failed({ code, token, id })
-                setDistanceLoading( false );
                 setTimeout(() => {
                   navigation.navigate( 'Home' );
                   setLoading( false );
                 }, 6000)
               }
-            }else {
-              Alert.alert('Warning', 'You are out of range, please approach the company area' );
-              setDistanceLoading( false );
-            }
+            // }else Alert.alert('Warning', 'You are out of range, please approach the company area' );
           }
         }else{
-          setDistanceLoading( false );
           Alert.alert('Whoops', 'something error, try again',[
             { text: 'No' },
             { text: 'Yes', onPress: _ => takePicture() }
@@ -132,18 +125,13 @@ export const CheckOutComponent = ({ navigation }) => {
 
   return (
     <View style={{ flex: 1 }}>
-      { distanceLoading && !message && !success && !loading
-          ?  <View style={{ width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center' }}>
-                <ActivityIndicator size='large' color='white' />
-              </View>
-          : null }
-      { message && !distanceLoading && !loading && !success
+      { message && !loading && !success
           ? <ErrorCheckInOutComponent text={ message }/>
           : null }
-      { !message && success && !distanceLoading && !loading
+      { !message && success
           ? <SuccessCheckInOutComponent text={ 'checkout' } />
           : null }
-      { loading && !success && !distanceLoading && !message
+      { loading && !success && !message
           ? <LoadingCheckInOutComponent gif={{ image: gif.uri && gif.uri, w: 250, h: 250 }}  text={{ first: gif.first && gif.first, second: gif.second && gif.second }} bg={ 'black' }/>
           : <CameraComponent setCamera={ setCamera } takePicture={ takePicture } type={ type } /> }
     </View>

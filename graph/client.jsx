@@ -2,7 +2,7 @@ import ApolloClient from 'apollo-boost';
 
 //production
 export default new ApolloClient({
-  uri: 'http://35.197.149.146:4000',
+  uri: 'http://34.87.33.79:4000',
 });
 
 // development

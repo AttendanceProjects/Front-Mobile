@@ -151,7 +151,7 @@ export const CREATE_CORRECTION = gql`
 `
 
 export const SEE_REQ_CORRECTION = gql`
-  mutation reqIn ( $code: String, $token: String, $pin_security: String ) {
+  mutation reqIn ( $code: String, $token: String, $pin_security: Int ) {
     reqIn ( code: $code, token: $token, pin_security: $pin_security ) {
       _id
       AttId
@@ -175,3 +175,11 @@ export const SEE_REQ_CORRECTION = gql`
   }
 `
 
+export const CHECK_PIN = gql `
+  mutation checkPin ( $code: String, $token: String, $pin_security: Int ) {
+    checkPin ( code: $code, token: $token, pin_security: $pin_security ) {
+      status
+      message
+    }
+  }
+`

@@ -51,12 +51,14 @@ export const Absent = ({ navigation }) => {
     const { code, token } = await access;
     const { time, error } = await getServerTime({ code, token });
     const { startReason } =  navigation.state.params ? await navigation.state.params : '';
-    if( time.split(':')[0] < 8 && time.split(' ')[1] === 'AM' || startReason ){
+    if( (time.split(':')[0] < 8 && time.split(' ')[1] === 'AM') || startReason ){
       let id
       if( camera ) {
         await checkConnection({ save: setIsOnline });
         if( isOnline ) {
-          setDistanceLoading( true );
+          if( Platform.OS === 'ios' ){
+            setDistanceLoading( true );
+          }
           if( company && company.getCompany && company.getCompany.location && company.getCompany.location.longitude && company.getCompany.location.latitude ) {
             const { longitude, latitude, error } = await _getLocationBeforeAbsent();
             const { longitude: compLongitude, latitude: compLatitude } = company.getCompany.location
@@ -70,14 +72,14 @@ export const Absent = ({ navigation }) => {
                 { latitude: compLatitude ? compLatitude : -6.157771, longitude: compLongitude ? compLongitude : 106.819315 }
               )
               const calculate = dist * 84000;
-              console.log( calculate )
-              if( calculate < 1000000 ) {
+              // if( calculate < 1000000 ) {
                 setDistanceLoading( false );
                 try {
                   let { message, id } = await takeAPicture({ access: { code, token }, start_reason: startReason ? startReason : '', upload: uploadImage, camera, loading: setLoading, message: setMessage, action: { mutation: attendance, query: Query.USER_ATT, daily: Query.GET_DAILY_USER, history: Query.GET_HISTORY, }, gifLoad: setGif, type: { msg: 'checkin' } });
                   if( message && id ) {
                     setGif({ uri: 'https://media.giphy.com/media/VseXvvxwowwCc/giphy.gif', first: 'Please Wait...', second: "Checking Location..." })
                     await _checkLocation({ nav: navigation.navigate, id, osPlatform: Platform.OS, action: { upFailed: failed, updateLocation: location, daily: Query.GET_DAILY_USER, }, type: 'checkin', notif: { gif: setGif, msg: setSuccess }, access: { code, token } })
+                    setLoading( false );
                   }else {
                     setMessage( 'something error' );
                     setTimeout(() => { setLoading( false ); navigation.navigate( 'LiveAtt' ) }, 5000);
@@ -90,10 +92,10 @@ export const Absent = ({ navigation }) => {
                     setLoading( false );
                   }, 6000)
                 }
-              }else {
-                Alert.alert('Warning', 'You are out of range, please approach the company area')
-                setDistanceLoading( false );
-              }
+              // }else {
+              //   Alert.alert('Warning', 'You are out of range, please approach the company area')
+              //   setDistanceLoading( false );
+              // }
             }
           }else{
             setDistanceLoading( false );
@@ -148,7 +150,7 @@ export const Absent = ({ navigation }) => {
       { message && !distanceLoading
           ? <ErrorCheckInOutComponent text={ message }/>
           : null }
-      { !message && success && !distanceLoading
+      { !message && success && !distanceLoading && !loading
             ? <SuccessCheckInOutComponent text={ 'checkin' } />
             : null }
       { loading && !distanceLoading

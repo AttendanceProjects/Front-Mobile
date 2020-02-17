@@ -4,7 +4,7 @@ import Font from 'react-native-vector-icons/FontAwesome5';
 
 export const PermissionComponent = ({ type, w , action}) => (
   <TouchableOpacity
-    onPress={() => action()}
+    onPress={() => action && action()}
     style={{ backgroundColor: 'white', height: 50, width: w ? w : Platform.OS === 'android' ? 120 : 110, borderRadius: 20, alignItems: 'center', flexDirection: 'row', marginLeft: 10 }}
     >
     <View style={{ alignItems: 'center', justifyContent: 'center', marginLeft: 10 }}>
