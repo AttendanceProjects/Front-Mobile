@@ -33,10 +33,3 @@ export const SuccessCheckInOutComponent = ({ text }) => (
     </Text>
   </View>
 )
-
-export const CorrectionLoadingComponent = _ => (
-  <View style={{ alignItems: 'center', justifyContent: 'center', height: '100%', width: '100%' }}>
-    <ActivityIndicator size={ 'large' } color={ 'white' }/>
-    <Text style={{ marginTop: 10, color: 'white', fontWeight: 'bold' }}>Loading Getting Data...</Text>
-  </View>
-)

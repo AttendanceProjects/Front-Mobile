@@ -106,7 +106,9 @@ export const Absent = ({ navigation }) => {
           }
         }else{
           const picture = await camera.takePictureAsync({ quality: 0.5 });
+          console.log( picture, 'picture offline' )
           const { coords } = await _getCurrentLocationOffline();
+          console.log( coords, 'location offline' );
           let IndoTime = new Date().toLocaleString("en-US", {timeZone: "Asia/Jakarta"});
           await AsyncStorage.setItem('offline', JSON.stringify({
             location: {

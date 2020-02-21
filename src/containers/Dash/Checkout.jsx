@@ -31,7 +31,7 @@ export const CheckOutComponent = ({ navigation }) => {
       await checkConnection({ save: setIsOnline })
       const { code, token } = await getAccess();
       const { id, issues } = await navigation.state && navigation.state.params
-      setParameter({ id, issues })
+      await setParameter({ id, issues })
       if( code && token ) {
         setAccess({ code, token });
         const { status } = await Camera.requestPermissionsAsync();
@@ -51,7 +51,6 @@ export const CheckOutComponent = ({ navigation }) => {
   const takePicture = async () => {
     const { code, token } = await getAccess();
     const { id: attId, issues } = parameter;
-    console.log( id, issues, 'from params' );
     if( camera ) {
       await checkConnection({ save: setIsOnline });
       if( isOnline ) {

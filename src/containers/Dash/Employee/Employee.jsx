@@ -8,21 +8,18 @@ import { getAccess } from '../../../service'
 import qs from 'qs';
 
 export const EmployeeContainers = ({ navigation }) => {
-  const [ employee, { data: allEmployee } ] = useLazyQuery( Query.ALL_EMPLOYEE );
+  const [ employee, { data: allEmployee, loading } ] = useLazyQuery( Query.ALL_EMPLOYEE );
   const [ getUser, { data: user } ] = useLazyQuery( Query.CHECK_SIGN_IN );
   const [ message, setMessage ] = useState( false );
-  const [ loading, setLoading ] = useState( false );
   const [ success, setSuccess ] = useState( false );
 
   useEffect(() => {
     (async () => {
       try {
-        setLoading( true );
         const { code, token } = await getAccess();
         if( code, token ) {
           await employee({ variables: { code, token } });
           await getUser({ variables: { code, token } });
-          setLoading( false );
         }else {
           setMessage( 'authentication error, please signin first' );
           setTimeout(() => navigation.navigate( 'Signin' ), 5000);
@@ -120,7 +117,7 @@ export const EmployeeContainers = ({ navigation }) => {
       </View>
       { loading
           &&  <View style={{ width: '100%', height: '70%', alignItems: 'center', justifyContent: 'center' }}>
-                <ActivityIndicator color='blue'/>
+                <ActivityIndicator color='black' size='large'/>
               </View>}
       <ScrollView style={{ width: '100%', padding: 10 }}>
         {

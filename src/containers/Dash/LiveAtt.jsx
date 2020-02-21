@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ErrorCheckInOutComponent, OfflieHeaderComponent, LoadingListComponent } from '../../components'
 import { View, Text, Platform, ScrollView, AsyncStorage, RefreshControl, TouchableOpacity, StyleSheet, TextInput, KeyboardAvoidingView, ActivityIndicator, Alert } from 'react-native';
 import { getAccess, checkConnection, getServerTime, uploadImage } from '../../service';
@@ -10,11 +10,10 @@ import Font from 'react-native-vector-icons/FontAwesome5';
 var abortController = new AbortController()
 
 export const LiveAttContainers = ({ navigation: { navigate: push } }) => {
-  const [ fetch, { data: Att } ] = useLazyQuery( Query.USER_ATT, { fetchPolicy: 'network-only' } );
+  const [ fetch, { data: Att, loading} ] = useLazyQuery( Query.USER_ATT, { fetchPolicy: 'network-only' } );
   const [ getDailyUser, { data: DailyUser } ] = useLazyQuery( Query.GET_DAILY_USER , { fetchPolicy: 'network-only' });
   const [ getCompany, { data: company } ]  = useLazyQuery( Query.GET_COMPANY );
   const [ refreshing, setRefresh ] = useState( false );
-  const [ loading, setLoading ] = useState( false );
   const [ newDate ] = useState( new Date () );
   const [ currentTime, setCurrentTime ] = useState( '' );
   const [ msg, setMsg ] = useState( false );
@@ -30,18 +29,18 @@ export const LiveAttContainers = ({ navigation: { navigate: push } }) => {
 
   const [ upLocation ] = useMutation( Mutation.UPDATE_LOCATION );
 
+
   useEffect(() => {
     (async () => {
-      console.log( 'trigger use effect pertama liveatt' );
-      setInterval(() => {
+      var timer = setInterval(() => {
         getCurrentTime({ setTime: setCurrentTime });
       }, 1000);
       await checkConnection({ save: setIsOnline });
-      setLoading( true );
       await fetching();
-      setLoading( false );
 
-      return () => abortController.abort();
+      return () => {
+        clearInterval( timer )
+      }
     })()
   }, [])
 
@@ -51,7 +50,7 @@ export const LiveAttContainers = ({ navigation: { navigate: push } }) => {
       _fetchUser({ code, token }),
       _fetchDaily({ code, token }),
       _fetchCompany({ code, token })
-    ], { signal: abortController.signal })
+    ])
   }
 
 
@@ -129,9 +128,7 @@ Do you want proccess?
 
   const onRefresh = React.useCallback(async () => {
     setRefresh(true);
-    setLoading( true );
     await fetching();
-    setLoading( false );
     setRefresh( false );
   }, [ refreshing ]);
 
@@ -139,6 +136,7 @@ Do you want proccess?
     setOut( false );
     setErrorReason( false );
     const { code, token } = await getAccess();
+    console.log( 'masuk code, token', code, token );
     if( isOnline ) {
       setTimeLoading( true );
       const { time, error } = await getServerTime({ code, token });
@@ -198,6 +196,7 @@ Do you want proccess?
     if( Att && Att.userAtt && Att.userAtt.end ) alert( 'Allready Checkout' );
     else _onCheckout();
   }
+
 
   return (
     <>

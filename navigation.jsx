@@ -23,7 +23,8 @@ import {
   EmployeeContainers,
   FilterEmployeeContainers,
   GetAllCorrection,
-  PrepareApplication
+  PrepareApplication,
+  FilterCorrectionContainers
 } from './src/containers';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
@@ -52,7 +53,8 @@ const StackCreateCorrectionNavigation = createStackNavigator({
 
 const CorrectionDrawerNavigation = createDrawerNavigator({
   All: { screen: CorrectionContainers, navigationOptions: { title: 'Home' } },
-  Create: { screen: StackCreateCorrectionNavigation, navigationOptions: { title: 'New Request' } }
+  Create: { screen: StackCreateCorrectionNavigation, navigationOptions: { title: 'New Request' } },
+  Filter: { screen: FilterCorrectionContainers, navigationOptions: { title: 'Filter' } }
 })
 
 

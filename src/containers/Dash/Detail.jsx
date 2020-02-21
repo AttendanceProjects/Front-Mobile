@@ -6,21 +6,18 @@ import { MapComponent, ClockComponent } from '../../components';
 import Font from 'react-native-vector-icons/FontAwesome5'
 
 export const DetailContainers = ({ navigation }) => {
-  const [ history, { data } ] = useLazyQuery( Query.GET_ATT_ID );
-  const [ loading, setLoading ] = useState( true );
+  const [ history, { data, loading } ] = useLazyQuery( Query.GET_ATT_ID );
   const [ message, setMessage ] = useState( false );
   const [ getId, setId ] = useState( '' );
 
   useEffect(() => {
     (async() => {
-      setLoading( true );
       const { access, id } = navigation.state.params,
         { code, token } = access;
       setId( id );
       try {
         await history({ variables: { code, token, id } });
-        setLoading( false );
-      }catch({ graphQLErrors }) { setMessage( graphQLErrors[0].message ); setLoading( false ); _onClear( setMessage ) }
+      }catch({ graphQLErrors }) { setMessage( graphQLErrors[0].message );  _onClear( setMessage ) }
     })()
   }, [])
 
@@ -29,7 +26,7 @@ export const DetailContainers = ({ navigation }) => {
   return (
     <View style={{ flex: 1, backgroundColor: '#353941', justifyContent: loading ? 'center' : 'space-around', alignItems: 'center' }}>
       { loading
-          && <ActivityIndicator color='blue' size='large' /> }
+          && <ActivityIndicator color='white' size='large' /> }
       { message 
           && <Text style={{ fontSize: 20, color: 'red', fontWeight: 'bold' }}>{ message }</Text>  }
       {

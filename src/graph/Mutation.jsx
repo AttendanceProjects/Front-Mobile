@@ -183,3 +183,9 @@ export const CHECK_PIN = gql `
     }
   }
 `
+
+export const RES_CORRECTION = gql`
+  mutation responseCorrection( $code: String, $token: String, $pin_security: Int, $id: String, $res: String ) {
+    responseCorrection( code: $code, token: $token, pin_security: $pin_security, id: $id, res: $res ) 
+  }
+`

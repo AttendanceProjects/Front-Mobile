@@ -12,9 +12,8 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 
 export const FilterContainers = ({ navigation }) => {
   const [ selectName, setSelectName ] = useState( [] );
-  const [ loading, setLoading ] = useState( false );
   const [ access, setAccess ] = useState( {} );
-  const [ getFilter, { data: filtering } ] = useLazyQuery( Query.FILTER_ATT, { fetchPolicy: 'no-cache' } );
+  const [ getFilter, { data: filtering, loading } ] = useLazyQuery( Query.FILTER_ATT, { fetchPolicy: 'no-cache' } );
   const [ errorMessage, setErrorMessage ] = useState( false );
   const [ selectQuery, setSelect ] = useState( 'late' );
   const [ show, setShow ] = useState( false );
@@ -24,34 +23,29 @@ export const FilterContainers = ({ navigation }) => {
     if( access && access.code && selectQuery !== 'date' ) {
       (async() => {
         if( selectQuery && selectQuery !== 'date' ) {
-          setLoading( true )
           try{
             const { code, token } = access;
             await getFilter({ variables: { code, token, category: selectQuery } });
-            setLoading( false );
-          }catch({ graphQLErrors }) { setErrorMessage( graphQLErrors[0].message ); _onClear( setErrorMessage ); setLoading( false ) }
+          }catch({ graphQLErrors }) { setErrorMessage( graphQLErrors[0].message ); _onClear( setErrorMessage ); }
         }
       })()
     }else if( access && access.code && selectQuery === 'date' ) {
-      setLoading( true );
+      ( true );
       (async() => {
         try {
           setKeyWord( new Date() );
           const { code, token } = access;
           await getFilter({ variables: { code, token, category: selectQuery, search: new Date().toDateString() } })
-          setLoading( false );
-        }catch({ graphQLErrors }){ setErrorMessage( graphQLErrors[0].message ); _onClear( setErrorMessage ); setLoading( false ); }
+        }catch({ graphQLErrors }){ setErrorMessage( graphQLErrors[0].message ); _onClear( setErrorMessage );; }
       })()
     }else{
       (async() => {
         setSelectName([ {name: 'late', icon: 'running', status: true}, {name: 'checkout', icon: 'sign-out-alt', status: false}, {name: 'absent', icon: 'user-times', status: false}, {name: 'date', icon: 'sign-in-alt', status: false}, ])
-        setLoading( true )
         try{
           const { code, token } = await getAccess();
           setAccess({ code, token })
           await getFilter({ variables: { code, token, category: 'late' } });
-          setLoading( false );
-        }catch({ graphQLErrors }) { setErrorMessage( graphQLErrors[0].message ); _onClear( setErrorMessage ); setLoading( false ); }
+        }catch({ graphQLErrors }) { setErrorMessage( graphQLErrors[0].message ); _onClear( setErrorMessage );; }
       })()
     }
   }, [ selectQuery, access ])
@@ -60,34 +54,27 @@ export const FilterContainers = ({ navigation }) => {
 
   const setDate = async (event, date) => {
     if( Platform.OS === 'android' ){
-      setLoading( true );
       if( event.type === 'set' ){
         await searchDate( date );
         setShow( false );
-        setLoading( false );
       }else {
         await setKeyWord( new Date () );
         setShow( false );
-        setLoading( false );
       }
     }else {
       await setKeyWord( date );
-      setLoading( false );
     }
   }
 
   const searchDate = async ( date ) => {
-    setLoading( true );
     try {
       const { code, token } = access;
       await getFilter({ variables: { code, token, search: new Date( Platform.OS === 'android' ? date : keyWord ).toDateString(), category: selectQuery } });
       setShow( false );
-      setLoading( false );
-    }catch({ graphQLErrors }) { setErrorMessage( graphQLErrors[0].message ); _onClear( setErrorMessage ); setLoading( false ); }
+    }catch({ graphQLErrors }) { setErrorMessage( graphQLErrors[0].message ); _onClear( setErrorMessage );; }
   }
 
   const _onPageChange = async ( name ) => {
-    setLoading( true );
     let newVal = [];
     await selectName.forEach((el, i) => {
       if( el.name === name ) {
@@ -96,14 +83,10 @@ export const FilterContainers = ({ navigation }) => {
       }else newVal.push({ ...el, status: false })
     })
     await setSelectName( newVal );
-    setLoading( false );
   }
 
   const _onNavigationChange = el => navigation.navigate('Detail', { id: el._id, access, date: el.date })
 
-  console.log( loading, 'loading' );;
-  console.log( errorMessage, 'errormessage' );
-  console.log( filtering )
   return (
     <View style={{ backgroundColor: '#353941', flex: 1, padding: 10, justifyContent: 'space-between' }}>
       <View style={{ flex: 0.12, backgroundColor: '#26282b', borderRadius: 20, borderBottomEndRadius: 80, borderTopStartRadius: 80, borderTopEndRadius: 0, borderBottomStartRadius: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 10 }}>

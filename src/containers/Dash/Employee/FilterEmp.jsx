@@ -10,7 +10,7 @@ export const FilterEmployeeContainers = ({ navigation }) => {
   const [ searchEmployee ] = useMutation( Mutation.FILTER_EMPLOYEE );
   const [ fetchUser, { data: user } ] = useLazyQuery( Query.CHECK_SIGN_IN );
   const [ access, setAccess ] = useState( {} );
-  const [ search, setSearch ] = useState( false );
+  const [ search, setSearch ] = useState( '' );
   const [ loading, setLoading ] = useState( false );
   const [ success, setSuccess ] = useState( false );
   const [ message, setMessage ] = useState( false );

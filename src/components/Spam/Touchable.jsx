@@ -1,6 +1,5 @@
 import React from 'react';
 import { TouchableOpacity, Text } from 'react-native';
-import { getServerTime, getAccess } from '../../service';
 
 export const TouchComponent = ({ press, h, w, text, color, textColor, bold, fromDash, type, id , size, spacing, issues, isuMessage, setMsg }) => {
 

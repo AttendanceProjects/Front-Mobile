@@ -1,14 +1,62 @@
 import React, { useState, useEffect } from 'react';
-import { View, Animated, Text, TouchableOpacity, ActivityIndicator, Platform, Image } from 'react-native';
-import { useLazyQuery } from '@apollo/react-hooks';
-import { Query } from '../../graph';
-import { MapCorrections } from '../../components';
+import { View, Animated, Text, TouchableOpacity, ActivityIndicator, Platform, Image, Alert, StyleSheet } from 'react-native';
+import { useLazyQuery, useMutation } from '@apollo/react-hooks';
+import { Query, Mutation } from '../../graph';
+import { MapCorrections } from '../Detail';
+import { FadeView } from './AdminComponentStyle';
 
-export const FadeViewAdmin = ({ close, id, code, token }) => {
+const {
+  containers,
+  content,
+  before_content,
+  loading_text,
+  message_text,
+  header_fade_view,
+  header_text,
+  close_fade_x,
+  body_content,
+  content_detail,
+  detail_header,
+  detail_header_text,
+  detail_header_create,
+  content_before,
+  before_text,
+  before_body,
+  before_main,
+  main_text,
+  main_times,
+  content_after,
+  content_footer,
+  footer_text,
+  footer_content,
+  content_image,
+  image_footer,
+  image_text,
+  reason_footer,
+  reason_text,
+  right_content,
+  content_maps,
+  invalid_maps,
+  body_att_reason,
+  list_images,
+  images_check,
+  size_image,
+  text_no_image,
+  footer_list_content,
+  footer_reason_list,
+  loading_touchable,
+  touchable_response,
+  main_loading_touchable,
+  content_loading_touchable
+}=FadeView
+
+export const FadeViewAdminComponent = ({ close, id, code, token, pin: paramsSecurity, _onFetching }) => {
   const [ fetch, { data: el, loading } ] = useLazyQuery( Query.GET_CORRECTION_ID );
+  const [ response ] = useMutation( Mutation.RES_CORRECTION );
   // const [ loading, setLoading ] = useState( false );
   const [ message, setMessage ] = useState( false );
   const [ isFetch, setIsFetch ] = useState( true );
+
 
   const [ acceptLoading, setAcceptLoading ] = useState( false );
   const [ rejectLoading, setRejectLoading ] = useState( false );
@@ -48,6 +96,30 @@ export const FadeViewAdmin = ({ close, id, code, token }) => {
     close( false );
   }
 
+  const _onResponseReq = async status => {
+    if( status ) {
+      setAcceptLoading( true );
+      await _onSubmitResponse( 'acc' );
+      setAcceptLoading( false );
+    }else{
+      setRejectLoading( true );
+      await _onSubmitResponse( 'dec' );
+      setRejectLoading( false );
+    }
+  }
+
+  const _onSubmitResponse = async res => {
+    console.log( 'dapat id fadeview', res, id, code, token, paramsSecurity );
+    try{
+      const { data: { responseCorrection } } = await response({ variables: { code, token, id, res, pin_security: paramsSecurity } })
+      if( responseCorrection ) {
+        Alert.alert('Attention',`you ${ res === 'acc' ? 'accept' : 'reject' } this Correction`);
+        await _onFetching(code, token, paramsSecurity)
+        // next sprint send notification to this User
+      }
+    }catch({ graphQLErrors }) { setMessage( graphQLErrors[0].message ); _onClear( setMessage );}
+  }
+
   useEffect(() => {
     (async () => {
       // setLoading( true );
@@ -58,165 +130,142 @@ export const FadeViewAdmin = ({ close, id, code, token }) => {
     })()
   }, [])
 
-
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <FadeInView style={{ width: '100%', height: 500, backgroundColor: '#f1fcfc', borderRadius: 20, padding: 10 }}>
+    <View style={ containers }>
+      <FadeInView style={ content }>
         { loading && !message
-            ? (<View style={{ height: '70%', width: '100%', justifyContent: 'center', alignItems: 'center' }}>
+            ? (<View style={ before_content }>
                 <ActivityIndicator color='black' />
-                <Text style={{ marginTop: 10, fontSize: Platform.OS === 'android' ? 13 : 18, fontWeight: 'bold' }}>
+                <Text style={ loading_text }>
                   Loading...
                 </Text>
               </View>)
             : null }
         { message && !loading
-            ? (<View style={{ height: '70%', width: '100%', justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={{ fontSize: 20, color: 'red', textAlign: 'center', fontWeight: 'bold' }}>{ message }</Text>
+            ? (<View style={ before_content }>
+                <Text style={ message_text }>{ message }</Text>
               </View>) : null }
         { el && el.getOneCorrection && !loading && !message
             ? 
             <>
-              <View style={{ height: '10%', flexDirection: 'row', justifyContent: 'space-between' }}>
-                <Text style={{ fontSize: 25, textAlign: 'center', margin: 10 }}>
+              <View style={ header_fade_view }>
+                <Text style={ header_text }>
                   Response Request
                 </Text>
                 <TouchableOpacity onPress={() => _onClosed()}>
-                  <Text style={{ fontSize: Platform.OS === 'android' ? 30: 35 }}>
+                  <Text style={ close_fade_x }>
                     &times;
                   </Text>
                 </TouchableOpacity>
               </View>
-
-              <View style={{ height: '70%', width: '100%', padding: 5, flexDirection: 'row' }}>
-                
-                <View style={{ width: '50%', height: '100%', padding: 5 }}>
-                  <View style={{ height: '10%', width: '100%', padding: 5, alignItems: 'center', justifyContent: 'center' }}>
-                    <Text style={{ fontSize: 10, color: 'grey' }}>Request Created</Text>
-                    <Text style={{ fontSize: 13, fontWeight: 'bold' }}>
+              <View style={ body_content }>
+                <View style={ content_detail }>
+                  <View style={ detail_header }>
+                    <Text style={ detail_header_text }>Request Created</Text>
+                    <Text style={ detail_header_create }>
                       { el.getOneCorrection.createdAt
                           ? `${ new Date( el.getOneCorrection.createdAt ).toDateString('en-US',{ timeZone: 'Asia/Jakarta' }) } ${ new Date( el.getOneCorrection.createdAt ).toLocaleTimeString('en-US',{ timeZone: 'Asia/Jakarta' })}`
                           : 'Invalid Date' }
                     </Text>
                   </View>
-                  <View style={{ width: '100%', height: '20%', padding: 5 }}>
-                    <Text style={{ color: 'grey' }}>Before</Text>
-                    <View style={{ paddingLeft: 5, paddingTop: 5 }}>
-                      <View style={{ width: '100%', padding: 1, flexDirection: 'row', alignItems: 'center' }}>
-                        <Text style={{ fontSize: 12, color: 'grey', width: '50%' }}>Check In</Text>
-                        <Text style={{ fontWeight: 'bold' }}>
-                          { el.getOneCorrection.AttId && el.getOneCorrection.AttId.start
-                              ? el.getOneCorrection.AttId.start
-                              : ' - '}
-                        </Text>
-                      </View>
-                      <View style={{ width: '100%', padding: 1, flexDirection: 'row' }}>
-                        <Text style={{ fontSize: 12, color: 'grey', width: '50%' }}>Check Out</Text>
-                        <Text style={{ fontWeight: 'bold' }}>
-                          { el.getOneCorrection.AttId && el.getOneCorrection.AttId.end
-                              ? el.getOneCorrection.AttId.end
-                              : ' - '}
-                        </Text>
-                      </View>
+                  <View style={ content_before }>
+                    <Text style={ before_text }>Before</Text>
+                    <View style={ before_body }>
+                      { ['Check In', 'Check Out'].map((map, i) => (
+                          <View style={ before_main } key={ i }>
+                            <Text style={ main_text }>{ map }</Text>
+                            <Text style={ main_times }>
+                              { map === 'Check In' && el.getOneCorrection.AttId && el.getOneCorrection.AttId.start
+                                  ? el.getOneCorrection.AttId.start
+                                  : map === 'Check Out' && el.getOneCorrection.AttId && el.getOneCorrection.AttId.end
+                                      ? el.getOneCorrection.AttId.end
+                                      : ' - '}
+                            </Text>
+                          </View>
+                      ))}
                     </View>
                   </View>
-                  <View style={{ width: '100%', height: '20%', padding: 5 }}>
-                    <Text style={{ color: 'grey' }}>After</Text>
-                    <View style={{ paddingLeft: 5, paddingTop: 5 }}>
-                      <View style={{ width: '100%', padding: 1, flexDirection: 'row', alignItems: 'center' }}>
-                        <Text style={{ fontSize: 12, color: 'grey', width: '50%' }}>Check In</Text>
-                        <Text style={{ fontWeight: 'bold' }}>
-                          { el.getOneCorrection && el.getOneCorrection.start_time
-                              ? el.getOneCorrection.start_time
-                              : ' - '}
-                        </Text>
-                      </View>
-                      <View style={{ width: '100%', padding: 1, flexDirection: 'row' }}>
-                        <Text style={{ fontSize: 12, color: 'grey', width: '50%' }}>Check Out</Text>
-                        <Text style={{ fontWeight: 'bold' }}>
-                          { el.getOneCorrection && el.getOneCorrection.end_time
-                              ? el.getOneCorrection.end_time
-                              : ' - '}
-                        </Text>
-                      </View>
+                  <View style={ content_after }>
+                    <Text style={ before_text }>After</Text>
+                    <View style={ before_body }>
+                      { ['Check In', 'Check Out'].map((map, i) => (
+                          <View style={ before_main } key={ i }>
+                            <Text style={ main_text }>{ map }</Text>
+                            <Text style={ main_times }>
+                              { map === 'Check In' && el.getOneCorrection && el.getOneCorrection.start_time
+                                  ? el.getOneCorrection.start_time
+                                  : map === 'Check Out' && el.getOneCorrection.end_time
+                                      ? el.getOneCorrection.end_time
+                                      : ' - '}
+                            </Text>
+                          </View>
+                      ))}
                     </View>
                   </View>
                   
-                  <View style={{ height: '50%', width: '100%', padding: 5 }}>
-                    <Text style={{ fontSize: 13, color: 'grey', height: '13%' }}>More Info</Text>
-                    <View style={{ height: '87%', width: '100%' }}>
-                      <View style={{ height: '50%', width: '100%', alignItems: 'center' }}>
+                  <View style={ content_footer }>
+                    <Text style={ footer_text }>More Info</Text>
+                    <View style={ footer_content }>
+                      <View style={ content_image }>
                         { el.getOneCorrection.image
-                            ? <Image source={{ uri: el.getOneCorrection.image }} style={{ height: '97%', width: '50%' }} />
-                            : <Text style={{ fontSize: 20, color: 'red', fontWeight: 'bold' }}>No Image</Text> }
+                            ? <Image source={{ uri: el.getOneCorrection.image }} style={ image_footer } />
+                            : <Text style={ image_text }>No Image</Text> }
                       </View>
-                      <View style={{ height: '50%', width: '100%', alignItems: 'center', marginTop: 5 }}>
-                        <Text style={{ fontSize: 12, color: 'grey' }}>Reason Correction</Text>
+                      <View style={ reason_footer }>
+                        <Text style={ reason_text }>Reason Correction</Text>
                         { el.getOneCorrection.reason
-                            ? <Text style={{ marginTop: 2, fontSize: 12 }}>{ el.getOneCorrection.reason }</Text>
-                            : <Text style={{ marginTOp: 2, fontSIze: 12 }}>No Reason</Text> }
+                            ? <Text style={{ marginTop: 2, ...reason_text, color: 'black' }}>{ el.getOneCorrection.reason }</Text>
+                            : <Text style={{ marginTOp: 2, ...reason_text, color: 'black' }}>No Reason</Text> }
                       </View>
                     </View>
                   </View>
                 </View>
 
-                <View style={{ width: '50%', height: '100%', padding: 5 }}>
-                  <View style={{ height: '50%', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+                <View style={ right_content }>
+                  <View style={ content_maps }>
                     { el.getOneCorrection.AttId && el.getOneCorrection.AttId.start_location && el.getOneCorrection.AttId.end_location
                         ? <MapCorrections start={ el.getOneCorrection.AttId.start_location } end={ el.getOneCorrection.AttId.end_location } />
-                        : <Text style={{ fontWeight: 'bold', color: 'red' }}>NO LOCATION</Text>}
+                        : <Text style={ invalid_maps }>NO LOCATION</Text>}
                   </View>
-                  <View style={{ height: '50%' }}>
-                    <View style={{ height: '50%', width: '100%', flexDirection: 'row', padding: 5 }}>
-                      <View style={{ height: '100%', width: '50%', justifyContent: 'center', alignItems: 'center' }}>
-                        { el.getOneCorrection.AttId && el.getOneCorrection.AttId.start_image
-                            ? <Image source={{ uri: el.getOneCorrection.AttId.start_image }} style={{ width: '95%', height: '95%' }} />
-                            : <Text style={{ fontWeight: 'bold', color: 'salmon', fontSize: 18 }}>No Image</Text>}
-                      </View>
-                      <View style={{ height: '100%', width: '50%', justifyContent: 'center', alignItems: 'center' }}>
-                        { el.getOneCorrection.AttId && el.getOneCorrection.end_image 
-                            ? <Image source={{ uri: el.getOneCorrection.AttId.end_image }} style={{ width: '95%', height: '95%' }} />
-                            : <Text style={{ fontWeight: 'bold', color: 'salmon', fontSize: 18, textAlgin: 'center' }}>No Image</Text>}
-                      </View>
+                  <View style={ body_att_reason }>
+                    <View style={ list_images }>
+                      { ['1', '2'].map((map, i) => (
+                          <View style={ images_check } key={ i }>
+                            { map === '1' && el.getOneCorrection.AttId && el.getOneCorrection.AttId.start_image
+                                ? <Image source={{ uri: el.getOneCorrection.AttId.start_image }} style={ size_image } />
+                                : map === '2' && el.getOneCorrection.AttId && el.getOneCorrection.end_image 
+                                    ? <Image source={{ uri: el.getOneCorrection.AttId.end_image }} style={ size_image } />
+                                    : <Text style={ text_no_image }>No Image</Text> }
+                          </View>
+                      ))}
                     </View>
-                    <View style={{ width: '100%', padding: 5, height: '50%' }}>
-                      <View style={{ width: '97%', alignItems: 'center', height: '40%', marginTop: 2 }}>
-                        <Text style={{ fontSize: 13, color: 'grey' }}>Start Reason</Text>
-                        { el.getOneCorrection.AttId && el.getOneCorrection.AttId.start_reason
-                            ? <Text style={{ fontSize: 13 }}>{ el.getOneCorrection.AttId.start_reason }</Text>
-                            : <Text style={{ fontSize: 13 }}>No Reason</Text>}
-                      </View>
-                      <View style={{ width: '97%', alignItems: 'center', height: '40%', marginTop: 2 }}>
-                        <Text style={{ fontSize: 13, color: 'grey' }}>End Reason</Text>
-                        { el.getOneCorrection.reason
-                            ? <Text style={{ fontSize: 13 }}>{ el.getOneCorrection.reason }</Text>
-                            : <Text style={{ fontSize: 13 }}>No Reason</Text>}
-                      </View>
+                    <View style={ footer_list_content }>
+                      { ['Start Reason', 'End Reason'].map((map, i) => (
+                          <View style={ footer_reason_list } key={ i }>
+                            <Text style={{ ...footer_text, height: 13 }}>{ map }</Text>
+                            { map === 'Start Reason' && el.getOneCorrection.AttId && el.getOneCorrection.AttId.start_reason
+                                ? <Text style={{ ...footer_text, height: 15, color: 'black' }}>{ el.getOneCorrection.AttId.start_reason }</Text>
+                                : map === 'End Reason' && el.getOneCorrection.AttId && el.getOneCorrection.AttId.end_reason
+                                    ? <Text style={{ ...footer_text, height: 15, color: 'black' }}>{ el.getOneCorrection.AttId.end_reason }</Text>
+                                    : <Text style={{ ...footer_text, height: 15, color: 'black' }}>No Reason</Text>}
+                          </View>
+                      ))}
                     </View>
                   </View>
                 </View>
                 
               </View>
-              <View style={{ height: '20%', width: '100%', paddingBottom: 10, flexDirection: 'row' }}>
-                <View style={{ width: '50%', height: '100%', justifyContent: 'center', alignItems: 'center' }}>
+              <View style={ main_loading_touchable }>
+                <View style={ content_loading_touchable }>
                   { !acceptLoading
-                      ? <TouchableOpacity style={{ width: '80%', height: '80%', alignItems: 'center', justifyContent: 'center', borderRadius: 10, shadowOpacity: 2, backgroundColor: '#a7e9af' }}>
-                          <Text style={{ fontSize: 30, fontWeight: 'bold', color: 'black' }}>Accept</Text>
-                        </TouchableOpacity>
-                      : <View style={{ width: '80%', height: '80%', alignItems: 'center', justifyContent: 'center', borderRadius: 10, shadowOpacity: 2, backgroundColor: '#a7e9af' }}>
-                          <ActivityIndicator color='black' size='small' />
-                        </View>}
+                      ? <TouchableResponse action={ _onResponseReq } text='Accept' />
+                      : <LoadingTouchable />  }
                   
                 </View>
-                <View style={{ width: '50%', height: '100%', justifyContent: 'center', alignItems: 'center' }}>
+                <View style={ content_loading_touchable }>
                   { !rejectLoading
-                      ? <TouchableOpacity style={{ width: '80%', height: '80%', alignItems: 'center', justifyContent: 'center', borderRadius: 10, shadowOpacity: 2, backgroundColor: '#fd5e53' }}>
-                          <Text style={{ fontSize: 30, fontWeight: 'bold', color: 'white' }}>Reject</Text>
-                        </TouchableOpacity>
-                      : <TouchableOpacity style={{ width: '80%', height: '80%', alignItems: 'center', justifyContent: 'center', borderRadius: 10, shadowOpacity: 2, backgroundColor: '#fd5e53' }}>
-                          <ActivityIndicator color='white' size='small' />
-                        </TouchableOpacity>}
-                  
+                      ? <TouchableResponse action={ _onResponseReq } text='Reject' />
+                      : <LoadingTouchable />  }
                 </View>
               </View>
             </>
@@ -228,5 +277,17 @@ export const FadeViewAdmin = ({ close, id, code, token }) => {
     </View>
   )
 }
+
+const TouchableResponse = ({ action, text }) => (
+  <TouchableOpacity onPress={() => action( text === 'Accept' ? true : false )} style={{ ...touchable_response, backgroundColor: text === 'Accept' ? '#a7e9af' : 'salmon' }}>
+    <Text style={{ fontSize: Platform.OS === 'android' ? 25 : 30, fontWeight: 'bold', color: text === 'Accept' ? 'black' : 'white' }}>{ text }</Text>
+  </TouchableOpacity>
+)
+
+const LoadingTouchable = _ => (
+  <TouchableOpacity style={ loading_touchable }>
+    <ActivityIndicator color='white' size='small' />
+  </TouchableOpacity>
+)
 
 // 18 feb melanjutkan action accept or reject 

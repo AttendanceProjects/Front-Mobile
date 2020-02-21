@@ -7,8 +7,7 @@ import { getAccess } from '../../../service'
 import { SimpleError, MapCorrections } from '../../../components';
 
 export const CorrectionContainers = ({ navigation: { navigate: push } }) => {
-  const [ fetch, { data: Att } ] = useLazyQuery( Query.USER_CORRECTION );
-  const [ loading, setLoading ] = useState( true );
+  const [ fetch, { data: Att, loading } ] = useLazyQuery( Query.USER_CORRECTION, { fetchPolicy: 'network-only' } );
   const [ refreshing, setRefresh ] = useState( false );
   const [ error, setError ] = useState( false );
 
@@ -19,12 +18,11 @@ export const CorrectionContainers = ({ navigation: { navigate: push } }) => {
   const _onClear = meth => setTimeout(() => meth( false ), 2000);
 
   const fetching = async () => {
-    setLoading( true );
+    console.log( 'trigger' );
     try {
       const { code, token } = await getAccess();
       await fetch({ variables: { code, token } });
-      setLoading( false );
-    }catch({ graphQLErrors }) { setError( graphQLErrors[0].message ); _onClear( setError ); setLoading( false ) }
+    }catch({ graphQLErrors }) { setError( graphQLErrors[0].message ); _onClear( setError ); }
   }
 
   const onRefresh = React.useCallback(async () => {
@@ -33,6 +31,7 @@ export const CorrectionContainers = ({ navigation: { navigate: push } }) => {
     setRefresh( false );
   }, [ refreshing ]);
 
+  console.log( Att );
   return (
     <ScrollView style={{ backgroundColor: '#353941', flex: 1, padding: 10 }}  refreshControl={ Platform.OS === 'ios' ? <View><RefreshControl refreshing={ refreshing } onRefresh={ onRefresh }/></View> : <RefreshControl refreshing={ refreshing } onRefresh={ onRefresh } /> }>
       <Text style={{ textAlign: 'center', fontSize: 25, color: 'white', fontWeight: 'bold' }}>Correction</Text>
@@ -74,7 +73,7 @@ const ListComponent = ({ item, push }) => (
         <Font name='search' size={ 14 } />
       </TouchableOpacity>
     </View>
-    <View style={{ width: '100%', flexDirection: 'row', height: '70%' }}>
+    <View style={{ width: '100%', flexDirection: 'row', height: '70%', justifyContent: "space-between" }}>
       <View style={{ width: '50%', marginTop: 10, flexDirection: 'row'}}>
         { console.log( item.end_time ) }
         <Image source={ item.image ? { uri: item.image } : require('../../../../assets/defaultImage.png')} style={{ height: 80, width: 80 }}/>
@@ -86,7 +85,7 @@ const ListComponent = ({ item, push }) => (
           <Text style={{ fontSize: 13 }}>Status &nbsp; <Text style={{ fontWeight: 'bold', color: item.status === 'acc' ? 'green' : item.status === 'dec' ? 'red' : 'blue' }}>{ item.status && item.status === 'req' ? 'Request' : item.status === 'acc' ? 'Accepted' : 'Decline' }</Text></Text>
         </View>
       </View>
-      <View style={{ width: '50%', marginTop: 10, alignItems: 'center', justifyContent: 'center', marginLeft: 10 }}>
+      <View style={{ width: '35%', paddingRight: 10, marginTop: 10, alignItems: 'center', justifyContent: 'center', marginLeft: 10 }}>
         <MapCorrections
           start={{
             longitude: item.AttId.start_location && item.AttId.start_location.longitude,

@@ -102,6 +102,8 @@ export const GET_HISTORY = gql`
       start_reason
       end
       end_image
+      createdAt
+      updatedAt
       end_issues
       end_location {
         latitude
@@ -253,6 +255,50 @@ export const CHECK_AVAILABLE_ATT = gql`
 export const GET_CORRECTION_ID = gql`
   query getOneCorrection ( $code: String, $token: String, $id: String ) {
     getOneCorrection( code: $code, token: $token, id: $id ) {
+      _id
+      AttId {
+        _id
+        UserId
+        start
+        start_image
+        start_issues
+        start_location {
+          latitude
+          longitude
+        }
+        start_reason
+        end
+        end_image
+        end_issues
+        end_location {
+          latitude
+          longitude
+        }
+        end_reason
+        date
+      }
+      UserId {
+        _id
+        username
+        password
+        profile_image
+        email
+        role
+      }
+      createdAt
+      updatedAt
+      start_time
+      end_time
+      image
+      reason
+      status
+    }
+  }
+`
+
+export const FILTER_CORRECTION = gql`
+  query filterCorrection ( $code: String, $token: String, $key: String ){
+    filterCorrection ( code: $code, token: $token, key: $key ) {
       _id
       AttId {
         _id

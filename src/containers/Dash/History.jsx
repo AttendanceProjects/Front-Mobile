@@ -9,10 +9,9 @@ import { SwipeListView } from 'react-native-swipe-list-view';
 
 
 export const History = ({ navigation: { navigate: push } }) => {
-  const [ history, { data: UserHistory } ] = useLazyQuery( Query.GET_HISTORY );
+  const [ history, { data: UserHistory, loading } ] = useLazyQuery( Query.GET_HISTORY, { fetchPolicy: 'network-only' } );
   const [ message, setMessage ] = useState( false );
   const [ refreshing, setRefresh ] = useState( false );
-  const [ loading, setLoading ] = useState( false );
   const [ isOnline, setIsOnline ] = useState( true );
 
   useEffect(() => {
@@ -23,23 +22,17 @@ export const History = ({ navigation: { navigate: push } }) => {
   }, [])
 
   const fetching = async _ => {
-    console.log( 'trigger fetching' );
-    setLoading( true );
     try {
       const { code, token } = await getAccess();
       await history({ variables: { code, token } });
-      setLoading( false );
-    }catch({ graphQLErrors }) { setMessage( graphQLErrors[0].message ); _onClear( setMessage ); setLoading( false ); }
+    }catch({ graphQLErrors }) { setMessage( graphQLErrors[0].message ); _onClear( setMessage ); }
   }
 
   const _onClear = meth => setTimeout(() => meth( false ), 2500)
 
   const onRefresh = React.useCallback(async () => {
     setRefresh(true);
-    setLoading( true );
-    const { code, token } = await getAccess();
     fetching();
-    setLoading( false );
     setRefresh( false );
   }, [ refreshing ]);
   
@@ -48,6 +41,7 @@ export const History = ({ navigation: { navigate: push } }) => {
     push('Detail', { id: item._id, access: { code, token }, date: item.date })
   }
 
+  console.log( UserHistory )
   return (
     <View style={{ flex: 1, backgroundColor: '#353941' }}>
       { !isOnline && <OfflieHeaderComponent /> }
@@ -67,7 +61,7 @@ export const History = ({ navigation: { navigate: push } }) => {
                 
                       {
                         UserHistory.getHistory.map(el => (
-                          <View key={ el._id } style={{ position: 'relative' }}>
+                          <View key={ el._id } style={{ position: 'relative', width: '100%' }}>
                             <ListHistoryFilterComponent
                               load={ loading }
                               bc= { '#c9485b' }
@@ -100,6 +94,9 @@ export const History = ({ navigation: { navigate: push } }) => {
                             <TouchableOpacity onPress={() => _onNavigationChange( el )} style={{ height: 35, width: 35, justifyContent: 'center', alignItems: 'center', position: 'absolute', right: 0, top: 2, backgroundColor: 'white', borderRadius: 20 }}>
                               <Font name='info' size={ 20 } />
                             </TouchableOpacity>
+                            <View style={{ position: 'absolute', top: 15, right: 50 }}>
+                              <Text style={{ fontSize: 10, color: 'white', fontWeight: 'bold' }}>Last Update: { el.updatedAt ? new Date( el.updatedAt ).toLocaleString('en-US',{timeZone: 'Asia/Jakarta'}).replace(', ','-') : ' - ' }</Text>
+                            </View>
                           </View>
                         ))
                       }
