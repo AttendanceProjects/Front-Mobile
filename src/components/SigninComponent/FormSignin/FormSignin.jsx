@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Platform } from 'react-native';
 import { TextInputSensitiveComponent, TextInputNormalComponent, IconComponent } from '../../Spam'
 
-export default ({ code, setCode, req, setReq, pass, setPass, bindPass, seeComp, toggleBind }) => (
+export const FormSigninComponent = ({ code, setCode, req, setReq, pass, setPass, bindPass, seeComp, toggleBind }) => (
   <View style={ styles.backInput }>
     <View style={ styles.forInput }>
       <TextInputNormalComponent 

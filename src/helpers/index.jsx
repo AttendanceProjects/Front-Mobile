@@ -5,16 +5,13 @@ import * as Location from 'expo-location';
 export const takeAPicture = ({ camera, type, action, loading, message, gifLoad, upload, access, start_reason }) => {
   return new Promise ( async (resolve, reject ) => {
     const { uri } = await camera.takePictureAsync({ quality: 0.5 });
-    console.log( uri );
     const { code, token } = access;
     if( uri ) {
       loading( true );
       gifLoad({ uri: 'https://media.giphy.com/media/VseXvvxwowwCc/giphy.gif', first: 'Please Wait...', second: type.msg === 'checkout' ? 'Process Check Out' : 'Process Check In' })
       const formData = new FormData();
       formData.append( 'image', { name: `images/${ type.msg }.jpg`, type: 'image/jpg', uri })
-      console.log('masuk fomr data', formData);
       const { success, error } = await upload({ code, token, formData });
-      console.log( success, 'and', error );
       if( success ) {
         try {
           if( type.msg === 'checkin' ) {
@@ -25,9 +22,7 @@ export const takeAPicture = ({ camera, type, action, loading, message, gifLoad, 
           }
           else if ( type.msg === 'checkout' ) {
             //{query: type.query, variables: {code, token}},
-            console.log( 'masuk ke checkout' ); 
             const { data } = await action.mutation({ variables: { code, token, end_image: success, id: type.id, end: 'false' }, refetchQueries: [ {query: type.daily, variables: {code, token}} ] });
-            console.log( 'masuk ke checkout ', data );
             message( false );
             gifLoad( {} );
             resolve({ message: 'success', id: data.updateAtt._id })
@@ -106,7 +101,6 @@ export const _getCurrentLocationOffline = () => {
 export const _checkLocation = async ({ id, osPlatform, action, type, notif, nav, access, reason }) => {
   return new Promise ( async (resolve, reject) => {
     const { code, token } = access;
-    console.log( 'masuk checklocation', code, token, type )
     try {
       const { coords } = await _getCurrentLocation({ os: osPlatform });
       if( coords ) {

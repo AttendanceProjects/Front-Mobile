@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Platform, ActivityIndicator, Image } from 'react-native';
 import Font from 'react-native-vector-icons/FontAwesome5';
-import { LoadingFilterComponent, ErrorFilterComponent } from '../../components';
-import { getAccess, getServerTime } from '../../service';
+import { ErrorFilterComponent } from '../../components';
+import { getAccess } from '../../service';
 import { useLazyQuery } from '@apollo/react-hooks';
 import { Query } from '../../graph';
-import { SwipeListView } from 'react-native-swipe-list-view';
 import { ListHistoryFilterComponent } from '../../components';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
@@ -145,7 +144,7 @@ export const FilterContainers = ({ navigation }) => {
                             { show
                                 &&
                                 <>
-                                  <DateTimePicker value={ keyWord } mode={ 'date' } display="default" onTouchCancel={test => console.log( 'trigger cancel', test )} onChange={ setDate }/>
+                                  <DateTimePicker value={ keyWord } mode={ 'date' } display="default" onChange={ setDate }/>
                                   { Platform.OS === 'ios' 
                                       && <View style={{ width: '100%', justifyItems: 'center', alignItems: 'center' }}>
                                       <TouchableOpacity onPress={() => searchDate()} style={{ width: '25%', borderRadius: 20, backgroundColor: 'red', alignItems: 'center', justifyContent: 'center', height: 30 }}>

@@ -1,24 +1,40 @@
 import React from 'react';
 import { View, Text, TouchableOpacity , ActivityIndicator } from 'react-native';
+import { AdminStyle } from './AdminComponentStyle';
+
+const {
+  admin_button,
+  list_content_left,
+  content_admin,
+  font_list_small,
+  body_content,
+  font_list_medium,
+  user_info_content,
+  att_info_user,
+  att_check_info,
+  list_data_content,
+  item_body_message,
+  main_items_admin
+} = AdminStyle
 
 export const ListComponentAdmin = ({ item, loading, action }) => (
-  <TouchableOpacity onPress={ () => action( true, item._id ) } style={{ marginTop: 10, height: 100, width: '97%', borderRadius: 10, padding: 10, backgroundColor: '#F1F1F1' }}>
-    <View style={{ height: '30%', flexDirection: 'row', width: '100%' }}>
-      <View style={{ width: '50%', height: '100%' }}>
-        <Text style={{ fontSize: Platform.OS === 'android' ? 8 : 12, color: 'grey' }}>
+  <TouchableOpacity onPress={ () => action( true, item._id ) } style={ admin_button }>
+    <View style={ list_content_left }>
+      <View style={ content_admin }>
+        <Text style={ font_list_small }>
           Created At: &nbsp;
         </Text>
-        <Text style={{ fontSize: Platform.OS === 'android' ? 10 : 14, color: 'black', fontWeight: 'bold' }}>
+        <Text style={ font_list_medium }>
           {item.createdAt && !loading
             ? new Date( item.createdAt ).toDateString('en-US', {timeZone: 'Asia/Jakarta'})
             : ' - ' }
         </Text>
       </View>
-      <View style={{ textAlign: 'right', width: '50%', height: '100%', alignItems: 'center' }}>
-        <Text style={{ fontSize: Platform.OS === 'android' ? 8 : 12, color: 'grey' }}>
+      <View style={ content_admin }>
+        <Text style={ font_list_small }>
           Reason &nbsp; 
         </Text>
-        <Text style={{ fontSize: Platform.OS === 'android' ? 10 : 14 , color: 'black', fontWeight: 'bold' }}>
+        <Text style={ font_list_medium }>
           {item.reason && !loading
             ? item.reason
             : loading
@@ -27,19 +43,19 @@ export const ListComponentAdmin = ({ item, loading, action }) => (
         </Text>
       </View>
     </View>
-    <View style={{ flexDirection: 'row', width: '100%', height: '70%' }}>
-      <View style={{ width: '55%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
+    <View style={{ ...body_content, padding: 0 }}>
+      <View style={ user_info_content }>
         { ['Username', 'email', 'phone'].map((li, i) => <ListDataComponent loading={ loading } item={ li } key={ i } data={ item.UserId } />)}
       </View>
-      <View style={{ width: '45%', height: '100%', alignItems: 'center', marginTop: 10 }}>
-        <Text style={{ fontSize: Platform.OS === 'android' ? 10 : 13, color: 'grey' }}>Request</Text>
-        <View style={{ width: '100%', flexDirection: 'row', alignItems: 'center', height: '80%', justifyContent: 'space-between' }}>
-          <Text style={{ fontSize: Platform.OS === 'android' ? 12: 14, fontWeight: 'bold' }}>
+      <View style={ att_info_user }>
+        <Text style={ font_list_small }>Request</Text>
+        <View style={ att_check_info }>
+          <Text style={ font_list_medium }>
             { item.start_time && !loading
                 ? item.start_time
                 : ' - '}
           </Text>
-          <Text style={{ fontSize: Platform.OS === 'android' ? 12 : 14, fontWeight: 'bold' }}>
+          <Text style={ font_list_medium }>
             { item.end_time && !loading
                 ? item.end_time
                 : ' - '}
@@ -52,12 +68,12 @@ export const ListComponentAdmin = ({ item, loading, action }) => (
 
 
 const ListDataComponent = ({ item, data, loading }) => (
-  <View style={{ flexDirection: 'row', width: '100%', height: 13 }}>
-    <View style={{ width: '30%', height: 15 }}>
-      <Text style={{ fontSize: Platform.OS === 'android' ? 10 : 12, color: 'grey' }}>{ item }: &nbsp; </Text>
+  <View style={ list_data_content }>
+    <View style={ item_body_message }>
+      <Text style={ font_list_small }>{ item }: &nbsp; </Text>
     </View>
-    <View style={{ width: '70%', height: 15 }}>
-      <Text style={{ fontWeight: 'bold', fontSize: Platform.OS === 'android' ? 10 : 13 }}>
+    <View style={ main_items_admin }>
+      <Text style={ font_list_medium }>
         { item === 'Username' && data && data.username && !loading
             ? data.username.toUpperCase()
             : item === 'email' && data && data.email && !loading

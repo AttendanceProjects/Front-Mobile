@@ -5,18 +5,31 @@ import { getAccess, checkConnection } from '../../service';
 import { useLazyQuery } from '@apollo/react-hooks';
 import { Query } from '../../graph';
 import Font from 'react-native-vector-icons/FontAwesome5'
-import { SwipeListView } from 'react-native-swipe-list-view';
+import { ContainerStyle } from './ContainerStyle';
 
+const {
+  his_content,
+  his_loading,
+  his_body,
+  his_items,
+  his_button_icon,
+  his_update_content,
+  his_content_text,
+  his_empty,
+  his_image_empty,
+  his_text_empty
+} = ContainerStyle;
 
 export const History = ({ navigation: { navigate: push } }) => {
   const [ history, { data: UserHistory, loading } ] = useLazyQuery( Query.GET_HISTORY, { fetchPolicy: 'network-only' } );
   const [ message, setMessage ] = useState( false );
   const [ refreshing, setRefresh ] = useState( false );
-  const [ isOnline, setIsOnline ] = useState( true );
+  const [ isOnline, setIsOnline ] = useState( false );
 
   useEffect(() => {
     (async () => {
-      await checkConnection({ save: setIsOnline });
+      const { network } = await checkConnection();
+      setIsOnline( network );
       fetching();
     })()
   }, [])
@@ -41,13 +54,12 @@ export const History = ({ navigation: { navigate: push } }) => {
     push('Detail', { id: item._id, access: { code, token }, date: item.date })
   }
 
-  console.log( UserHistory )
   return (
-    <View style={{ flex: 1, backgroundColor: '#353941' }}>
+    <View style={ his_content }>
       { !isOnline && <OfflieHeaderComponent /> }
       { loading && !message
-          ? <View style={{ height: '100%', width: '100%', justifyContent: 'center', alignItems: 'center' }}>
-              <ActivityIndicator color='white' size={ 'large' } style={{ position: 'absolute', right: 'auto', top: 'auto' }}/>
+          ? <View style={ his_loading }>
+              <ActivityIndicator color='white' size={ 'large' }/>
             </View>
           : null }
       { message && !loading
@@ -57,11 +69,10 @@ export const History = ({ navigation: { navigate: push } }) => {
           ? 
             <ScrollView refreshControl={ Platform.OS === 'ios' ? <View><RefreshControl refreshing={ refreshing } onRefresh={ onRefresh }/></View> : <RefreshControl refreshing={ refreshing } onRefresh={ onRefresh } /> }>
 
-              <View style={{ marginTop: 10, marginHorizontal: 5 }}>
-                
+              <View style={ his_body }>
                       {
                         UserHistory.getHistory.map(el => (
-                          <View key={ el._id } style={{ position: 'relative', width: '100%' }}>
+                          <View key={ el._id } style={ his_items }>
                             <ListHistoryFilterComponent
                               load={ loading }
                               bc= { '#c9485b' }
@@ -91,11 +102,11 @@ export const History = ({ navigation: { navigate: push } }) => {
                                 empty: UserHistory.getHistory.length > 0 ? false : true,
                               }}
                             />
-                            <TouchableOpacity onPress={() => _onNavigationChange( el )} style={{ height: 35, width: 35, justifyContent: 'center', alignItems: 'center', position: 'absolute', right: 0, top: 2, backgroundColor: 'white', borderRadius: 20 }}>
+                            <TouchableOpacity onPress={() => _onNavigationChange( el )} style={ his_button_icon }>
                               <Font name='info' size={ 20 } />
                             </TouchableOpacity>
-                            <View style={{ position: 'absolute', top: 15, right: 50 }}>
-                              <Text style={{ fontSize: 10, color: 'white', fontWeight: 'bold' }}>Last Update: { el.updatedAt ? new Date( el.updatedAt ).toLocaleString('en-US',{timeZone: 'Asia/Jakarta'}).replace(', ','-') : ' - ' }</Text>
+                            <View style={ his_update_content }>
+                              <Text style={ his_content_text }>Last Update: { el.updatedAt ? new Date( el.updatedAt ).toLocaleString('en-US',{timeZone: 'Asia/Jakarta'}).replace(', ','-') : ' - ' }</Text>
                             </View>
                           </View>
                         ))
@@ -104,9 +115,9 @@ export const History = ({ navigation: { navigate: push } }) => {
                 </View>
             </ScrollView>
           : !loading && !message && UserHistory && UserHistory.getHistory.length === 0
-              ? <View style={{ flex: 1, marginTop: Platform.OS === 'android' ? 200 : 150, alignItems: 'center', justifyContent: 'center' }}>
-                  <Image source={ require('../../../assets/box-empty.png') } style={{ width: 150, height: 150 }} />
-                  <Text style={{ fontSize: Platform.OS === 'android' ? 15 : 20, color: 'white', fontWeight: 'bold', marginTop: Platform.OS === 'android' ? 35 : 50, letterSpacing: 2 }}>No History Saved</Text>
+              ? <View style={ his_empty }>
+                  <Image source={ require('../../../assets/box-empty.png') } style={ his_image_empty } />
+                  <Text style={ his_text_empty }>No History Saved</Text>
                 </View> 
               : null }
     </View>

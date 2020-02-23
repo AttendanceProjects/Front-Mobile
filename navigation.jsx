@@ -16,7 +16,6 @@ import {
   ChangePasswordContainers,
   FilterContainers,
   LiveAttContainers,
-  CheckContainers,
   CorrectionContainers,
   CreateCorrectionContainers,
   FormCorrectionContainers,
@@ -71,7 +70,6 @@ const StackDashBoardNavigation = createStackNavigator({
     })
   },
   Checkout: { screen: CheckOutComponent },
-  PreCheck: { screen: CheckContainers },
   Correction: {
     screen: CorrectionDrawerNavigation,
     navigationOptions: ({ navigation }) => ({

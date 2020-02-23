@@ -16,7 +16,6 @@ export const Absent = ({ navigation }) => {
   const [ loading, setLoading ] = useState( false );
   const [ gif, setGif ] = useState( {} );
   const [ camera, setCamera ] = useState( '' );
-  const [ isOnline, setIsOnline ] = useState( true );
   const [ distanceLoading, setDistanceLoading ] = useState( false );
   const [ attendance ] = useMutation( Mutation.CREATE_ATT );
   const [ location ] = useMutation( Mutation.UPDATE_LOCATION );
@@ -26,14 +25,12 @@ export const Absent = ({ navigation }) => {
 
   useEffect(() => {
     (async () => {
-      // getPosition();
-      await checkConnection({ save: setIsOnline });
       const { code, token } = await getAccess();
       if( code && token ) {
         setAccess({ code, token });
         const { status } = await Camera.requestPermissionsAsync();
         if( status === 'granted' ) {
-          setHasPermission(status === 'granted');
+          setHasPermission(status === 'granted')
           try {
             await getCompany({ variables: { code, token } })
           }catch({ graphQLErrors }) { setMessage( graphQLErrors[0].message ); _onClear( setMessage ); }
@@ -45,17 +42,18 @@ export const Absent = ({ navigation }) => {
     })();
   }, []);
 
+
   const _onClear = meth => setTimeout(() => meth( false ), 3000)
 
   const takePicture = async () => {
-    const { code, token } = await access;
-    const { time, error } = await getServerTime({ code, token });
-    const { startReason } =  navigation.state.params ? await navigation.state.params : '';
-    if( (time.split(':')[0] < 8 && time.split(' ')[1] === 'AM') || startReason ){
-      let id
-      if( camera ) {
-        await checkConnection({ save: setIsOnline });
-        if( isOnline ) {
+    let id
+    if( camera ) {
+      const { network } = await checkConnection();
+      if( network ) {
+        const { code, token } = await access;
+        const { time, error } = await getServerTime({ code, token });
+        const { startReason } =  navigation.state.params ? await navigation.state.params : '';
+        if( (time.split(':')[0] < 8 && time.split(' ')[1] === 'AM') || startReason ){
           if( Platform.OS === 'ios' ){
             setDistanceLoading( true );
           }
@@ -72,7 +70,7 @@ export const Absent = ({ navigation }) => {
                 { latitude: compLatitude ? compLatitude : -6.157771, longitude: compLongitude ? compLongitude : 106.819315 }
               )
               const calculate = dist * 84000;
-              // if( calculate < 1000000 ) {
+              // if( calculate < 700000 ) {
                 setDistanceLoading( false );
                 try {
                   let { message, id } = await takeAPicture({ access: { code, token }, start_reason: startReason ? startReason : '', upload: uploadImage, camera, loading: setLoading, message: setMessage, action: { mutation: attendance, query: Query.USER_ATT, daily: Query.GET_DAILY_USER, history: Query.GET_HISTORY, }, gifLoad: setGif, type: { msg: 'checkin' } });
@@ -104,11 +102,9 @@ export const Absent = ({ navigation }) => {
               { text: 'Yes', onPress: _ => takePicture() }
             ])
           }
-        }else{
+        }else if( !network ) {
           const picture = await camera.takePictureAsync({ quality: 0.5 });
-          console.log( picture, 'picture offline' )
           const { coords } = await _getCurrentLocationOffline();
-          console.log( coords, 'location offline' );
           let IndoTime = new Date().toLocaleString("en-US", {timeZone: "Asia/Jakarta"});
           await AsyncStorage.setItem('offline', JSON.stringify({
             location: {
@@ -126,12 +122,12 @@ export const Absent = ({ navigation }) => {
             setMessage( false );
             navigation.navigate( 'LiveAtt' );
           }, 20000)
+        }else {
+          Alert.alert('Warning', 'You are late, give us reason by click "checkin" in dashboard', [ {text: 'Oke', onPress: () => navigation.navigate( 'LiveAtt' ) } ] );
         }
       }
     }else if( error ){
       Alert.alert('Warning', 'Something wrong when take time from server, please try again', [ {text: 'Oke', onPress: () => navigation.navigate( 'Absent' ) } ] );
-    }else {
-      Alert.alert('Warning', 'You are late, give us reason by click "checkin" in dashboard', [ {text: 'Oke', onPress: () => navigation.navigate( 'LiveAtt' ) } ] );
     }
   }
 

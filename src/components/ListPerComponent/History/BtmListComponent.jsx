@@ -1,5 +1,15 @@
 import React from 'react';
-import { View, Text, Alert, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, Alert, TouchableOpacity } from 'react-native';
+import { HistoryStyle } from './HistoryStyle';
+
+const {
+  container_bottom,
+  font_medium,
+  font_small,
+  font_clock,
+  message_reason,
+  content_reason
+} = HistoryStyle
 
 export const BtmListComponent = ({ typeParent, size }) => {
 
@@ -10,32 +20,32 @@ export const BtmListComponent = ({ typeParent, size }) => {
 
   return (
     <>
-      <View style={{ flex: 0.42, alignItems: 'center', justifyContent: 'center', backgroundColor: typeParent.startIssues === 'ok' ? '#deff8b' : typeParent.startIssues === 'warning' ? '#f6eec7' : '#ec7373', borderColor: '#c7ecee', borderWidth: 1, borderRadius: 20, height: Platform.OS === 'android' ? 65 : 70 }}>
-        <Text style={{ fontWeight: 'bold', fontSize: Platform.OS === 'android' ? 10 : 15 }}>Check In</Text>
-        <Text style={{ fontWeight: 'bold', fontSize: size.time ? size.time : 18, color: 'blue' }}>{ typeParent.startTime }</Text>
-        <Text style={{ fontSize: Platform.OS === 'android' ? 8 : 10, color: 'black', fontWeight: 'bold', letterSpacing: 1 }}>{ typeParent.startIssues.toUpperCase() }</Text>
+      <View style={{ ...container_bottom, backgroundColor: typeParent.startIssues === 'ok' ? '#deff8b' : typeParent.startIssues === 'warning' ? '#f6eec7' : '#ec7373' }}>
+        <Text style={ font_medium }>Check In</Text>
+        <Text style={{ ...font_clock, fontSize: size.time ? size.time : 18, }}>{ typeParent.startTime }</Text>
+        <Text style={ font_small }>{ typeParent.startIssues.toUpperCase() }</Text>
         {
           typeParent && typeParent.reason && typeParent.type === 'date'
             &&  <TouchableOpacity onPress={() => _alertResponse( 'start' )}>
-                  <Text style={{ color: 'red', fontWeight: 'bold', fontSize: 10 }}>Reason</Text>    
+                  <Text style={{ ...font_small, color: 'red' }}>Reason</Text>    
                 </TouchableOpacity>
         }
       </View>
-      <View style={{ flex: 0.42, alignItems: 'center', justifyContent: 'center', backgroundColor: typeParent.endIssues === 'ok' ? '#deff8b' : typeParent.endIssues === 'warning' ? '#f6eec7' : '#ec7373', borderColor: '#c7ecee', borderWidth: 1, borderRadius: 20, height: Platform.OS === 'android' ? 65 : 70 }}>
-        <Text style={{ fontWeight: 'bold', fontSize: Platform.OS === 'android' ? 10 : 15 }}>Check Out</Text>
+      <View style={{ ...container_bottom, backgroundColor: typeParent.endIssues === 'ok' ? '#deff8b' : typeParent.endIssues === 'warning' ? '#f6eec7' : '#ec7373', borderColor: '#c7ecee' }}>
+        <Text style={ font_medium }>Check Out</Text>
         {
           typeParent && typeParent.endTime
-            ?  <Text style={{ fontWeight: 'bold', fontSize: size.time ? size.time : 18, color: 'blue' }}>{ typeParent.endTime }</Text>
+            ?  <Text style={{ ...font_clock, fontSize: size.time ? size.time : 18 }}>{ typeParent.endTime }</Text>
             : typeParent.date !== new Date().toDateString()
-                ? <Text style={{ fontWeight: 'bold', fontSize: 18, color: '#7fcd91', marginTop: 10 }}>Absent</Text> : null 
+                ? <Text style={ message_reason }>Absent</Text> : null 
         }
-        <View style={{ alignItems: 'center', justifyContent: 'space-around', flexDirection: 'row', width: '100%' }}>
-          <Text style={{ fontSize: Platform.OS === 'android' ? 8 : 10, color: 'black', fontWeight: 'bold' }}>{ typeParent.endIssues.toUpperCase() }</Text>
+        <View style={ content_reason }>
+          <Text style={ font_small }>{ typeParent.endIssues.toUpperCase() }</Text>
           { typeParent && typeParent.reason.end  && typeParent.type === 'date'
             ? <TouchableOpacity
                 onPress={() => _alertResponse( 'end' )}
                 >
-                <Text style={{ color: 'red', fontWeight: 'bold', fontSize: 10 }}>Reason</Text>
+                <Text style={{ ...font_small, color: 'red' }}>Reason</Text>
               </TouchableOpacity>
             : null }
         </View>

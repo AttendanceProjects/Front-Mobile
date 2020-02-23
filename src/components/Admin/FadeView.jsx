@@ -3,14 +3,13 @@ import { View, Animated, Text, TouchableOpacity, ActivityIndicator, Platform, Im
 import { useLazyQuery, useMutation } from '@apollo/react-hooks';
 import { Query, Mutation } from '../../graph';
 import { MapCorrections } from '../Detail';
-import { FadeView } from './AdminComponentStyle';
+import { AdminStyle } from './AdminComponentStyle';
 
 const {
   containers,
   content,
   before_content,
   loading_text,
-  message_text,
   header_fade_view,
   header_text,
   close_fade_x,
@@ -48,7 +47,7 @@ const {
   touchable_response,
   main_loading_touchable,
   content_loading_touchable
-}=FadeView
+}=AdminStyle
 
 export const FadeViewAdminComponent = ({ close, id, code, token, pin: paramsSecurity, _onFetching }) => {
   const [ fetch, { data: el, loading } ] = useLazyQuery( Query.GET_CORRECTION_ID );
@@ -109,7 +108,6 @@ export const FadeViewAdminComponent = ({ close, id, code, token, pin: paramsSecu
   }
 
   const _onSubmitResponse = async res => {
-    console.log( 'dapat id fadeview', res, id, code, token, paramsSecurity );
     try{
       const { data: { responseCorrection } } = await response({ variables: { code, token, id, res, pin_security: paramsSecurity } })
       if( responseCorrection ) {
@@ -143,7 +141,7 @@ export const FadeViewAdminComponent = ({ close, id, code, token, pin: paramsSecu
             : null }
         { message && !loading
             ? (<View style={ before_content }>
-                <Text style={ message_text }>{ message }</Text>
+                <Text style={ header_fade_view }>{ message }</Text>
               </View>) : null }
         { el && el.getOneCorrection && !loading && !message
             ? 

@@ -33,7 +33,10 @@ export const FormCorrectionContainers = ({ navigation }) => {
       const { id } = navigation.state.params;
       const { code, token } = await getAccess();
       const { time, error } = await getServerTime({ code, token });
-      if( error ) console.log( error );
+      if( error ) {
+        setMessage( error );
+        setTimeout(() => setMessage( false ), 2000);
+      }
       setServerTime( time )
       if ( id, code, token ) {
         await setAccess({ code, token, id })
@@ -60,7 +63,6 @@ export const FormCorrectionContainers = ({ navigation }) => {
       if( startDate, endDate, reason ) {
         const start_time = new Date( startDate ).toLocaleString("en-US", {timeZone: "Asia/Jakarta"})
         const end_time = new Date( endDate ).toLocaleString("en-US", {timeZone: "Asia/Jakarta"})
-        console.log( start_time, end_time );
         if( success ) {
           const { data } = await created({ variables: { code, token, id, start_time, end_time, image: success, reason }, refetchQueries: [{ query: Query.USER_CORRECTION, variables: { code, token } }]})
           if( data && data.createCorrection ) {
@@ -115,7 +117,6 @@ export const FormCorrectionContainers = ({ navigation }) => {
   // for IOS only
   const searchDate = name => {
     if( name === 'start' ) {
-      // console.log( keyword, 'keyword' );
       setStartDate( keyword );
       setShow( false );
     }else if( name === 'end' ) {
@@ -126,7 +127,6 @@ export const FormCorrectionContainers = ({ navigation }) => {
 
   // for Android
   const setDate = async (event, time) => {
-    console.log( time );
     if( Platform.OS === 'android' ){
       setShow( false )
       setLoading( true );
@@ -142,7 +142,6 @@ export const FormCorrectionContainers = ({ navigation }) => {
     }else await setKeyWord( time );
   }
 
-  // console.log( Att );
   return (
     <View style={{ backgroundColor: 'white', flex: 1 }}>
       <Text style={{ fontWeight: 'bold', marginTop: 10, color: 'black', fontSize: 30, textAlign: 'center' }}>Form Correction</Text>

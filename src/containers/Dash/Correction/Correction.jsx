@@ -18,7 +18,6 @@ export const CorrectionContainers = ({ navigation: { navigate: push } }) => {
   const _onClear = meth => setTimeout(() => meth( false ), 2000);
 
   const fetching = async () => {
-    console.log( 'trigger' );
     try {
       const { code, token } = await getAccess();
       await fetch({ variables: { code, token } });
@@ -31,7 +30,6 @@ export const CorrectionContainers = ({ navigation: { navigate: push } }) => {
     setRefresh( false );
   }, [ refreshing ]);
 
-  console.log( Att );
   return (
     <ScrollView style={{ backgroundColor: '#353941', flex: 1, padding: 10 }}  refreshControl={ Platform.OS === 'ios' ? <View><RefreshControl refreshing={ refreshing } onRefresh={ onRefresh }/></View> : <RefreshControl refreshing={ refreshing } onRefresh={ onRefresh } /> }>
       <Text style={{ textAlign: 'center', fontSize: 25, color: 'white', fontWeight: 'bold' }}>Correction</Text>
@@ -75,7 +73,6 @@ const ListComponent = ({ item, push }) => (
     </View>
     <View style={{ width: '100%', flexDirection: 'row', height: '70%', justifyContent: "space-between" }}>
       <View style={{ width: '50%', marginTop: 10, flexDirection: 'row'}}>
-        { console.log( item.end_time ) }
         <Image source={ item.image ? { uri: item.image } : require('../../../../assets/defaultImage.png')} style={{ height: 80, width: 80 }}/>
         <View style={{ marginLeft: 10, justifyContent: 'space-around' }}>
           <Text style={{ fontSize: 13, fontStyle: 'italic' }}>Req Changes</Text>

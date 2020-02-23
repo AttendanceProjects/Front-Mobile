@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { OfflieHeaderComponent, PermissionComponent } from '../../components'
-import { View, Text, Image, TouchableOpacity, AsyncStorage, ScrollView, Platform, TextInput, Button, ActivityIndicator } from 'react-native';
-import { getAccess, checkConnection, getServerTime } from '../../service';
+import { View, Text, Image, TouchableOpacity, AsyncStorage, ScrollView, Platform, Button, ActivityIndicator } from 'react-native';
+import { getAccess, checkConnection } from '../../service';
 import { Query, Mutation } from '../../graph';
 import { _getCurrentLocation } from '../../helpers'
 import Font from 'react-native-vector-icons/FontAwesome5';
@@ -24,33 +24,25 @@ export const Dash = ({ navigation: { navigate: push } }) => {
 
   useEffect(() => {
     (async () => {
-      console.log( process.env.REACT_APP_GATEWAY )
-      const offline = await AsyncStorage.getItem('offline');
-      if( offline ) {
-        const { location, url, time } = await JSON.parse( offline );
-        console.log( 'location get offline', location, url, time );
-      }else {
-        try {
-          const { code, token } = await getAccess();
-          setAccess({ code, token });
-          await checkConnection({ save: setIsOnline });
-          await getUser({ variables: { code, token } });
-          await getCompany({ variables: { code, token } });
-        }catch({ graphQLErrors }) { setError( graphQLErrors[0].message ); _onClear( setError ); }
-        }
+      const { network } = await checkConnection();
+      setIsOnline( network );
+      try {
+        const { code, token } = await getAccess();
+        setAccess({ code, token });
+        await getUser({ variables: { code, token } });
+        await getCompany({ variables: { code, token } });
+      }catch({ graphQLErrors }) { setError( graphQLErrors[0].message ); _onClear( setError ); }
     })()
   }, [])
 
-  useEffect(() => {
-    (async() => {
-      const offline = await AsyncStorage.getItem('offline');
-      if( offline ) {
-        const { location, url, time } = await JSON.parse( offline );
-        console.log( 'masik simpan di local loation dan url pidturenya', location, url, time );
-        console.log( 'masuk sini ?' )
-      }
-    })()
-  }, [ isOnline ])
+  // useEffect(() => {
+  //   (async() => {
+  //     const offline = await AsyncStorage.getItem('offline');
+  //     if( offline ) {
+  //       const { location, url, time } = await JSON.parse( offline );
+  //     }
+  //   })()
+  // }, [ isOnline ])
 
 
   const _onPageChange = name => {
@@ -107,7 +99,6 @@ export const Dash = ({ navigation: { navigate: push } }) => {
   return (
     <View style={{ backgroundColor: '#5b5656', flex: 1, position: 'relative' }}>
       { !isOnline && <OfflieHeaderComponent /> }
-      { console.log( 'online ?', isOnline )}
       <View style={{ flex: 0.55, backgroundColor: '#90b8f8' }}>
         <View style={{ height: Platform.OS === 'android' ? 80 : 60, borderBottomWidth: 1, justifyContent: 'flex-end', alignItems: 'center' }}>
           <Text style={{ marginBottom: 10, fontSize: Platform.OS === 'android' ? 20 : 25, letterSpacing: 2, fontWeight: 'bold', fontStyle: 'italic', color: '#353941' }}>Presence</Text>

@@ -139,7 +139,6 @@ export const FilterCorrectionContainers = ({ navigation }) => {
     await getFiltering({ variables: { code, token, key } })
   }
 
-  console.log( filter );
 
   return (
     <View style={ containers }>

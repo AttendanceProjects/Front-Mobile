@@ -1,12 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Image, ActivityIndicator, TouchableOpacity, Platform } from 'react-native';
 import { checkConnection, getAccess, uploadImage } from '../../service'
-import { ProfileHeaderComponent, OfflieHeaderComponent } from '../../components';
+import { ProfileHeaderComponent, OfflieHeaderComponent, SimpleLoadingNew } from '../../components';
 import { useLazyQuery, useMutation } from '@apollo/react-hooks';
 import { Query, Mutation } from '../../graph';
 import Font from 'react-native-vector-icons/FontAwesome5';
 import * as ImagePicker from 'expo-image-picker';
 import * as Permissions from 'expo-permissions';
+
+
+import { ContainerStyle } from './ContainerStyle';
+
+const {
+  profile_container,
+  profile_header,
+  profile_image,
+  profile_up_loading,
+  profile_button_upload,
+  font_medium,
+  profile_footer,
+  profile_button_change,
+  font_small,
+  profile_table,
+  profile_per_row,
+  profile_table_lable,
+  profile_table_span
+} = ContainerStyle
 
 export const ProfileContainers = ({ navigation }) => {
   const [ isOnline, setIsOnline ] = useState( false );
@@ -22,7 +41,8 @@ export const ProfileContainers = ({ navigation }) => {
     (async () => {
       await _getPermissionAsync();
       setLoading( true )
-      await checkConnection({ save: setIsOnline })
+      const { network } = await checkConnection();
+      setIsOnline( network );
       try {
         const { code, token } = await getAccess();
         await getUser({ variables: { code, token } });
@@ -44,10 +64,8 @@ export const ProfileContainers = ({ navigation }) => {
       let formData = new FormData();
       formData.append( 'image', { name: `profile/${ code }.jpg`, type: 'image/jpg', uri: result.uri })
       const { success, error } = await uploadImage({ code, token, formData })
-      console.log( success, error );
       if( success ) {
         const { data } = await updateProfile({ variables: { code, token, image: success } });
-        console.log( data );
         if( data ) {
           setSuccess( 'Success update profile' );
           setUploadLoading( false );
@@ -59,7 +77,6 @@ export const ProfileContainers = ({ navigation }) => {
         setTimeout(() => setMessage( false ), 5000 );
       }
     }else {
-      console.log( result );
       setMessage( 'OK try next time' );
       setTimeout(() => setMessage( false ), 5000);
     }
@@ -85,35 +102,27 @@ export const ProfileContainers = ({ navigation }) => {
       <View style={{ flex: 1, backgroundColor: '#353941' }}>
         {
           loading
-            ? 
-              <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                <ActivityIndicator color={ 'blue' } size='large' />
-                <Text style={{ color: 'white', fontWeight: 'bold', marginTop: 20, fontSize: 20 }}>Loading...</Text>
-              </View>
+            ? <SimpleLoadingNew />
             :
           user && user.checkSignin
             ? 
-              <View style={{ flex: 1, padding: 15, alignItems: 'center', justifyContent: 'space-around' }}>
-                <View style={{ flex: 0.2, width: '98%', alignItems: 'center', justifyContent: 'center', marginTop: 20 }}>
-                  <Image source={{ uri: user.checkSignin.profile_image }} style={{ height: 100, width: 100, borderRadius: 30 }} />
+              <View style={ profile_container }>
+                <View style={ profile_header }>
+                  <Image source={{ uri: user.checkSignin.profile_image }} style={ profile_image } />
                   { uploadLoading
-                      ? <ActivityIndicator color='red' style={{ marginTop: 10, marginBottom: 5 }} />
+                      ? <ActivityIndicator color='red' style={ profile_up_loading } />
                       :
-                        <TouchableOpacity onPress={() => _pickImage()} style={{ marginBottom: 5, borderRadius: 10, marginTop: 10, backgroundColor: '#84142d', height: 30, width: 120, alignItems: 'center', justifyContent: 'center' }}>
-                          <Text style={{ fontSize: Platform.OS === 'android' ? 10 : 15, color: 'white', fontWeight: 'bold' }}>Change Profile</Text>
+                        <TouchableOpacity onPress={() => _pickImage()} style={ profile_button_upload }>
+                          <Text style={{ ...font_medium, color: 'white' }}>Change Profile</Text>
                         </TouchableOpacity> }
-                  { message || success ? <Text style={{ fontSize: Platform.OS === 'android' ? 12 : 15, fontWeight: 'bold', color: success ? 'green' : 'red' }}>{ message || success }</Text> : null }
+                  { message || success ? <Text style={{ ...font_medium, color: success ? 'green' : 'red' }}>{ message || success }</Text> : null }
                 </View>
                 <TableComponent user={ user.checkSignin } />
-                <View style={{ flex: 0.2, flexDirection: 'row', width: '98%', justifyContent: 'space-around', alignItems: 'center' }}>
-                  <TouchableOpacity style={{ alignItems: 'center', backgroundColor: '#f0134d', height: 60, width: Platform.OS === 'android' ? 80 : 75, borderRadius: 20, justifyContent: 'center' }} onPress={() => navigation.navigate('Change')}>
+                <View style={ profile_footer }>
+                  <TouchableOpacity style={ profile_button_change } onPress={() => navigation.navigate('Change')}>
                     <Font name={ 'key' } size={ 25 } />
-                    <Text style={{ fontSize: Platform.OS === 'android' ? 10 : 12, fontWeight: 'bold' }}>Change Pass</Text>
+                    <Text style={{ ...font_small, fontWeight: 'bold', color: 'black' }}>Change Pass</Text>
                   </TouchableOpacity>
-                  {/* <TouchableOpacity style={{ alignItems: 'center', justifyContent: 'center', height: 60, width: 75, borderRadius: 20, backgroundColor: '#f0134d' }} onPress={() => navigation.navigate( 'Approval' )}>
-                    <Font name={ 'calendar-check' } size={ 25 } />
-                    <Text style={{ fontSize: 12, fontWeight: 'bold' }}>Approval</Text>
-                  </TouchableOpacity> */}
                 </View>
               </View>
             : <Text>Something error</Text>
@@ -124,34 +133,34 @@ export const ProfileContainers = ({ navigation }) => {
 }
 
 const TableComponent = ({ user }) => (
-  <View style={{ flex: 0.55, width: '98%', padding: 10, justifyContent: 'center' }}>
-    <View style={{ borderBottomColor: 'black', borderBottomWidth: 1, backgroundColor: 'white' }}>
-      <Text style={{ fontSize: Platform.OS === 'android' ? 10 : 12, borderBottomWidth: 1, borderBottomColor: 'black' }}> Username </Text>
-      <Text style={{ marginLeft: 10, fontWeight: 'bold', fontSize: Platform.OS === 'android' ? 12 : 14 }}>{ user.username ? user.username.toUpperCase() : ' - ' }</Text>
+  <View style={ profile_table }>
+    <View style={ profile_per_row }>
+      <Text style={ profile_table_lable }> Username </Text>
+      <Text style={ profile_table_span }>{ user.username ? user.username.toUpperCase() : ' - ' }</Text>
     </View>
-    <View style={{ borderBottomColor: 'black', borderBottomWidth: 1, backgroundColor: 'white' }}>
-      <Text style={{ fontSize: Platform.OS === 'android' ? 10 : 12, borderBottomWidth: 1, borderBottomColor: 'black' }}> Email </Text>
-      <Text style={{ marginLeft: 10, fontWeight: 'bold', fontSize: Platform.OS === 'android' ? 12 : 14 }}>{ user.email ? user.email : ' - ' }</Text>
+    <View style={ profile_per_row }>
+      <Text style={ profile_table_lable }> Email </Text>
+      <Text style={ profile_table_span }>{ user.email ? user.email : ' - ' }</Text>
     </View>
-    <View style={{ borderBottomColor: 'black', borderBottomWidth: 1, backgroundColor: 'white' }}>
-      <Text style={{ fontSize: Platform.OS === 'android' ? 10 : 12, borderBottomWidth: 1, borderBottomColor: 'black' }}> Position </Text>
-      <Text style={{ marginLeft: 10, fontWeight: 'bold', fontSize: Platform.OS === 'android' ? 12 : 14 }}>{ user.role ? user.role : ' - ' }</Text>
+    <View style={ profile_per_row }>
+      <Text style={ profile_table_lable }> Position </Text>
+      <Text style={ profile_table_span }>{ user.role ? user.role : ' - ' }</Text>
     </View>
-    <View style={{ borderBottomColor: 'black', borderBottomWidth: 1, backgroundColor: 'white' }}>
-      <Text style={{ fontSize: Platform.OS === 'android' ? 10 : 12, borderBottomWidth: 1, borderBottomColor: 'black' }}> Gender </Text>
-      <Text style={{ marginLeft: 10, fontWeight: 'bold', fontSize: Platform.OS === 'android' ? 12 : 14 }}>{ user.gender ? user.gender.toUpperCase() : ' - ' }</Text>
+    <View style={ profile_per_row }>
+      <Text style={ profile_table_lable }> Gender </Text>
+      <Text style={ profile_table_span }>{ user.gender ? user.gender.toUpperCase() : ' - ' }</Text>
     </View>
-    <View style={{ borderBottomColor: 'black', borderBottomWidth: 1, backgroundColor: 'white' }}>
-      <Text style={{ fontSize: Platform.OS === 'android' ? 10 : 12, borderBottomWidth: 1, borderBottomColor: 'black' }}> Phone Number </Text>
-      <Text style={{ marginLeft: 10, fontWeight: 'bold', fontSize: Platform.OS === 'android' ? 12 : 14 }}>{ user.phone ? user.phone : ' - ' }</Text>
+    <View style={ profile_per_row }>
+      <Text style={ profile_table_lable }> Phone Number </Text>
+      <Text style={ profile_table_span }>{ user.phone ? user.phone : ' - ' }</Text>
     </View>
-    <View style={{ borderBottomColor: 'black', borderBottomWidth: 1, backgroundColor: 'white' }}>
-      <Text style={{ fontSize: Platform.OS === 'android' ? 10 : 12, borderBottomWidth: 1, borderBottomColor: 'black' }}> Religion </Text>
-      <Text style={{ marginLeft: 10, fontWeight: 'bold', fontSize: Platform.OS === 'android' ? 12 : 14 }}>{ user.religion ? user.religion.toUpperCase() : ' - ' }</Text>
+    <View style={ profile_per_row }>
+      <Text style={ profile_table_lable }> Religion </Text>
+      <Text style={ profile_table_span }>{ user.religion ? user.religion.toUpperCase() : ' - ' }</Text>
     </View>
-    <View style={{ borderBottomColor: 'black', borderBottomWidth: 1, backgroundColor: 'white' }}>
-      <Text style={{ fontSize: Platform.OS === 'android' ? 10 : 12, borderBottomWidth: 1, borderBottomColor: 'black' }}> Identity Number </Text>
-      <Text style={{ marginLeft: 10, fontWeight: 'bold', fontSize: Platform.OS === 'android' ? 12 : 14 }}>{ user.identityNumber ? user.identityNumber : ' - ' }</Text>
+    <View style={ profile_per_row }>
+      <Text style={ profile_table_lable }> Identity Number </Text>
+      <Text style={ profile_table_span }>{ user.identityNumber ? user.identityNumber : ' - ' }</Text>
     </View>
   </View>
 )

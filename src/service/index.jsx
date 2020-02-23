@@ -2,9 +2,11 @@ import * as Network from 'expo-network';
 import { AsyncStorage } from 'react-native';
 import { server, serverTime } from './service';
 
-export const checkConnection = async ({ save }) => {
-  const connection = await Network.getNetworkStateAsync();
-  save( connection.isConnected )
+export const checkConnection = async _ => {
+  return new Promise(resolve => {
+    Network.getNetworkStateAsync()
+      .then(({ isConnected }) => resolve({ network: isConnected }))
+  })
 }
 
 export const getAccess = async () => {
@@ -35,7 +37,6 @@ export const getServerTime = async ({ code, token }) => {
                               url: '/time',
                               headers: { token }                            
                             })
-                            // console.log( data );
     return { time: data.time }
   }catch(err) {
     if( err.response.data ) return { error: err.response.data.msg };

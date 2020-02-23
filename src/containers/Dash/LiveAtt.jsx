@@ -1,13 +1,45 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { ErrorCheckInOutComponent, OfflieHeaderComponent, LoadingListComponent } from '../../components'
-import { View, Text, Platform, ScrollView, AsyncStorage, RefreshControl, TouchableOpacity, StyleSheet, TextInput, KeyboardAvoidingView, ActivityIndicator, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { OfflieHeaderComponent, LoadingListComponent } from '../../components'
+import { View, Text, Platform, ScrollView, AsyncStorage, RefreshControl, TouchableOpacity, TextInput, KeyboardAvoidingView, ActivityIndicator, Alert } from 'react-native';
 import { getAccess, checkConnection, getServerTime, uploadImage } from '../../service';
 import { Query, Mutation } from '../../graph';
 import { _getCurrentLocation, getCurrentTime } from '../../helpers'
 import { useLazyQuery, useMutation } from '@apollo/react-hooks';
 import Font from 'react-native-vector-icons/FontAwesome5';
 
-var abortController = new AbortController()
+import { ContainerStyle } from './ContainerStyle';
+
+const {
+  live_time,
+  live_time_date,
+  live_time_time,
+  live_content,
+  live_content_body,
+  live_content_header,
+  font_check,
+  live_font_small,
+  live_main,
+  live_main_body,
+  live_button_content,
+  live_button,
+  live_button_text,
+  live_offline_loading,
+  live_message_content,
+  live_time_loading,
+  live_reason,
+  font_small,
+  font_medium,
+  live_footer_content,
+  live_footer_main,
+  live_footer_text,
+  live_schedule,
+  live_footer_context,
+  live_footer_context_main,
+  live_touchable_history,
+  live_logged_content,
+  logged_text,
+  context_empty
+} = ContainerStyle;
 
 export const LiveAttContainers = ({ navigation: { navigate: push } }) => {
   const [ fetch, { data: Att, loading} ] = useLazyQuery( Query.USER_ATT, { fetchPolicy: 'network-only' } );
@@ -22,10 +54,10 @@ export const LiveAttContainers = ({ navigation: { navigate: push } }) => {
   const [ startReason, setStartReason ] = useState( '' );
   const [ errorReason, setErrorReason ] = useState( false );
 
-  const [ isOnline, setIsOnline ] = useState( true );
+  const [ isOnline, setIsOnline ] = useState( false );
   const [ offlineLoading, setOfflineLoading ] = useState( false );
   const [ offlineCheckin ] = useMutation( Mutation.CREATE_ATT_OFFILE );
-  const [ offlineCheckout ] = useMutation( Mutation.CHECK_OUT_ATT );
+  const [ offlineCheckout ] = useMutation( Mutation.UPDATE_ATT_OFFLINE );
 
   const [ upLocation ] = useMutation( Mutation.UPDATE_LOCATION );
 
@@ -35,7 +67,8 @@ export const LiveAttContainers = ({ navigation: { navigate: push } }) => {
       var timer = setInterval(() => {
         getCurrentTime({ setTime: setCurrentTime });
       }, 1000);
-      await checkConnection({ save: setIsOnline });
+      const { network } = await checkConnection();
+      setIsOnline( network );
       await fetching();
 
       return () => {
@@ -43,6 +76,7 @@ export const LiveAttContainers = ({ navigation: { navigate: push } }) => {
       }
     })()
   }, [])
+
 
   const fetching = async () => {
     const { code, token } = await getAccess();
@@ -61,19 +95,27 @@ export const LiveAttContainers = ({ navigation: { navigate: push } }) => {
 
   const _fetchCompany = ({ code, token }) => getCompany({ variables: { code, token } });
 
-  const _onRemoveAsync = async _ => await AsyncStorage.removeItem( 'access' );
+  const _onRemoveAsync = async _ => await AsyncStorage.removeItem( 'offline' );
 
   const _onOfflineCreateAtt = ({ code, token, start_image, time }) => {
     return new Promise (resolve => {
       offlineCheckin({ variables: { code, token, start_image, start_reason: 'checkin offilemode', clock: time }, refetchQueries: [{ query: Query.GET_HISTORY, variables: { code, token }}, {query: Query.GET_DAILY_USER, variables: { code, token } }] })
         .then(({ data }) => {
-          resolve({ id: data.createAtt._id })
+          resolve({ id: data.createOffline._id })
         })
         .catch(({ graphQLErrors }) => resolve({ error: graphQLErrors[0].message }))
     })
   }
 
-  const _processAsync = async (type, location, url, clock) => {
+  const _onOfflineUpdateAtt = ({ code, token, end_image, clock, id }) => {
+    return new Promise (resolve => {
+      offlineCheckout({ variables: { code, token, end_image, clock, id } })
+        .then(({ data }) => resolve({ id: data.updateOffline._id }))
+        .catch(({ graphQLErrors }) => resolve({ error: graphQLErrors[0].message }))
+    })
+  }
+
+  const _processAsync = async (type, location, url, clock, id) => {
     if( type === 'checkin' ){
       setOfflineLoading( true );
       try {
@@ -93,9 +135,30 @@ export const LiveAttContainers = ({ navigation: { navigate: push } }) => {
           }else alert( imageError );
           setOfflineLoading( false );
         }else{ alert('please login again'); setTimeout(() => push( 'Signin' ), 2000); setOfflineLoading( false ) }
-      }catch({ graphQLErrors }) { console.log( graphQLErrors[0].message ); setOfflineLoading( false ); }
+      }catch({ graphQLErrors }) { setErrorReason( graphQLErrors[0].message ); setOfflineLoading( false ); }
     }else {
-      alert( 'comming soon' );
+      setOfflineLoading( true );
+      try{
+        const { code, token } = await getAccess();
+        if( code, token ) {
+          const { success, error: imageError } = await uploadImage({ code, token, url });
+          if( success ) {
+            const { id: resultId, error: offlineError } = await _onOfflineUpdateAtt({ code, token, end_image: success, clock, id });
+            if( resultId ) {
+              const { data } = await upLocation({ variables: { code, token, id: resultId, reason: 'offline', longitude: String( location.longitude ), latitude: String( location.latitude ), accuracy: String( location.accuracy ) }} ) // mungkin butuh refetchQuery
+              if( data ) {
+                setOfflineLoading( false );
+                alert( 'thankyou, your data successfully save!');
+                await _onRemoveAsync();
+              }
+            }else alert( offlineError )
+          }else alert( imageError );
+        }else{
+          alert("please signin again");
+          setTimeout(() => push( 'Signin' ), 2000);
+          setOfflineLoading( false );
+        }
+      }catch({ graphQLErrors }) { setErrorReason( graphQLErrors[0].message ); setOfflineLoading( false ); }
     }
   }
 
@@ -104,21 +167,22 @@ export const LiveAttContainers = ({ navigation: { navigate: push } }) => {
     (async() => {
       const offline = await AsyncStorage.getItem('offline');
       if( offline ) {
-        const { location, url, time, type } = await JSON.parse( offline );
+        const { location, url, time, type, id } = await JSON.parse( offline );
         Alert.alert('You have request offline mode',`
 Time => ${ time }
 For => ${ type }
 location => longitude: ${ location.longitude }, latitude: ${ location.latitude }
+id => ${ id ? id : 'check in' }
 Do you want proccess?
         `,
         [
           {
             text: 'No',
-            onPress: () => _onRemoveAsync()
+            onPress: async () => await _onRemoveAsync()
           },
           {
             text: 'Yes',
-            onPress: () => _processAsync( type, location, url, time )
+            onPress: async () => await _processAsync( type, location, url, time )
           }
         ])
       }
@@ -135,20 +199,18 @@ Do you want proccess?
   const _onCheckin = async () => {
     setOut( false );
     setErrorReason( false );
-    const { code, token } = await getAccess();
-    console.log( 'masuk code, token', code, token );
-    if( isOnline ) {
+    const { network } = await checkConnection();
+    setIsOnline( network );
+    if( network ) {
+      const { code, token } = await getAccess();
       setTimeLoading( true );
       const { time, error } = await getServerTime({ code, token });
       if( time ) {
-        console.log( 'time', time );
-        if( (time.split(':')[0] < 8 && time.split(' ')[1] === 'AM')|| (startReason && startReason.length > 7) ) {
-          console.log( 'kondisi lolos' );
+        if( (time.split(':')[0] < 8 && time.split(' ')[1] === 'AM') || (startReason && startReason.length > 7) ) {
           push( 'Checkin', { startReason });
           setStartReason( '' );
           setMsg( false );
         }else if( startReason && startReason.length < 8 ) {
-          console.log( 'masuk kondisi invalid min 8 char' );
           setErrorReason( 'Your Reason invalid, min 8 Char' );
           setTimeout(() => setErrorReason( false ), 5000);
         }else setMsg( true );
@@ -166,12 +228,13 @@ Do you want proccess?
     setMsg( false );
     setOut( false );
     setErrorReason( false );
-    const { code, token } = await getAccess();
-    if( isOnline ) {
+    const { network } = await checkConnection();
+    setIsOnline( network );
+    if( network ) {
+      const { code, token } = await getAccess();
       setTimeLoading( true );
       const { time, error } = await getServerTime({ code, token });
       if( time ) {
-        console.log( 'masuk ke dalam if ada time' )
         if( time.split(':')[0] > 5 && time.split(' ')[1] === 'PM' || startReason && startReason.length > 7 ) {
           push( 'Checkout', { id: Att.userAtt._id, issues: startReason ? startReason : '' });
           setTimeLoading( false );
@@ -203,47 +266,47 @@ Do you want proccess?
       { !isOnline && <OfflieHeaderComponent /> }
       <KeyboardAvoidingView behavior='position'>
         <ScrollView  style={{ backgroundColor: '#26282b' }} refreshControl={ Platform.OS === 'ios' ? <View><RefreshControl refreshing={ refreshing } onRefresh={ onRefresh }/></View> : <RefreshControl refreshing={ refreshing } onRefresh={ onRefresh } /> }>
-          <View style={{ backgroundColor: '#90b8f8', height: 200, alignItems: 'center', justifyContent: 'center' }}>
-            <Text style={{ fontSize: 50, fontWeight: 'bold', color: '#f44336' }}>{ currentTime && currentTime.toUpperCase() }</Text>
-            <Text style={{ marginTop: 20, fontWeight: 'bold', fontSize: 20 }}>{ newDate.toDateString () }</Text>
+          <View style={ live_time }>
+            <Text style={ live_time_time }>{ currentTime && currentTime.toUpperCase() }</Text>
+            <Text style={ live_time_date }>{ newDate.toDateString () }</Text>
           </View>
-          <View style={ styles.ViewContentAttTime }>
-            <View style={{ width: '99%', height: 160, borderWidth: 1, borderColor: '#f1f1f6' }}>
+          <View style={ live_content }>
+            <View style={ live_content_body }>
               {
                 loading
                   ? <LoadingListComponent color={ 'blue' } bg={ 'white' } />
                   :
                   <>
-                    <View style={{ width: '100%', backgroundColor: '#f1f1f6', alignItems: 'center', height: 30, justifyContent: 'center' }}>
+                    <View style={ live_content_header }>
                       <Text style={{ fontWeight: 'bold', letterSpacing: 2 }}>Attendance Time</Text>
                     </View>
-                    <View style={ styles.ViewUpAttCheck }>
-                      <View style={ styles.ViewAttCheck }>
-                        <Text style={{ fontSize: 20 }}>Check In</Text>
-                        <Text style={{ marginTop: 10, fontWeight: 'bold', color: DailyUser && DailyUser.dailyUser.msg === 'ok' ? 'green' : 'black' }}>{ Att && Att.userAtt && Att.userAtt.start && Att.userAtt.start ? Att.userAtt.start : ' - ' }</Text>
+                    <View style={ live_main }>
+                      <View style={ live_main_body }>
+                        <Text style={ font_check }>Check In</Text>
+                        <Text style={{ ...live_font_small, color: DailyUser && DailyUser.dailyUser.msg === 'ok' ? 'green' : 'black' }}>{ Att && Att.userAtt && Att.userAtt.start && Att.userAtt.start ? Att.userAtt.start : ' - ' }</Text>
                       </View>
-                      <View style={ styles.ViewAttCheck }>
-                        <Text style={{ fontSize: 20 }}>Check Out</Text>
-                        <Text style={{ marginTop: 10, fontWeight: 'bold', color: DailyUser && DailyUser.dailyUser.msg === 'ok' ? 'green' : 'black'  }}>{ Att && Att.userAtt && Att.userAtt.end && Att.userAtt.end ? Att.userAtt.end : ' - ' }</Text>
+                      <View style={ live_main_body }>
+                        <Text style={ font_check }>Check Out</Text>
+                        <Text style={{ ...live_font_small, color: DailyUser && DailyUser.dailyUser.msg === 'ok' ? 'green' : 'black'  }}>{ Att && Att.userAtt && Att.userAtt.end && Att.userAtt.end ? Att.userAtt.end : ' - ' }</Text>
                       </View>
                     </View>
-                    <View style={ styles.ViewButton }>
+                    <View style={ live_button_content }>
                       { DailyUser && DailyUser.dailyUser || !isOnline
                           ?
                           <>
-                            <TouchableOpacity style={ styles.CheckButton } onPress={() => _onValidateCheckin()}>
-                              <Text style={{ color: 'white', fontWeight: 'bold' }}>{ (Att && Att.userAtt && Att.userAtt.start) ? ' Done ' : ' Check In ' }</Text>
+                            <TouchableOpacity style={ live_button } onPress={() => _onValidateCheckin()}>
+                              <Text style={ live_button_text }>{ (Att && Att.userAtt && Att.userAtt.start) ? ' Done ' : ' Check In ' }</Text>
                             </TouchableOpacity>
                             {
                               DailyUser && DailyUser.dailyUser && DailyUser.dailyUser.msg === 'ok' || !isOnline
                                 ?
-                                <TouchableOpacity style={ styles.CheckButton } onPress={() => _onValidateCheckout()}>
-                                  <Text style={{ color: 'white', fontWeight: 'bold' }}>{ Att && Att.userAtt && Att.userAtt.end ? ' Done ' : ' Check Out ' }</Text>
+                                <TouchableOpacity style={ live_button } onPress={() => _onValidateCheckout()}>
+                                  <Text style={ live_button_text }>{ Att && Att.userAtt && Att.userAtt.end ? ' Done ' : ' Check Out ' }</Text>
                                 </TouchableOpacity>
                                 : null
                             }
                           </>
-                          : <View style={{ width: '100%', alignItems: 'center' }}>
+                          : <View>
                               <ActivityIndicator color='blue' />
                             </View>
                         }
@@ -252,28 +315,36 @@ Do you want proccess?
                   </>
               }
             { offlineLoading
-                && <View style={{ width: '100%', alignItems: 'center', marginTop: 20 }}>
+                && <View style={ live_offline_loading }>
                     <ActivityIndicator color='blue' size='small' />
                   </View>}
             </View>
             { msg || msgOut
                   ?
-                    <View style={{ width: '100%', marginTop: 15, height: 50, alignItems: 'center', justifyContent: 'center' }}>
+                    <View style={ live_message_content }>
                       { timeLoading
                           ? 
-                            <View style={{ height: '100%', width: '100%', justifyContent: 'center', alignItems: 'center' }}>
+                            <View style={ live_time_loading }>
                               <ActivityIndicator color='black' /> 
                             </View>
                           : <>
-                              <TextInput keyboardType='default' keyboardAppearance='dark' autoCapitalize='none' placeholder={ ` ${ msg ? "You\'re late" : "To fast checkout" }, input your reason` } placeholderTextColor={ 'red' } style={{ height: 30, backgroundColor: '#f1f1f6', textAlign: 'center', borderRadius: 10, color: 'black', fontWeight: 'bold', width: '80%' }} onChangeText={msg => setStartReason( msg )} value={ startReason }/>
-                              { errorReason && <Text style={{ color: 'red', fontWeight: 'bold', fontSize: 10 }}>{ errorReason }</Text> }
+                              <TextInput
+                                keyboardType='default'
+                                keyboardAppearance='dark'
+                                autoCapitalize='none'
+                                placeholder={ ` ${ msg ? "You\'re late" : "To fast checkout" }, input your reason` }
+                                placeholderTextColor={ 'red' }
+                                style={ live_reason }
+                                onChangeText={msg => setStartReason( msg )} value={ startReason }
+                              />
+                              { errorReason && <Text style={{ ...font_small, color: 'red' }}>{ errorReason }</Text> }
                             </> }
                       
                     </View> : null }
-            <View style={{ height: 180, width: '100%', position: 'absolute', bottom: 10, borderWidth: 1, borderColor: 'grey', borderRadius: 10 }}>
-              <View style={{ height: '50%', padding: 10, justifyContent: 'center', borderBottomColor: '#C1C1C1', borderBottomWidth: 1 }}>
-                <Text style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 5 }}>Schedule Today</Text>
-                <View style={{ padding: 6, width: 250, borderRadius: 10, borderWidth: 1, borderColor: '#C1C1C1', height: '50%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around' }}>
+            <View style={ live_footer_content }>
+              <View style={ live_footer_main }>
+                <Text style={ live_footer_text }>Schedule Today</Text>
+                <View style={ live_schedule }>
                   <Font name='clock' size={ 15 } />
                   <Text style={{ fontWeight: 'bold' }}>
                     { company && company.getCompany && new Date().toDateString().split(' ')[0] !== 'Sun'
@@ -288,35 +359,35 @@ Do you want proccess?
                   </Text>
                 </View>
               </View>
-                  <View style={{ height: '50%', width: '100%', padding: 5 }}>
-                    <View style={{ height: '30%', width: '100%', flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 5, paddingRight: 5 }}>
-                      <Text style={{ fontSize: Platform.OS === 'android' ? 15 : 18, fontWeight: 'bold' }}>{ new Date().toDateString().replace(' ',', ') }</Text>
-                      <TouchableOpacity style={{ height: '70%', width: 80, alignItems: 'center', justifyContent: 'center', backgroundColor: '#C1C1C1', borderRadius: 10 }}>
-                        <Text style={{ color: 'white', fontSize: Platform.OS === 'android' ? 10 : 15 }}>History</Text>
-                      </TouchableOpacity>
-                    </View>
-                    { Att && Att.userAtt && !loading
-                        ?
-                        <>
-                          <View style={{ height: '35%', flexDirection: 'row', width: '100%', alignItems: 'center', paddingLeft: 10 }}>
-                            <Text style={{ fontSize: Platform.OS === 'android' ? 15 : 18, fontWeight: 'bold' }}>{ Att.userAtt.start ? Att.userAtt.start : ' - ' }</Text>
-                            <Text style={{ fontSize: Platform.OS === 'android' ? 15 : 18, paddingLeft: 20 }}>Check In</Text>
+              <View style={ live_footer_context }>
+                <View style={ live_footer_context_main }>
+                  <Text style={ font_medium }>{ new Date().toDateString().replace(' ',', ') }</Text>
+                  <TouchableOpacity style={ live_touchable_history }>
+                    <Text style={{ ...font_medium, color: 'white' }}>History</Text>
+                  </TouchableOpacity>
+                </View>
+                { Att && Att.userAtt && !loading
+                    ? <>
+                        <View style={ live_logged_content }>
+                          <Text style={ font_medium }>{ Att.userAtt.start ? Att.userAtt.start : ' - ' }</Text>
+                          <Text style={ logged_text }>Check In</Text>
+                        </View>
+                        <View style={ live_logged_content }>
+                          <Text style={ font_medium }>{ Att.userAtt.end ? Att.userAtt.end : ' - ' }</Text>
+                          <Text style={ logged_text }>Check Out</Text>
+                        </View>
+                         
+                      </>
+                    : loading
+                        ? <View style={{ width: '100%', alignItems: 'center' }}>
+                            <ActivityIndicator color='blue' />
                           </View>
-                          <View style={{ height: '35%', flexDirection: 'row', width: '100%', alignItems: 'center', paddingLeft: 10 }}>
-                            <Text style={{ fontSize: Platform.OS === 'android' ? 15 : 18, fontWeight: 'bold' }}>{ Att.userAtt.end ? Att.userAtt.end : ' - ' }</Text>
-                            <Text style={{ fontSize: Platform.OS === 'android' ? 15 : 18, paddingLeft: 20 }}>Check Out</Text>
-                          </View>
-                        </>
-                        : loading
-                            ? <View style={{ width: '100%', alignItems: 'center' }}>
-                                <ActivityIndicator color='blue' />
-                              </View>
-                            :
-                              <View style={{ width: '100%', height: '70%', justifyContent: 'center', alignItems: 'center' }}>
-                                <Text style={{ fontWeight: 'bold' }}>No Activities Today</Text>
-                                <Text>-- Activities will appear here per day --</Text>
-                              </View> }
-                  </View>
+                        :
+                          <View style={ context_empty }>
+                            <Text style={{ fontWeight: 'bold' }}>No Activities Today</Text>
+                            <Text>-- Activities will appear here per day --</Text>
+                          </View> }
+              </View>
             </View>
           </View>
         </ScrollView>
@@ -324,41 +395,3 @@ Do you want proccess?
     </>
   )
 }
-
-const styles = StyleSheet.create({
-  ViewContentAttTime: {
-    height: Platform.OS === 'android' ? 500 : 420,
-    alignItems: 'center',
-    backgroundColor: 'white',
-    padding: 10
-  },
-  CheckButton: {
-    width: '35%',
-    backgroundColor: '#192965',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: 30,
-    borderRadius: 10
-  },
-  ViewButton: {
-    width: '100%',
-    height: 50,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center'
-  },
-  ViewAttCheck: {
-    width: '50%',
-    height: '100%',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  ViewUpAttCheck: {
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    height: 80,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f1f1f6'
-  }
-})

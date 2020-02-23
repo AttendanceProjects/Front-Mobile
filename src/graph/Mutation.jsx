@@ -92,6 +92,14 @@ export const CREATE_ATT_OFFILE = gql`
   }
 `
 
+export const UPDATE_ATT_OFFLINE = gql `
+  mutation updateOffline ( $code: String, $token: String, $end_image: String, $clock: String, $id: String ) {
+    updateOffline( code: $code, token: $token, end_image: $end_image, clock: $clock, id: $id ) {
+      _id
+    }
+  }
+`
+
 export const CHECK_OUT_ATT = gql`
   mutation updateAtt ( $code: String, $token: String, $end_image: String, $id: String, $end: String ) {
     updateAtt ( code: $code, token: $token, end_image: $end_image, id: $id , end: $end) {

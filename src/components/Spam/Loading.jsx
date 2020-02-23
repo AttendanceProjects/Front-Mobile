@@ -33,3 +33,10 @@ export const SuccessCheckInOutComponent = ({ text }) => (
     </Text>
   </View>
 )
+
+export const SimpleLoadingNew = _ => (
+  <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+    <ActivityIndicator color={ 'blue' } size='large' />
+    <Text style={{ color: 'white', fontWeight: 'bold', marginTop: 20, fontSize: 20 }}>Loading...</Text>
+  </View>
+)

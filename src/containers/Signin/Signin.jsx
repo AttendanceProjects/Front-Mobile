@@ -6,7 +6,7 @@ import { Mutation } from '../../graph';
 import { useMutation } from '@apollo/react-hooks'
 
 export const Signin = ({ navigation }) => {
-  const [ isOnline, setOnline ] = useState( true );
+  const [ isOnline, setOnline ] = useState( false );
   const [ companyCode, setCompanyCode ] = useState( '' );
   const [ request, setRequest ] = useState( '' );
   const [ password, setPassword ] = useState( '' );
@@ -32,10 +32,11 @@ export const Signin = ({ navigation }) => {
 
 
   const signin = async () => {
-    await checkConnection({ save: setOnline })
+    const { network } = await checkConnection();
+    setOnline( network );
     setError( false )
     setLoading( true )
-    if( isOnline ) {
+    if( network ) {
       if( request, password ) {
         try {
           const { data } = await submitSignin({ variables: { code: companyCode, request, password } });

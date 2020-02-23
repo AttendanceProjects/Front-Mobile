@@ -1,5 +1,14 @@
 import React from 'react';
 import { View, Image, TouchableOpacity, Platform, Text } from 'react-native';
+import { DetailStyle } from './DetailStyle';
+
+const {
+  content_header,
+  image_header,
+  font_small,
+  content_header_right,
+  font_clock
+} = DetailStyle
 
 export const ClockComponent = ({ nav, image, issues, time }) => {
 
@@ -10,26 +19,26 @@ export const ClockComponent = ({ nav, image, issues, time }) => {
 
   return (
     <>
-      <View style={{ flex: 0.5, alignItems: 'center', flexDirection: 'row', padding: 10 }}>
+      <View style={ content_header }>
         { image && image.start
             ? <TouchableOpacity onPress={() => _onChangePage( 'start' )}>
-                <Image source={{ uri: image.start }} style={{ width: 60, height: 60, borderRadius: 10 }} />
+                <Image source={{ uri: image.start }} style={ image_header } />
               </TouchableOpacity> : null}
         <View>
-          <Text style={{ fontSize: Platform.OS === 'android' ? 10: 15, marginLeft: 10, color: 'white', fontWeight: 'bold' }}>Check In</Text>
+          <Text style={ font_small }>Check In</Text>
           {  issues && issues.start
-              ? <Text style={{ fontSize: Platform.OS === 'android' ? 20 : 25, marginLeft: 10, fontWeight: 'bold', color: issues.start === 'ok' ? '#a7e9af' : issues.start === 'warning' ? '#fdd365' : '#ce0f3d' }}>{ time.start && time.start }</Text> : null}
+              ? <Text style={{ ...font_clock, color: issues.start === 'ok' ? '#a7e9af' : issues.start === 'warning' ? '#fdd365' : '#ce0f3d' }}>{ time.start && time.start }</Text> : null}
         </View>
       </View>
-      <View style={{ flex: 0.5, justifyContent: 'flex-end', alignItems: 'center', flexDirection: 'row', padding: 10 }}>
+      <View style={ content_header_right }>
         <View style={{ alignItems: 'flex-end' }}>
-          <Text style={{ fontSize: Platform.OS === 'android' ? 10 : 15, marginRight: 10, color: 'white', fontWeight: 'bold' }}>Checkout</Text>
+          <Text style={{ ...font_small, marginRight: 10 }}>Checkout</Text>
           {  issues && issues.end
-              ? <Text style={{ fontSize: Platform.OS === 'android' ? 20 : 25, marginRight: 10, fontWeight: 'bold', color: issues.end === 'ok' ? '#a7e9af' : issues.end === 'warning' ? '#fdd365' : '#ce0f3d' }}>{ time.end && time.end }</Text> : null}
+              ? <Text style={{ ...font_clock, marginRight: 10, color: issues.end === 'ok' ? '#a7e9af' : issues.end === 'warning' ? '#fdd365' : '#ce0f3d' }}>{ time.end && time.end }</Text> : null}
         </View>
         { image && image.end
             ? <TouchableOpacity onPress={() => _onChangePage( 'end' )}>
-                <Image source={{ uri: image.end }} style={{ width: 60, height: 60, borderRadius: 10 }} />
+                <Image source={{ uri: image.end }} style={ image_header } />
               </TouchableOpacity> : null }
       </View>
     </>

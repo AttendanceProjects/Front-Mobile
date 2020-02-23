@@ -1,7 +1,6 @@
-import React from 'react';
 import { StyleSheet, Platform } from 'react-native';
 
-export const FadeView = StyleSheet.create({
+export const AdminStyle = StyleSheet.create({
   containers: {
     flex: 1,
     alignItems: 'center',
@@ -23,11 +22,6 @@ export const FadeView = StyleSheet.create({
     marginTop: 10,
     fontSize: Platform.OS === 'android' ? 13 : 18,
     fontWeight: 'bold'
-  },
-  message_text: {
-    height: '10%',
-    flexDirection: 'row',
-    justifyContent: 'space-between'
   },
   header_fade_view: {
     height: '10%',
@@ -218,5 +212,16 @@ export const FadeView = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center'
-  }
+  },
+  admin_button: { marginTop: 10, height: 100, width: '97%', borderRadius: 10, padding: 10, backgroundColor: '#F1F1F1' },
+  list_content_left: { height: '30%', flexDirection: 'row', width: '100%' },
+  font_list_medium: { fontSize: Platform.OS === 'android' ? 10 : 14, color: 'black', fontWeight: 'bold' },
+  font_list_small: { fontSize: Platform.OS === 'android' ? 8 : 12, color: 'grey' },
+  content_admin: { width: '50%', height: '100%', alignItems: 'center' },
+  user_info_content: { width: '55%', height: '100%', alignItems: 'center', justifyContent: 'center' },
+  att_info_user: { width: '45%', height: '100%', alignItems: 'center', marginTop: 10 },
+  att_check_info: { width: '100%', flexDirection: 'row', alignItems: 'center', height: '80%', justifyContent: 'space-between' },
+  list_data_content: { flexDirection: 'row', width: '100%', height: 13 },
+  item_body_message: { width: '30%', height: 15 },
+  main_items_admin: { width: '70%', height: 15 }
 })

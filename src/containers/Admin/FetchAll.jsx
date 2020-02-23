@@ -53,7 +53,6 @@ export const GetAllCorrection = ({ navigation: { navigate: push, state: { params
   const _onClear = meth => setTimeout(() => meth( false ), 2000);
 
   const _onSeeDetail = async (stats, id) => {
-    console.log( id )
     if( id ) await setCorrectId( id );
     else await setCorrectId( false );
     setShow( stats );

@@ -7,7 +7,6 @@ export * from './ChangePassword';
 export * from './Detail';
 export * from './Filter';
 export * from './LiveAtt';
-export * from './PreCheck';
 export * from './Correction';
 export * from './Employee';
 export * from './Prepare';
