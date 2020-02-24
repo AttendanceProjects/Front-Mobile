@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, ActivityIndicator, Image, Text, Platform, TouchableOpacity } from 'react-native';
+import { View, ActivityIndicator, Image, Text, TouchableOpacity } from 'react-native';
 import { getAccess, checkConnection } from '../../service';
 import { Query } from '../../graph';
 import { useLazyQuery } from '@apollo/react-hooks'
-import Font from 'react-native-vector-icons/FontAwesome5';
+import { PoweredDreamCar } from '../../components';
 import { ContainerStyle } from './ContainerStyle';
 
 const {
@@ -12,11 +12,8 @@ const {
   prepare_logo,
   prepare_text_loading,
   font_medium,
-  font_small,
   prepare_button_try,
   prepare_welcome,
-  prepare_powered,
-  prepare_footer
 } = ContainerStyle
 
 export const PrepareApplication = ({ navigation: { navigate: push }}) => {
@@ -79,16 +76,7 @@ export const PrepareApplication = ({ navigation: { navigate: push }}) => {
             : null }
         { !user && !message && !loading ? <Text style={ prepare_welcome }>Hello Welcome to Presence</Text> : null } 
       </View>
-      <View style={ prepare_powered }>
-        <View style={ prepare_footer }>
-          <Font name='copy' size={ 15 } />
-          <Text style={{ letterSpacing: 1, fontWeight: 'bold' }}>
-            Powered
-          </Text>
-          <Text style={ font_small }>by</Text>
-          <Text style={ font_medium }>DreamcaOfficial</Text>
-        </View>
-      </View>
+      <PoweredDreamCar />
     </View>
   )
 }

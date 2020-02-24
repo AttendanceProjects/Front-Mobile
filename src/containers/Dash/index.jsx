@@ -1,12 +1,11 @@
 export * from './DashBoard';
-export * from './History';
-export * from './Absent';
-export * from './Checkout';
+export * from './Attendance';
 export * from './Profile';
-export * from './ChangePassword';
-export * from './Detail';
-export * from './Filter';
-export * from './LiveAtt';
 export * from './Correction';
 export * from './Employee';
 export * from './Prepare';
+
+
+export * from './Detail';
+export * from './History';
+export * from './Filter';

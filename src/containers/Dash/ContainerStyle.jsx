@@ -99,5 +99,19 @@ export const ContainerStyle = StyleSheet.create({
   his_content_text: { fontSize: 10, color: 'white', fontWeight: 'bold' },
   his_empty: { flex: 1, marginTop: Platform.OS === 'android' ? 200 : 150, alignItems: 'center', justifyContent: 'center' },
   his_image_empty: { width: 150, height: 150 },
-  his_text_empty: { fontSize: Platform.OS === 'android' ? 15 : 20, color: 'white', fontWeight: 'bold', marginTop: Platform.OS === 'android' ? 35 : 50, letterSpacing: 2 }
+  his_text_empty: { fontSize: Platform.OS === 'android' ? 15 : 20, color: 'white', fontWeight: 'bold', marginTop: Platform.OS === 'android' ? 35 : 50, letterSpacing: 2 },
+
+  // change pin
+  pin_content: { flex: 1, backgroundColor: '#c1c1c1' },
+  pin_header_content: { height: '13%', width: '100%', alignItems: 'center', justifyContent: 'flex-end', paddingBottom: 10, backgroundColor: '#f1f1f1' },
+  pin_large: { fontSize: Platform.OS === 'android' ? 15 : 25, fontWeight: 'bold', letterSpacing: 1 },
+  pin_small: { fontSize: Platform.OS === 'android' ? 8 : 10 },
+  pin_body: { height: '87%', width: '100%', alignItems: 'center', paddingTop: 20 },
+  pin_body_top: { height: '60%', width: '100%', padding: 15 },
+  pin_loop_content: { width: '100%', flexDirection: 'row', justifyContent: 'center' },
+  pin_text: { paddingRight: 20, color: 'white', fontWeight: 'bold', fontSize: Platform.OS === 'android' ? 15 : 20, width: '50%', textAlign: 'right' },
+  pin_input: { paddingLeft: 10, color: 'white', fontWeight: 'bold', borderRadius: 20, shadowOpacity: 10, fontSize: 20, width: '50%' },
+  pin_button_content: { height: 50, flexDirection: 'row', width: '100%', marginTop: 20 },
+  pin_button_save: { width: '50%', alignItems: 'center', justifyContent: 'center' },
+  pin_button_text: { width: '50%', height: '50%', backgroundColor: '#beebe9', alignItems: 'center', justifyContent: 'center', borderRadius: 20, shadowOpacity: 5 }
 })

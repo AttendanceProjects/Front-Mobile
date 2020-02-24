@@ -51,6 +51,14 @@ export const CHANGE_PASS = gql`
   }
 `
 
+export const CHANGE_PIN = gql `
+  mutation changePin ( $code: String, $token: String, $old_pin: Int, $new_pin: Int ) {
+    changePin (code: $code, token: $token, old_pin: $old_pin, new_pin: $new_pin) {
+      _id
+    }
+  }
+`
+
 export const UPDATE_PROFILE_IMAGE = gql`
   mutation updateProfile ($code: String, $token: String, $image: String) {
     updateProfile( code: $code, token: $token, image: $image ) {

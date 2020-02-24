@@ -8,3 +8,4 @@ export * from './Icon';
 export * from './Error';
 export * from './Header';
 export * from './NoInternet';
+export * from './PoweredDreamCar';

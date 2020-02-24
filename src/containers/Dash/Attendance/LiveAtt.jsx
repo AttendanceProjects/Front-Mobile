@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { OfflieHeaderComponent, LoadingListComponent } from '../../components'
+import { OfflieHeaderComponent, LoadingListComponent } from '../../../components'
 import { View, Text, Platform, ScrollView, AsyncStorage, RefreshControl, TouchableOpacity, TextInput, KeyboardAvoidingView, ActivityIndicator, Alert } from 'react-native';
-import { getAccess, checkConnection, getServerTime, uploadImage } from '../../service';
-import { Query, Mutation } from '../../graph';
-import { _getCurrentLocation, getCurrentTime } from '../../helpers'
+import { getAccess, checkConnection, getServerTime, uploadImage } from '../../../service';
+import { Query, Mutation } from '../../../graph';
+import { _getCurrentLocation, getCurrentTime } from '../../../helpers'
 import { useLazyQuery, useMutation } from '@apollo/react-hooks';
 import Font from 'react-native-vector-icons/FontAwesome5';
 
-import { ContainerStyle } from './ContainerStyle';
+import { ContainerStyle } from '../ContainerStyle';
 
 const {
   live_time,

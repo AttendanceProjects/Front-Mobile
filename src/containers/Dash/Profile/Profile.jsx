@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Image, ActivityIndicator, TouchableOpacity, Platform } from 'react-native';
-import { checkConnection, getAccess, uploadImage } from '../../service'
-import { ProfileHeaderComponent, OfflieHeaderComponent, SimpleLoadingNew } from '../../components';
+import { checkConnection, getAccess, uploadImage } from '../../../service'
+import { ProfileHeaderComponent, OfflieHeaderComponent, SimpleLoadingNew } from '../../../components';
 import { useLazyQuery, useMutation } from '@apollo/react-hooks';
-import { Query, Mutation } from '../../graph';
+import { Query, Mutation } from '../../../graph';
 import Font from 'react-native-vector-icons/FontAwesome5';
 import * as ImagePicker from 'expo-image-picker';
 import * as Permissions from 'expo-permissions';
 
 
-import { ContainerStyle } from './ContainerStyle';
+import { ContainerStyle } from '../ContainerStyle';
 
 const {
   profile_container,
@@ -120,9 +120,19 @@ export const ProfileContainers = ({ navigation }) => {
                 <TableComponent user={ user.checkSignin } />
                 <View style={ profile_footer }>
                   <TouchableOpacity style={ profile_button_change } onPress={() => navigation.navigate('Change')}>
-                    <Font name={ 'key' } size={ 25 } />
-                    <Text style={{ ...font_small, fontWeight: 'bold', color: 'black' }}>Change Pass</Text>
+                    <Font name='key' color='white' size={ 25 } />
+                    <Text style={{ ...font_small, fontWeight: 'bold', color: 'white' }}>Change Pass</Text>
                   </TouchableOpacity>
+                  { user && user.checkSignin && user.checkSignin.role === 'master' || user.checkSignin.role === 'HR Staff' || user.checkSignin.role === 'director'
+                      ? <><TouchableOpacity style={ profile_button_change } onPress={() => navigation.navigate('Pin')}>
+                          <Font name='apple-alt' color='white' size={ 25 } />
+                          <Text style={{ ...font_small, fontWeight: 'bold', color: 'white' }}>Change Pin</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={ profile_button_change } onPress={() => navigation.navigate('Change')}>
+                          <Font name='user' color='white' size={ 25 } />
+                          <Text style={{ ...font_small, fontWeight: 'bold', color: 'white' }}>Create</Text>
+                        </TouchableOpacity></>
+                      : null }
                 </View>
               </View>
             : <Text>Something error</Text>

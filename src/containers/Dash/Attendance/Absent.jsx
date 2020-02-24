@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Text, View, Platform, AsyncStorage, Alert, ActivityIndicator } from 'react-native';
-import { ErrorCheckInOutComponent, LoadingCheckInOutComponent, CameraComponent, SuccessCheckInOutComponent } from '../../components/Spam';
+import { ErrorCheckInOutComponent, LoadingCheckInOutComponent, CameraComponent, SuccessCheckInOutComponent } from '../../../components';
 import { Camera } from 'expo-camera';
-import { takeAPicture, _checkLocation, _getCurrentLocationOffline, _getLocationBeforeAbsent } from '../../helpers';
-import { getAccess, uploadImage, checkConnection, getServerTime } from '../../service';
-import { Mutation, Query } from '../../graph';
+import { takeAPicture, _checkLocation, _getCurrentLocationOffline, _getLocationBeforeAbsent } from '../../../helpers';
+import { getAccess, uploadImage, checkConnection, getServerTime } from '../../../service';
+import { Mutation, Query } from '../../../graph';
 import { useMutation, useLazyQuery } from '@apollo/react-hooks';
 import { getDistance } from 'geolib'
 
