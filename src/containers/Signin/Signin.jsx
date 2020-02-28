@@ -25,7 +25,8 @@ export const Signin = ({ navigation }) => {
 
   useEffect(() => {
     (async () => { 
-      await checkConnection({ save: setOnline })
+      const { network } = await checkConnection();
+      setOnline( network );
     })()
   }, [])
 
@@ -75,9 +76,9 @@ export const Signin = ({ navigation }) => {
             seeComp={ showCompany }
             toggleBind={ toggleWatcher }
             />
-          <TouchableHighlight style={ styles.highlightForgot } onPress={() => _onPageChange()}>
+          {/* <TouchableHighlight style={ styles.highlightForgot } onPress={() => _onPageChange()}>
             <Text style={ styles.textForgot }> Forgot Password ? </Text>
-          </TouchableHighlight>
+          </TouchableHighlight> */}
           <View style={ styles.btnBtm }>
             <TouchComponent
               h={ 30 }
@@ -94,7 +95,7 @@ export const Signin = ({ navigation }) => {
             { loading && <LoadingSimpleComponent color='blue' t={ 225 } /> }
             { error && <SimpleError text={ error } t={ 249 } co={ 'red' } size={ 15 }/> }
         </View>
-          { !isOnline && <TouchComponent h={ 30 } w={ '80%' } text='Presence Offline' />}
+          { !isOnline && <TouchComponent h={ 30 } w={ '80%' } text='Presence Offline' press={() => alert('comming soon')} />}
       </View>
     </>
   )

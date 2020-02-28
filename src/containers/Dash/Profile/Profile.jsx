@@ -128,7 +128,7 @@ export const ProfileContainers = ({ navigation }) => {
                           <Font name='apple-alt' color='white' size={ 25 } />
                           <Text style={{ ...font_small, fontWeight: 'bold', color: 'white' }}>Change Pin</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={ profile_button_change } onPress={() => navigation.navigate('Change')}>
+                        <TouchableOpacity style={ profile_button_change } onPress={() => navigation.navigate('CreateUser')}>
                           <Font name='user' color='white' size={ 25 } />
                           <Text style={{ ...font_small, fontWeight: 'bold', color: 'white' }}>Create</Text>
                         </TouchableOpacity></>

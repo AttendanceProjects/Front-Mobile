@@ -24,7 +24,8 @@ import {
   GetAllCorrection,
   PrepareApplication,
   FilterCorrectionContainers,
-  ChangePinContainers
+  ChangePinContainers,
+  CreateUserContainers
 } from './src/containers';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
@@ -85,7 +86,8 @@ const StackDashBoardNavigation = createStackNavigator({
 const StackProfileNavigation = createStackNavigator({
   Profile: { screen: ProfileContainers, navigationOptions: { header: null } },
   Change: { screen: ChangePasswordContainers },
-  Pin: { screen: ChangePinContainers }
+  Pin: { screen: ChangePinContainers },
+  CreateUser: { screen: CreateUserContainers }
 })
 
 const StackEmployeeNavigation = createStackNavigator({

@@ -1,4 +1,5 @@
 import { StyleSheet, Platform } from 'react-native';
+import { Transition } from 'react-native-reanimated';
 
 
 export const ContainerStyle = StyleSheet.create({
@@ -113,5 +114,19 @@ export const ContainerStyle = StyleSheet.create({
   pin_input: { paddingLeft: 10, color: 'white', fontWeight: 'bold', borderRadius: 20, shadowOpacity: 10, fontSize: 20, width: '50%' },
   pin_button_content: { height: 50, flexDirection: 'row', width: '100%', marginTop: 20 },
   pin_button_save: { width: '50%', alignItems: 'center', justifyContent: 'center' },
-  pin_button_text: { width: '50%', height: '50%', backgroundColor: '#beebe9', alignItems: 'center', justifyContent: 'center', borderRadius: 20, shadowOpacity: 5 }
+  pin_button_text: { width: '50%', height: '50%', backgroundColor: '#beebe9', alignItems: 'center', justifyContent: 'center', borderRadius: 20, shadowOpacity: 5 },
+
+  // SIGNUP USER
+  signup_content: { width: '100%', backgroundColor: '#c1c1c1', height: '100%', alignItems: 'center' },
+  signup_main: { flexDirection: 'row', width: '80%', height: 50, marginTop: 5, padding: 2, alignItems: 'center' },
+  signup_body: { width: '45%', paddingLeft: 20 },
+  signup_input: {width: '55%', paddingRight: 20, alignItems: 'center' },
+  signup_text_input: { backgroundColor: '#fff', width: '100%', borderRadius: 10, paddingLeft: 10 },
+  signup_touch_content: { width: '60%', height: '100%', flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' },
+  signup_touch_button: { height: '70%', borderRadius: 10, shadowOpacity: 0.24, width: '50%', alignItems: 'center', justifyContent: 'center' },
+  signup_text_button: { fontSize: Platform.OS === 'android' ? 12 : 16, color: '#1b262c', fontWeight: 'bold', letterSpacing: 1 },
+  signup_footer: { width: '100%', height: 80, justifyContent: 'center', flexDirection: 'row', alignItems: 'center' },
+  signup_footer_button: { width: '25%', height: '50%', alignItems: 'center', justifyContent: 'center', borderRadius: 20, shadowOpacity: 0.35 },
+  signup_bold: { fontWeight: 'bold', letterSpacing: 1 },
+  signup_message: { width: '100%', alignItems: 'center', justifyContent: 'center' },
 })
