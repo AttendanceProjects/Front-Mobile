@@ -30,7 +30,7 @@
       "package": "com.dreamcar.presence",
       "config": {
         "googleMaps": {
-          "apiKey": "AIzaSyDJTX6qDh9w9xq2hUGwjiDCz0S-53xdTZA"
+          "apiKey": ""
         }
       },
       "versionCode": 2013,
