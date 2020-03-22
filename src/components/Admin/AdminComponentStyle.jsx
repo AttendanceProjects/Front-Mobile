@@ -4,7 +4,8 @@ export const AdminStyle = StyleSheet.create({
   containers: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    backgroundColor: '#fff'
   },
   content:{
     width: '100%',

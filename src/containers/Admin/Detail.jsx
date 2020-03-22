@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { View, Animated, Text, TouchableOpacity, ActivityIndicator, Platform, Image, Alert, StyleSheet } from 'react-native';
+import { View, Animated, Text, TouchableOpacity, ActivityIndicator, Platform, Image, Alert } from 'react-native';
 import { useLazyQuery, useMutation } from '@apollo/react-hooks';
 import { Query, Mutation } from '../../graph';
-import { MapCorrections } from '../Detail';
-import { AdminStyle } from './AdminComponentStyle';
+import { MapCorrections } from '../../components/Detail';
+import { AdminStyle } from '../../components/Admin/AdminComponentStyle';
+import { getAccess } from '../../service';
 
 const {
   containers,
-  content,
   before_content,
   loading_text,
   header_fade_view,
   header_text,
-  close_fade_x,
   body_content,
   content_detail,
   detail_header,
@@ -48,52 +47,17 @@ const {
   main_loading_touchable,
   content_loading_touchable
 }=AdminStyle
-
-export const FadeViewAdminComponent = ({ close, id, code, token, pin: paramsSecurity, _onFetching }) => {
+//id, code, token, pin
+export const DetailAdminContainers = ({ navigation: { state: { params }, goBack } }) => {
   const [ fetch, { data: el, loading } ] = useLazyQuery( Query.GET_CORRECTION_ID );
   const [ response ] = useMutation( Mutation.RES_CORRECTION );
-  // const [ loading, setLoading ] = useState( false );
   const [ message, setMessage ] = useState( false );
-  const [ isFetch, setIsFetch ] = useState( true );
-
 
   const [ acceptLoading, setAcceptLoading ] = useState( false );
   const [ rejectLoading, setRejectLoading ] = useState( false );
   
 
   const _onClear = meth => setTimeout(() => meth( false ), 2000);
-
-  const FadeInView = props => {
-    const [fadeAnim] = useState(new Animated.Value(0)); // Initial value for opacity: 0
-  
-    useEffect(() => {
-      Animated.timing(fadeAnim, {
-        toValue: 1.35,
-        duration: 800,
-      }).start();
-    }, []);
-  
-    return (
-      <Animated.View // Special animatable View
-        style={{
-          ...props.style,
-          opacity: fadeAnim, // Bind opacity to animated value
-          transform: [{
-            translateY: fadeAnim.interpolate({
-              inputRange: [0, 1],
-              outputRange: [500, 1]  // 0 : 150, 0.5 : 75, 1 : 0
-            }),
-          }],
-        }}>
-        {props.children}
-      </Animated.View>
-    );
-  };
-
-  const _onClosed = async _ => {
-    await setIsFetch( false );
-    close( false );
-  }
 
   const _onResponseReq = async status => {
     if( status ) {
@@ -109,10 +73,14 @@ export const FadeViewAdminComponent = ({ close, id, code, token, pin: paramsSecu
 
   const _onSubmitResponse = async res => {
     try{
-      const { data: { responseCorrection } } = await response({ variables: { code, token, id, res, pin_security: paramsSecurity } })
+      const { id, pin } = params;
+      const { code, token } = await getAccess();
+      const { data: { responseCorrection } } = await response({ variables: { code, token, id, res, pin_security: pin } })
       if( responseCorrection ) {
         Alert.alert('Attention',`you ${ res === 'acc' ? 'accept' : 'reject' } this Correction`);
-        await _onFetching(code, token, paramsSecurity)
+        setTimeout(() => {
+          goBack();
+        }, 2000)
         // next sprint send notification to this User
       }
     }catch({ graphQLErrors }) { setMessage( graphQLErrors[0].message ); _onClear( setMessage );}
@@ -120,17 +88,15 @@ export const FadeViewAdminComponent = ({ close, id, code, token, pin: paramsSecu
 
   useEffect(() => {
     (async () => {
-      // setLoading( true );
-      if( isFetch ) {
-        try { await fetch({ variables: { code, token, id } }); }
-        catch({ graphQLErrors }) { setMessage( graphQLErrors[0].message ); _onClear( setMessage );}
-      }
+      const { id } = params;
+      const { code, token } = await getAccess();
+      try { await fetch({ variables: { code, token, id } }); }
+      catch({ graphQLErrors }) { setMessage( graphQLErrors[0].message ); _onClear( setMessage );}
     })()
   }, [])
 
   return (
     <View style={ containers }>
-      <FadeInView style={ content }>
         { loading && !message
             ? (<View style={ before_content }>
                 <ActivityIndicator color='black' />
@@ -150,11 +116,6 @@ export const FadeViewAdminComponent = ({ close, id, code, token, pin: paramsSecu
                 <Text style={ header_text }>
                   Response Request
                 </Text>
-                <TouchableOpacity onPress={() => _onClosed()}>
-                  <Text style={ close_fade_x }>
-                    &times;
-                  </Text>
-                </TouchableOpacity>
               </View>
               <View style={ body_content }>
                 <View style={ content_detail }>
@@ -270,8 +231,6 @@ export const FadeViewAdminComponent = ({ close, id, code, token, pin: paramsSecu
             : !loading && !message
                 ? <Text>Empty Data</Text>
                 : null }
-        
-      </FadeInView>
     </View>
   )
 }

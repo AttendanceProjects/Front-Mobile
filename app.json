@@ -9,7 +9,7 @@
       "android",
       "web"
     ],
-    "version": "1.2.2",
+    "version": "1.2.4",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
@@ -28,7 +28,12 @@
     },
     "android": {
       "package": "com.dreamcar.presence",
-      "versionCode": 1,
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyDJTX6qDh9w9xq2hUGwjiDCz0S-53xdTZA"
+        }
+      },
+      "versionCode": 2013,
       "permissions": [
         "ACCESS_COARSE_LOCATION",
         "ACCESS_FINE_LOCATION",

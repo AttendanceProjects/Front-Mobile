@@ -25,7 +25,8 @@ import {
   PrepareApplication,
   FilterCorrectionContainers,
   ChangePinContainers,
-  CreateUserContainers
+  CreateUserContainers,
+  DetailAdminContainers
 } from './src/containers';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
@@ -58,6 +59,10 @@ const CorrectionDrawerNavigation = createDrawerNavigator({
   Filter: { screen: FilterCorrectionContainers, navigationOptions: { title: 'Filter' } }
 })
 
+const StackCorrection = createStackNavigator({
+  All: { screen: GetAllCorrection, navigationOptions: { headerShown: false } },
+  Detail: { screen: DetailAdminContainers, navigationOptions: { headerShown: false } }
+})
 
 const StackDashBoardNavigation = createStackNavigator({
   Home: { screen: Dash, navigationOptions: { header: null } },
@@ -80,7 +85,7 @@ const StackDashBoardNavigation = createStackNavigator({
       )
     })
   },
-  Admin: { screen: GetAllCorrection }
+  Admin: { screen: StackCorrection }
 })
 
 const StackProfileNavigation = createStackNavigator({

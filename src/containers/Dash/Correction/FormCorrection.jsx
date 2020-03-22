@@ -57,32 +57,38 @@ export const FormCorrectionContainers = ({ navigation }) => {
     try { 
       setLoading( true );
       const { token, code, id } = access;
-      let formData = new FormData();
-      formData.append( 'image', { name: `correction-${ new Date().toLocaleString() }.jpg`, type: 'image/jpg', uri: images })
-      const { success, error } =  await uploadImage({ code, token, formData })
-      if( startDate, endDate, reason ) {
-        const start_time = new Date( startDate ).toLocaleString("en-US", {timeZone: "Asia/Jakarta"})
-        const end_time = new Date( endDate ).toLocaleString("en-US", {timeZone: "Asia/Jakarta"})
-        if( success ) {
-          const { data } = await created({ variables: { code, token, id, start_time, end_time, image: success, reason }, refetchQueries: [{ query: Query.USER_CORRECTION, variables: { code, token } }]})
-          if( data && data.createCorrection ) {
-            setSuccess( data.createCorrection.msg )
-            setLoading( false )
-            setTimeout(() => {
-              navigation.navigate( 'All' );
-              _clearForm();
-              setSuccess( false );
-            }, 5000)
+      if( images ) {
+        let formData = new FormData();
+        formData.append( 'image', { name: `correction-${ new Date().toLocaleString() }.jpg`, type: 'image/jpg', uri: images })
+        var { success, error } =  await uploadImage({ code, token, formData })
+        if( startDate, endDate, reason ) {
+          const start_time = new Date( startDate ).toLocaleString("en-US", {timeZone: "Asia/Jakarta"})
+          const end_time = new Date( endDate ).toLocaleString("en-US", {timeZone: "Asia/Jakarta"})
+          if( success ) {
+            const { data } = await created({ variables: { code, token, id, start_time, end_time, image: success? success : '', reason }, refetchQueries: [{ query: Query.USER_CORRECTION, variables: { code, token } }]})
+            if( data && data.createCorrection ) {
+              setSuccess( data.createCorrection.msg )
+              setLoading( false )
+              setTimeout(() => {
+                navigation.navigate( 'All' );
+                _clearForm();
+                setSuccess( false );
+              }, 5000)
+            }
+          }else {
+            setMessage( error );
+            setLoading( false );
+            setTimeout(() => setMessage( false ), 5000);
           }
         }else {
-          setMessage( error );
           setLoading( false );
+          setMessage( 'please complete all requirment' );
           setTimeout(() => setMessage( false ), 5000);
         }
       }else {
+        setMessage( 'image is required' );
         setLoading( false );
-        setMessage( 'please complete all requirment' );
-        setTimeout(() => setMessage( false ), 5000);
+        setTimeout(() => { setMessage( false ) }, 3000);
       }
     }catch({ graphQLErrors }) {
       if( graphQLErrors[0].message === 'Validation Error' ) setMessage( 'something required!' );

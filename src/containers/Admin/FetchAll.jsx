@@ -1,25 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { View, Animated, Text, Alert, ScrollView, TouchableOpacity, RefreshControl, Platform, ActivityIndicator } from 'react-native';
+import { View, Text, Alert, ScrollView, RefreshControl, Platform } from 'react-native';
 import { getAccess } from '../../service';
-import { useMutation, useQuery } from '@apollo/react-hooks';
-import { Mutation, Query } from '../../graph';
-import { ListComponentAdmin, FadeViewAdminComponent } from '../../components'
+import { useMutation } from '@apollo/react-hooks';
+import { Mutation } from '../../graph';
+import { ListComponentAdmin } from '../../components'
 
 export const GetAllCorrection = ({ navigation: { navigate: push, state: { params } } }) => {
   const [ loading, setloading ] = useState( false );
-  const [ show, setShow ] = useState( false );
   const [ message, setMessage ] = useState( false );
   const [ getAllCorrection ] = useMutation( Mutation.SEE_REQ_CORRECTION );
   const [ items, setItems ] = useState( ['s'] );
   const [ refreshing, setRefresh ] = useState( false );
-  const [ correctId, setCorrectId ] = useState( false );
   const [ access, setAccess ] = useState( false );
   const [ security, setSecurity ] = useState( false );
 
 
   useEffect(() => {
     (async() => {
-      setShow( false )
       const { code, token } = await getAccess();
       setAccess({ code, token })
       const { pin_security } = await params
@@ -32,7 +29,6 @@ export const GetAllCorrection = ({ navigation: { navigate: push, state: { params
   }, [])
 
   const _onFetching = async (code, token, pin_security) => {
-    setShow( false );
     setloading( true );
     setItems([ 's' ]);
     try{
@@ -53,9 +49,9 @@ export const GetAllCorrection = ({ navigation: { navigate: push, state: { params
   const _onClear = meth => setTimeout(() => meth( false ), 2000);
 
   const _onSeeDetail = async (stats, id) => {
-    if( id ) await setCorrectId( id );
-    else await setCorrectId( false );
-    setShow( stats );
+    if( id ) {
+      push('Detail', { id, pin: security })
+    }
   }
   return (
     <View style={{ flex: 1, backgroundColor: '#353941' }}>
@@ -74,8 +70,6 @@ export const GetAllCorrection = ({ navigation: { navigate: push, state: { params
               </View>
             : null}
       </ScrollView>
-      { show 
-          &&  <FadeViewAdminComponent pin={ security } show={ show } _onFetching={ _onFetching } close={ _onSeeDetail } id={ correctId } code={ access.code } token={ access.token }/> }
     </View>
   )
 }

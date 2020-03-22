@@ -65,7 +65,7 @@ export const CheckOutComponent = ({ navigation }) => {
               { latitude: compLatitude ? compLatitude : -6.157771, longitude: compLongitude ? compLongitude : 106.819315 } //---------- LOCATION COMPANY 106.81931855395794 -6.157839617035091
             )
             const calculate = dist * 84000;
-            // if( calculate < 700000 ){
+            if( calculate < 700000 ){
               try {
                 setDistanceLoading( false );
                 const { message } = await takeAPicture({ access: { code, token }, upload: uploadImage, camera, loading: setLoading, message: setMessage, action: { mutation: checkout }, gifLoad: setGif, type: { msg: 'checkout', id: attId, daily: Query.GET_DAILY_USER } });
@@ -85,10 +85,10 @@ export const CheckOutComponent = ({ navigation }) => {
                   setLoading( false );
                 }, 6000)
               }
-            // }else {
-            //   setDistanceLoading( false );
-            //   Alert.alert('Warning', 'You are out of range, please approach the company area' );
-            // }
+            }else {
+              setDistanceLoading( false );
+              Alert.alert('Warning', 'You are out of range, please approach the company area' );
+            }
           }
         }else{
           setDistanceLoading( false )

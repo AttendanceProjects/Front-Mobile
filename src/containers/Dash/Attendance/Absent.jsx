@@ -70,7 +70,7 @@ export const Absent = ({ navigation }) => {
                 { latitude: compLatitude ? compLatitude : -6.157771, longitude: compLongitude ? compLongitude : 106.819315 }
               )
               const calculate = dist * 84000;
-              // if( calculate < 700000 ) {
+              if( calculate < 700000 ) {
                 setDistanceLoading( false );
                 try {
                   let { message, id } = await takeAPicture({ access: { code, token }, start_reason: startReason ? startReason : '', upload: uploadImage, camera, loading: setLoading, message: setMessage, action: { mutation: attendance, query: Query.USER_ATT, daily: Query.GET_DAILY_USER, history: Query.GET_HISTORY, }, gifLoad: setGif, type: { msg: 'checkin' } });
@@ -90,10 +90,10 @@ export const Absent = ({ navigation }) => {
                     setLoading( false );
                   }, 6000)
                 }
-              // }else {
-              //   Alert.alert('Warning', 'You are out of range, please approach the company area')
-              //   setDistanceLoading( false );
-              // }
+              }else {
+                Alert.alert('Warning', 'You are out of range, please approach the company area')
+                setDistanceLoading( false );
+              }
             }
           }else{
             setDistanceLoading( false );
